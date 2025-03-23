@@ -1,54 +1,60 @@
-# React + TypeScript + Vite
+# QUIZNOX Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+QUIZNOX는 빠르고 직관적인 웹 기반 퀴즈 플랫폼입니다.  
+본 프로젝트는 React 19와 Vite를 기반으로 하며, AWS 환경에 최적화된 클라이언트 앱입니다.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 기술 스택
 
-## Expanding the ESLint configuration
+| 영역                 | 기술                                                           |
+| -------------------- | -------------------------------------------------------------- |
+| 프레임워크           | [React 19](https://react.dev/) + [Vite 6](https://vitejs.dev/) |
+| 언어                 | TypeScript 5                                                   |
+| 상태 관리            | Redux Toolkit                                                  |
+| 라우팅               | React Router DOM v7                                            |
+| 스타일               | Tailwind CSS v3.4                                              |
+| 리스트 렌더링 최적화 | react-window                                                   |
+| 빌드 배포            | AWS S3 + CloudFront                                            |
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## 📦 설치 및 실행
+
+```bash
+# 의존성 설치
+npm install
+
+# 개발 서버 실행
+npm run dev
+
+# 빌드
+npm run build
+
+# 빌드 결과물 미리보기
+npm run preview
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🌐 환경변수 설정
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+```bash
+VITE_API_GATEWAY_URL=https://your-api-gateway-url
 ```
+
+## ☁️ 배포 (S3 + CloudFront)
+
+```bash
+npm run build
+
+# S3에 업로드
+aws s3 sync dist/ s3://your-bucket-name --delete
+
+# CloudFront 캐시 무효화 (선택)
+aws cloudfront create-invalidation \
+  --distribution-id <배포 ID> \
+  --paths "/*"
+```
+
+## 🎯 Lighthouse 최적화 체크리스트
+
+✅ 코드 스플리팅 (React.lazy + Suspense)
