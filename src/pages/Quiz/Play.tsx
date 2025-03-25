@@ -54,16 +54,44 @@ export default function QuizPlayPage() {
   };
 
   return (
-    <div className="max-w-sm mx-auto p-4 bg-white shadow-md rounded-md">
+    <div className="mx-auto p-4 bg-white shadow-md rounded-md">
       <div className="flex justify-between items-center mb-2">
-        <p className="text-sm font-semibold text-gray-600">
-          문제 {currentQuestion.questionNumber}
-        </p>
+        {/* ← 버튼 */}
+        <button
+          onClick={() => {
+            setCurrentIndex((prev) => Math.max(prev - 1, 0));
+            setShowAnswer(false);
+            setIsCorrect(null);
+            setSelectedAnswers([]);
+          }}
+          disabled={currentIndex === 0}
+          className="text-xl disabled:opacity-30 border rounded-md p-1 bg-gray-300"
+        >
+          ←
+        </button>
+
+        {/* 문제 번호 */}
         <button
           onClick={() => navigate(`/quiz/list?tableName=${tableName}`)}
-          className="text-blue-600 underline text-sm"
+          className="text-blue-600 underline"
         >
-          목록으로
+          문제 {currentQuestion.questionNumber}
+        </button>
+
+        {/* → 버튼 */}
+        <button
+          onClick={() => {
+            if (currentIndex < questions.length - 1) {
+              setCurrentIndex((prev) => prev + 1);
+              setShowAnswer(false);
+              setIsCorrect(null);
+              setSelectedAnswers([]);
+            }
+          }}
+          disabled={currentIndex === questions.length - 1}
+          className="text-xl disabled:opacity-30 border rounded-md p-1 bg-gray-300"
+        >
+          →
         </button>
       </div>
 
@@ -73,7 +101,8 @@ export default function QuizPlayPage() {
 
       <div className="flex flex-col gap-2">
         {currentQuestion.choices.map((choice, index) => {
-          const [answer, text] = choice.split(".");
+          const answer = choice.substring(0, 1);
+          const text = choice.substring(2).replace(/\s*Most Voted$/, "");
           return (
             <button
               key={index}
@@ -91,52 +120,28 @@ export default function QuizPlayPage() {
         })}
       </div>
 
-      <div className="flex justify-between mt-4">
-        <button
-          onClick={() => {
-            setCurrentIndex((prev) => Math.max(prev - 1, 0));
-            setShowAnswer(false);
-            setIsCorrect(null);
-            setSelectedAnswers([]);
-          }}
-          className="p-2 bg-gray-500 text-white rounded-md disabled:opacity-50"
-          disabled={currentIndex === 0}
-        >
-          이전 문제
-        </button>
-        <button
-          onClick={checkAnswer}
-          className="p-2 bg-yellow-500 text-white rounded-md"
-        >
-          정답 확인
-        </button>
-        <button
-          onClick={() => {
-            if (currentIndex < questions.length - 1) {
-              setCurrentIndex((prev) => prev + 1);
-              setShowAnswer(false);
-              setIsCorrect(null);
-              setSelectedAnswers([]);
-            }
-          }}
-          className="p-2 bg-green-500 text-white rounded-md disabled:opacity-50"
-          disabled={!selectedAnswers.length}
-        >
-          다음 문제
-        </button>
-      </div>
-
       {showAnswer && (
-        <p
-          className={`mt-4 p-2 text-center rounded-md ${
-            isCorrect ? "bg-green-200" : "bg-red-200"
+        <div
+          className={`mt-4 p-3 rounded-md text-center font-semibold shadow ${
+            isCorrect
+              ? "bg-green-100 text-green-800"
+              : "bg-red-100 text-red-800"
           }`}
         >
           {isCorrect
             ? "정답입니다! 🎉"
             : `틀렸습니다. 정답: ${currentQuestion.mostVotedAnswer}`}
-        </p>
+        </div>
       )}
+
+      <div className="mt-3 flex justify-center">
+        <button
+          onClick={checkAnswer}
+          className="p-3 bg-yellow-500 text-white rounded-md"
+        >
+          정답 확인
+        </button>
+      </div>
     </div>
   );
 }

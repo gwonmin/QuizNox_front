@@ -88,7 +88,7 @@ export default function QuestionListPage() {
           onClick={() =>
             navigate(`/quiz/play?tableName=${tableName}&q=${q.questionNumber}`)
           }
-          className="w-full max-w-sm p-4 bg-white shadow-md rounded-md text-left hover:shadow-lg transition"
+          className="w-full p-4 bg-white shadow-md rounded-md text-left hover:shadow-lg transition"
         >
           <p className="text-sm font-semibold text-gray-600 mb-2">
             문제 {q.questionNumber}
@@ -103,7 +103,7 @@ export default function QuestionListPage() {
   };
 
   return (
-    <main className="p-4 max-w-2xl mx-auto">
+    <main className="p-4 mx-auto">
       <h2 className="text-xl font-bold mb-6 text-center">
         전체 문제 목록 ({questions.length}개)
       </h2>
