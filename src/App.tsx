@@ -15,8 +15,7 @@ export default function App() {
       <Navbar />
       <Suspense fallback={<div className="p-4 text-center">로딩 중...</div>}>
         <Routes>
-          <Route path="/" element={<Navigate to="/home" replace />} />
-          <Route path="/home" element={<Home />} />
+          <Route path="/" element={<Home />} />
           <Route path="/mock-exam" element={<MockExam />} />
           <Route path="/quiz/topic" element={<QuizTopic />} />
           <Route path="/quiz/list" element={<QuizList />} />
