@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setQuestions,
-  setTableName,
+  setTopicId,
   setScrollIndex,
 } from "../../store/quizSlice";
 import { RootState } from "../../store";
@@ -15,17 +15,16 @@ const API_URL = import.meta.env.VITE_API_GATEWAY_URL;
 function mapQuestion(res: any): Question[] {
   return res.map(
     (e: {
+      topic_id: string;
       question_number: string;
-      data: {
-        question_text: string;
-        choices: string[];
-        most_voted_answer: string;
-      };
+      question_text: string;
+      choices: string[];
+      most_voted_answer: string;
     }) => ({
       questionNumber: Number(e.question_number),
-      questionText: e.data.question_text,
-      choices: e.data.choices,
-      mostVotedAnswer: e.data.most_voted_answer,
+      questionText: e.question_text,
+      choices: e.choices,
+      mostVotedAnswer: e.most_voted_answer,
     })
   );
 }
@@ -33,40 +32,36 @@ function mapQuestion(res: any): Question[] {
 export default function QuestionListPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const tableName = searchParams.get("tableName");
+  const topicId = searchParams.get("topicId");
 
   const dispatch = useDispatch();
   const scrollIndex = useSelector((state: RootState) => state.quiz.scrollIndex);
   const existingQuestions = useSelector(
     (state: RootState) => state.quiz.questions
   );
-  const existingTableName = useSelector(
-    (state: RootState) => state.quiz.tableName
-  );
+  const existingTopicId = useSelector((state: RootState) => state.quiz.topicId);
   const [questions, setLocalQuestions] = useState<Question[]>([]);
 
   useEffect(() => {
-    if (!tableName) return;
+    if (!topicId) return;
 
-    if (existingQuestions.length > 0 && existingTableName === tableName) {
+    if (existingQuestions.length > 0 && existingTopicId === topicId) {
       setLocalQuestions(existingQuestions);
       return;
     }
 
-    fetch(`${API_URL}/questions?tableName=${tableName}`)
+    fetch(`${API_URL}/questions?topicId=${topicId}`)
       .then((res) => res.json())
       .then((data) => {
         const mapped = mapQuestion(data);
         dispatch(setQuestions(mapped));
-        dispatch(setTableName(tableName));
+        dispatch(setTopicId(topicId));
         setLocalQuestions(mapped);
       });
-  }, [tableName, dispatch, existingQuestions, existingTableName]);
+  }, [topicId, dispatch, existingQuestions, existingTopicId]);
 
-  if (!tableName) {
-    return (
-      <p className="p-4 text-center text-red-500">tableName 쿼리가 없습니다.</p>
-    );
+  if (!topicId) {
+    return <p className="p-4 text-center text-red-500">쿼리가 없습니다.</p>;
   }
 
   if (!questions.length) {
@@ -86,7 +81,7 @@ export default function QuestionListPage() {
         <button
           onClick={() => {
             dispatch(setScrollIndex(index)); // 현재 인덱스 저장
-            navigate(`/quiz/play?tableName=${tableName}&q=${q.questionNumber}`);
+            navigate(`/quiz/play?topicId=${topicId}&q=${q.questionNumber}`);
           }}
           className="w-full p-4 bg-white shadow-md rounded-md text-left hover:shadow-lg transition"
         >

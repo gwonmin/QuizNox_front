@@ -6,7 +6,7 @@ interface Question {
 }
 
 interface QuizState {
-  tableName: string;
+  topicId: string;
   questions: Question[];
   scrollIndex: number;
 }

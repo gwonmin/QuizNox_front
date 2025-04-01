@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 
 const QUIZ_TOPICS = [
-  { id: "DvaDumps", name: "AWS Certified Developer - Associate" },
+  { id: "AWS_DVA", name: "AWS Certified Developer - Associate" },
 ];
 
 export default function QuizListPage() {
@@ -13,7 +13,7 @@ export default function QuizListPage() {
           <li key={topic.id}>
             <Link
               className="text-blue-600 underline"
-              to={`/quiz/list?tableName=${topic.id}`}
+              to={`/quiz/list?topicId=${topic.id}`}
             >
               {topic.name}
             </Link>

@@ -8,7 +8,7 @@ export default function QuizPlayPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const q = Number(searchParams.get("q"));
-  const tableName = searchParams.get("tableName");
+  const topicId = searchParams.get("topicId");
 
   const dispatch = useDispatch();
   const questions = useSelector((state: RootState) => state.quiz.questions);
@@ -75,7 +75,7 @@ export default function QuizPlayPage() {
 
         {/* 문제 목록으로 */}
         <button
-          onClick={() => navigate(`/quiz/list?tableName=${tableName}`)}
+          onClick={() => navigate(`/quiz/list?topicId=${topicId}`)}
           className="text-blue-600 underline"
         >
           문제 목록으로 돌아가기
@@ -106,7 +106,7 @@ export default function QuizPlayPage() {
       <div className="flex flex-col gap-2">
         {currentQuestion.choices.map((choice, index) => {
           const answer = choice.substring(0, 1);
-          const text = choice.substring(2).replace(/\s*Most Voted$/, "");
+          const text = choice.substring(2);
           return (
             <button
               key={index}
