@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
+import { setScrollIndex } from "../../store/quizSlice";
 
 export default function QuizPlayPage() {
   const navigate = useNavigate();
@@ -9,6 +10,7 @@ export default function QuizPlayPage() {
   const q = Number(searchParams.get("q"));
   const tableName = searchParams.get("tableName");
 
+  const dispatch = useDispatch();
   const questions = useSelector((state: RootState) => state.quiz.questions);
 
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -60,6 +62,7 @@ export default function QuizPlayPage() {
         <button
           onClick={() => {
             setCurrentIndex((prev) => Math.max(prev - 1, 0));
+            dispatch(setScrollIndex(currentIndex - 1)); // 현재 인덱스 저장
             setShowAnswer(false);
             setIsCorrect(null);
             setSelectedAnswers([]);
@@ -70,12 +73,12 @@ export default function QuizPlayPage() {
           ←
         </button>
 
-        {/* 문제 번호 */}
+        {/* 문제 목록으로 */}
         <button
           onClick={() => navigate(`/quiz/list?tableName=${tableName}`)}
           className="text-blue-600 underline"
         >
-          문제 {currentQuestion.questionNumber}
+          문제 목록으로 돌아가기
         </button>
 
         {/* → 버튼 */}
@@ -83,6 +86,7 @@ export default function QuizPlayPage() {
           onClick={() => {
             if (currentIndex < questions.length - 1) {
               setCurrentIndex((prev) => prev + 1);
+              dispatch(setScrollIndex(currentIndex + 1)); // 현재 인덱스 저장
               setShowAnswer(false);
               setIsCorrect(null);
               setSelectedAnswers([]);
@@ -96,7 +100,7 @@ export default function QuizPlayPage() {
       </div>
 
       <h1 className="text-base md:text-lg font-semibold leading-relaxed mb-4">
-        {currentQuestion.questionText}
+        {currentQuestion.questionNumber}. {currentQuestion.questionText}
       </h1>
 
       <div className="flex flex-col gap-2">
@@ -137,7 +141,8 @@ export default function QuizPlayPage() {
       <div className="mt-3 flex justify-center">
         <button
           onClick={checkAnswer}
-          className="p-3 bg-yellow-500 text-white rounded-md"
+          className="p-3 bg-yellow-500 text-white rounded-md disabled:opacity-40"
+          disabled={selectedAnswers.length === 0}
         >
           정답 확인
         </button>

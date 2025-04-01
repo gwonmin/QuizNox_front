@@ -1,18 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { setQuestions, setTableName } from "../../store/quizSlice";
+import {
+  setQuestions,
+  setTableName,
+  setScrollIndex,
+} from "../../store/quizSlice";
 import { RootState } from "../../store";
 import { FixedSizeList as List } from "react-window";
+import { Question } from "../../types/quiz";
 
 const API_URL = import.meta.env.VITE_API_GATEWAY_URL;
-
-interface Question {
-  questionNumber: number;
-  questionText: string;
-  choices: string[];
-  mostVotedAnswer: string;
-}
 
 function mapQuestion(res: any): Question[] {
   return res.map(
@@ -35,9 +33,10 @@ function mapQuestion(res: any): Question[] {
 export default function QuestionListPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const dispatch = useDispatch();
-
   const tableName = searchParams.get("tableName");
+
+  const dispatch = useDispatch();
+  const scrollIndex = useSelector((state: RootState) => state.quiz.scrollIndex);
   const existingQuestions = useSelector(
     (state: RootState) => state.quiz.questions
   );
@@ -85,9 +84,10 @@ export default function QuestionListPage() {
     return (
       <div style={style} className="flex justify-center">
         <button
-          onClick={() =>
-            navigate(`/quiz/play?tableName=${tableName}&q=${q.questionNumber}`)
-          }
+          onClick={() => {
+            dispatch(setScrollIndex(index)); // 현재 인덱스 저장
+            navigate(`/quiz/play?tableName=${tableName}&q=${q.questionNumber}`);
+          }}
           className="w-full p-4 bg-white shadow-md rounded-md text-left hover:shadow-lg transition"
         >
           <p className="text-sm font-semibold text-gray-600 mb-2">
@@ -112,6 +112,7 @@ export default function QuestionListPage() {
         itemCount={questions.length}
         itemSize={112}
         width="100%"
+        initialScrollOffset={scrollIndex * 112}
       >
         {Row}
       </List>
