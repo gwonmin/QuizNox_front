@@ -6,8 +6,8 @@ const QUIZ_TOPICS = [
 
 export default function QuizListPage() {
   return (
-    <main className="p-4">
-      <h1 className="text-xl font-bold mb-4">문제 유형 선택</h1>
+    <main className="flex flex-col items-center justify-center p-4">
+      <h1 className="text-xl font-bold mb-4 text-center">문제 유형 선택</h1>
       <ul className="space-y-2">
         {QUIZ_TOPICS.map((topic) => (
           <li key={topic.id}>
