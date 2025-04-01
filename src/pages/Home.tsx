@@ -2,17 +2,24 @@ export default function Home() {
   return (
     <div className="text-center">
       <p className="text-gray-600 mt-2">
-        이 서비스는 퀴즈 플랫폼이에요.
+        이 서비스는 덤프 퀴즈 플랫폼이에요.
         <br />
         <br />
         문제 데이터는 정확하지 않을 수 있으니
         <br />
-        문제에 오류가 있으면 알려주세요. <br />
+        문제에 오류가 있으면 알려주세요.
+        <br />
         최대한 빠른 시일 내로 개선할께요!
+        <br />
+        <br />
+        신규 문제 추가도 가능합니다.
+        <br />
+        덤프 데이터 있으신 분들은 연락주세요!
+        <br />
       </p>
       <p className="text-gray-600 mt-2">
         <br />
-        유익했다면 작은 후원으로 응원해주세요 🙌
+        유익했다면 작은 후원으로 응원해주세요! 🙌
       </p>
 
       <div className="mt-6 flex justify-center">
