@@ -8,25 +8,17 @@ import {
 } from "../../store/quizSlice";
 import { RootState } from "../../store";
 import { FixedSizeList as List } from "react-window";
-import { Question } from "../../types/quiz";
+import { RawQuestion, Question } from "../../types/quiz";
 
 const API_URL = import.meta.env.VITE_API_GATEWAY_URL;
 
-function mapQuestion(res: any): Question[] {
-  return res.map(
-    (e: {
-      topic_id: string;
-      question_number: string;
-      question_text: string;
-      choices: string[];
-      most_voted_answer: string;
-    }) => ({
-      questionNumber: Number(e.question_number),
-      questionText: e.question_text,
-      choices: e.choices,
-      mostVotedAnswer: e.most_voted_answer,
-    })
-  );
+function mapQuestion(res: RawQuestion[]): Question[] {
+  return res.map((e: RawQuestion) => ({
+    questionNumber: Number(e.question_number),
+    questionText: e.question_text,
+    choices: e.choices,
+    mostVotedAnswer: e.most_voted_answer,
+  }));
 }
 
 export default function QuestionListPage() {

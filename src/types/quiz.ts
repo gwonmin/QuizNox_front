@@ -1,3 +1,11 @@
+interface RawQuestion {
+  topic_id: string;
+  question_number: string;
+  question_text: string;
+  choices: string[];
+  most_voted_answer: string;
+}
+
 interface Question {
   questionNumber: number;
   questionText: string;
@@ -11,4 +19,4 @@ interface QuizState {
   scrollIndex: number;
 }
 
-export type { Question, QuizState };
+export type { RawQuestion, Question, QuizState };
