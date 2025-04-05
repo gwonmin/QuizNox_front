@@ -1,7 +1,11 @@
 import { Link } from "react-router-dom";
 
 const QUIZ_TOPICS = [
-  { id: "AWS_DVA", name: "AWS Certified Developer - Associate" },
+  { id: "AWS_DVA", name: "AWS Certified Developer - Associate(DVA-C02)" },
+  {
+    id: "AWS_SAA",
+    name: "AWS Certified Solutions Architect - Associate(SAA-C03)",
+  },
 ];
 
 export default function QuizListPage() {
