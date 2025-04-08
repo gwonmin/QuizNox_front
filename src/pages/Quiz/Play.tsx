@@ -139,13 +139,31 @@ export default function QuizPlayPage() {
       )}
 
       <div className="mt-3 flex justify-center">
-        <button
-          onClick={checkAnswer}
-          className="p-3 bg-yellow-500 text-white rounded-md disabled:opacity-40"
-          disabled={selectedAnswers.length === 0}
-        >
-          정답 확인
-        </button>
+        {isCorrect ? (
+          <button
+            onClick={() => {
+              if (currentIndex < questions.length - 1) {
+                setCurrentIndex((prev) => prev + 1);
+                dispatch(setScrollIndex(currentIndex + 1)); // 현재 인덱스 저장
+                setShowAnswer(false);
+                setIsCorrect(null);
+                setSelectedAnswers([]);
+              }
+            }}
+            disabled={currentIndex === questions.length - 1}
+            className="p-3 bg-green-500 text-white rounded-md disabled:opacity-40"
+          >
+            다음 문제
+          </button>
+        ) : (
+          <button
+            onClick={checkAnswer}
+            className="p-3 bg-yellow-500 text-white rounded-md disabled:opacity-40"
+            disabled={selectedAnswers.length === 0}
+          >
+            정답 확인
+          </button>
+        )}
       </div>
     </div>
   );
