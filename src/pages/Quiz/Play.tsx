@@ -148,7 +148,7 @@ export default function QuizPlayPage() {
                 setShowAnswer(false);
                 setIsCorrect(null);
                 setSelectedAnswers([]);
-                window.scrollTo({ top: 0, behavior: "smooth" }); // 맨위로 스크롤 이동
+                document.documentElement.scrollTo({ top: 0 }); // 맨위로 스크롤 이동
               }
             }}
             disabled={currentIndex === questions.length - 1}
