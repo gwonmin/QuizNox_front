@@ -1,63 +1,69 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  setQuestions,
-  setTopicId,
-  setScrollIndex,
-} from "../../store/quizSlice";
-import { RootState } from "../../store";
+import { RootState, AppDispatch } from "../../store";
+import { setScrollIndex, fetchQuestions } from "../../store/quizSlice";
 import { FixedSizeList as List } from "react-window";
-import { RawQuestion, Question } from "../../types/quiz";
+import { QuestionCard } from "../../components/QuestionCard";
+import { LoadingSpinner } from "../../components/LoadingSpinner";
+import { ErrorBoundary } from "../../components/ErrorBoundary";
 
-const API_URL = import.meta.env.VITE_API_GATEWAY_URL;
-
-function mapQuestion(res: RawQuestion[]): Question[] {
-  return res.map((e: RawQuestion) => ({
-    questionNumber: Number(e.question_number),
-    questionText: e.question_text,
-    choices: e.choices,
-    mostVotedAnswer: e.most_voted_answer,
-  }));
-}
-
+/**
+ * 문제 목록 페이지 컴포넌트
+ * @returns {JSX.Element} 문제 목록 페이지 컴포넌트
+ */
 export default function QuestionListPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const topicId = searchParams.get("topicId");
 
-  const dispatch = useDispatch();
-  const scrollIndex = useSelector((state: RootState) => state.quiz.scrollIndex);
-  const existingQuestions = useSelector(
-    (state: RootState) => state.quiz.questions
-  );
-  const existingTopicId = useSelector((state: RootState) => state.quiz.topicId);
-  const [questions, setLocalQuestions] = useState<Question[]>([]);
+  const dispatch = useDispatch<AppDispatch>();
+  const {
+    questions,
+    scrollIndex,
+    loading,
+    error,
+    topicId: existingTopicId,
+  } = useSelector((state: RootState) => state.quiz);
 
   useEffect(() => {
     if (!topicId) return;
 
-    if (existingQuestions.length > 0 && existingTopicId === topicId) {
-      setLocalQuestions(existingQuestions);
-      return;
-    }
+    // 이미 같은 topicId의 데이터가 있으면 API 호출하지 않음
+    if (existingTopicId === topicId && questions.length > 0) return;
 
-    fetch(`${API_URL}/questions?topicId=${topicId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        const mapped = mapQuestion(data);
-        dispatch(setQuestions(mapped));
-        dispatch(setTopicId(topicId));
-        setLocalQuestions(mapped);
-      });
-  }, [topicId, dispatch, existingQuestions, existingTopicId]);
+    dispatch(fetchQuestions(topicId));
+  }, [topicId, dispatch, existingTopicId, questions.length]);
+
+  const handleQuestionClick = (questionNumber: number) => {
+    dispatch(
+      setScrollIndex(
+        questions.findIndex((q) => q.questionNumber === questionNumber)
+      )
+    );
+    navigate(`/quiz/play?topicId=${topicId}&q=${questionNumber}`);
+  };
+
+  const itemSize = useMemo(() => 112, []);
+  const initialScrollOffset = useMemo(
+    () => scrollIndex * itemSize,
+    [scrollIndex]
+  );
 
   if (!topicId) {
     return <p className="p-4 text-center text-red-500">쿼리가 없습니다.</p>;
   }
 
+  if (loading === "loading") {
+    return <LoadingSpinner />;
+  }
+
+  if (error) {
+    return <p className="p-4 text-center text-red-500">{error}</p>;
+  }
+
   if (!questions.length) {
-    return <p className="p-4 text-center">문제를 불러오는 중입니다...</p>;
+    return <p className="p-4 text-center">문제가 없습니다.</p>;
   }
 
   const Row = ({
@@ -67,42 +73,34 @@ export default function QuestionListPage() {
     index: number;
     style: React.CSSProperties;
   }) => {
-    const q = questions[index];
+    const question = questions[index];
     return (
       <div style={style} className="flex justify-center">
-        <button
-          onClick={() => {
-            dispatch(setScrollIndex(index)); // 현재 인덱스 저장
-            navigate(`/quiz/play?topicId=${topicId}&q=${q.questionNumber}`);
-          }}
-          className="w-full p-4 bg-white shadow-md rounded-md text-left hover:shadow-lg transition"
-        >
-          <p className="text-sm font-semibold text-gray-600 mb-2">
-            문제 {q.questionNumber}
-          </p>
-
-          <h1 className="text-base md:text-lg font-semibold leading-relaxed line-clamp-2 text-gray-800">
-            {q.questionText || "내용 없음"}
-          </h1>
-        </button>
+        <QuestionCard
+          question={question}
+          onClick={handleQuestionClick}
+          isSelected={index === scrollIndex}
+        />
       </div>
     );
   };
 
   return (
-    <main className="p-4 mx-auto">
-      <h2 className="text-xl font-bold mb-6 text-center">
-        전체 문제 목록 ({questions.length}개)
-      </h2>
-      <List
-        height={600}
-        itemCount={questions.length}
-        itemSize={112}
-        width="100%"
-        initialScrollOffset={scrollIndex * 112}
-      >
-        {Row}
-      </List>
-    </main>
+    <ErrorBoundary>
+      <main className="p-4 mx-auto">
+        <h2 className="text-xl font-bold mb-6 text-center">
+          전체 문제 목록 ({questions.length}개)
+        </h2>
+        <List
+          height={600}
+          itemCount={questions.length}
+          itemSize={itemSize}
+          width="100%"
+          initialScrollOffset={initialScrollOffset}
+        >
+          {Row}
+        </List>
+      </main>
+    </ErrorBoundary>
   );
 }

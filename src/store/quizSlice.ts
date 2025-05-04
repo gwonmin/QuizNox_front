@@ -1,10 +1,37 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Question, QuizState } from "../types/quiz";
+import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
+import { Question, QuizState, RawQuestion } from "../types/quiz";
+
+const API_URL = import.meta.env.VITE_API_GATEWAY_URL;
+
+const mapQuestion = (rawQuestion: RawQuestion): Question => ({
+  questionNumber: Number(rawQuestion.question_number),
+  questionText: rawQuestion.question_text,
+  choices: rawQuestion.choices,
+  mostVotedAnswer: rawQuestion.most_voted_answer,
+});
+
+export const fetchQuestions = createAsyncThunk(
+  "quiz/fetchQuestions",
+  async (topicId: string) => {
+    const response = await fetch(`${API_URL}/questions?topicId=${topicId}`);
+    if (!response.ok) {
+      throw new Error("문제를 불러오는데 실패했습니다.");
+    }
+    const data = await response.json();
+    // API 응답이 QuestionResponse 타입인지 확인
+    if (!data || !Array.isArray(data)) {
+      throw new Error("잘못된 응답 형식입니다.");
+    }
+    return data.map(mapQuestion);
+  }
+);
 
 const initialState: QuizState = {
   topicId: "",
   questions: [],
   scrollIndex: 0,
+  loading: "idle",
+  error: null,
 };
 
 export const quizSlice = createSlice({
@@ -20,8 +47,32 @@ export const quizSlice = createSlice({
     setScrollIndex(state, action: PayloadAction<number>) {
       state.scrollIndex = action.payload;
     },
+    resetState(state) {
+      state.topicId = "";
+      state.questions = [];
+      state.scrollIndex = 0;
+      state.loading = "idle";
+      state.error = null;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchQuestions.pending, (state) => {
+        state.loading = "loading";
+        state.error = null;
+      })
+      .addCase(fetchQuestions.fulfilled, (state, action) => {
+        state.loading = "succeeded";
+        state.questions = action.payload;
+        state.topicId = action.meta.arg; // 현재 선택된 topicId 저장
+      })
+      .addCase(fetchQuestions.rejected, (state, action) => {
+        state.loading = "failed";
+        state.error = action.error.message || "알 수 없는 오류가 발생했습니다.";
+      });
   },
 });
 
-export const { setTopicId, setQuestions, setScrollIndex } = quizSlice.actions;
+export const { setTopicId, setQuestions, setScrollIndex, resetState } =
+  quizSlice.actions;
 export default quizSlice.reducer;

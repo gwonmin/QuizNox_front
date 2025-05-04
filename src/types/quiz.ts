@@ -17,6 +17,8 @@ interface QuizState {
   topicId: string;
   questions: Question[];
   scrollIndex: number;
+  loading: "idle" | "loading" | "succeeded" | "failed";
+  error: string | null;
 }
 
 export type { RawQuestion, Question, QuizState };

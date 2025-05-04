@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import Navbar from "./components/Navbar";
+import { LoadingSpinner } from "./components/LoadingSpinner";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
 const Home = lazy(() => import("./pages/Home"));
 const MockExam = lazy(() => import("./pages/MockExam"));
@@ -9,20 +11,28 @@ const QuizList = lazy(() => import("./pages/Quiz/List"));
 const QuizPlayPage = lazy(() => import("./pages/Quiz/Play"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
+/**
+ * 앱의 메인 컴포넌트
+ * @returns {JSX.Element} 앱의 메인 컴포넌트
+ */
 export default function App() {
   return (
     <BrowserRouter>
-      <Navbar />
-      <Suspense fallback={<div className="p-4 text-center">로딩 중...</div>}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/mock-exam" element={<MockExam />} />
-          <Route path="/quiz/topic" element={<QuizTopic />} />
-          <Route path="/quiz/list" element={<QuizList />} />
-          <Route path="/quiz/play" element={<QuizPlayPage />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Suspense>
+      <ErrorBoundary>
+        <Navbar />
+        <main className="container mx-auto px-4 py-8">
+          <Suspense fallback={<LoadingSpinner />}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/mock-exam" element={<MockExam />} />
+              <Route path="/quiz/topic" element={<QuizTopic />} />
+              <Route path="/quiz/list" element={<QuizList />} />
+              <Route path="/quiz/play" element={<QuizPlayPage />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
+        </main>
+      </ErrorBoundary>
     </BrowserRouter>
   );
 }
