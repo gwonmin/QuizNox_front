@@ -28,13 +28,16 @@ export function QuestionCard({
       aria-label={`문제 ${question.questionNumber}로 이동`}
       className={`w-full p-4 bg-white shadow-md rounded-md text-left hover:shadow-lg transition`}
     >
-      <p
-        className={`text-sm font-semibold mb-2 ${
-          isSelected ? "text-blue-600 font-bold" : "text-gray-600"
-        }`}
-      >
-        문제 {question.questionNumber}
-      </p>
+      <div className="flex items-center gap-2 mb-2">
+        <p className="text-sm font-semibold text-gray-600">
+          문제 {question.questionNumber}
+        </p>
+        {isSelected && (
+          <span className="px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded-full">
+            현재 문제
+          </span>
+        )}
+      </div>
       <h1 className="text-base md:text-lg font-semibold leading-relaxed line-clamp-2 text-gray-800">
         {question.questionText || "내용 없음"}
       </h1>
