@@ -19,9 +19,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <ErrorBoundary>
-        <div className="h-screen flex flex-col overflow-hidden">
+        <div className="h-screen flex flex-col">
           <Navbar />
-          <main className="flex-1 container mx-auto px-4 py-8 overflow-hidden">
+          <main className="flex-1 container mx-auto px-4 py-8">
             <Suspense fallback={<LoadingSpinner />}>
               <Routes>
                 <Route path="/" element={<Home />} />

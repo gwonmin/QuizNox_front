@@ -108,7 +108,7 @@ export default function QuestionListPage() {
 
   return (
     <ErrorBoundary>
-      <div className="h-full flex flex-col">
+      <div className="h-full flex flex-col overflow-hidden">
         <h2 className="text-lg md:text-xl font-bold mb-4 md:mb-6 text-center">
           전체 문제 목록 ({questions.length}개)
         </h2>
