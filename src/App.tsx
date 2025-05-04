@@ -19,19 +19,21 @@ export default function App() {
   return (
     <BrowserRouter>
       <ErrorBoundary>
-        <Navbar />
-        <main className="container mx-auto px-4 py-8">
-          <Suspense fallback={<LoadingSpinner />}>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/mock-exam" element={<MockExam />} />
-              <Route path="/quiz/topic" element={<QuizTopic />} />
-              <Route path="/quiz/list" element={<QuizList />} />
-              <Route path="/quiz/play" element={<QuizPlayPage />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </main>
+        <div className="h-screen flex flex-col overflow-hidden">
+          <Navbar />
+          <main className="flex-1 container mx-auto px-4 py-8 overflow-hidden">
+            <Suspense fallback={<LoadingSpinner />}>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/mock-exam" element={<MockExam />} />
+                <Route path="/quiz/topic" element={<QuizTopic />} />
+                <Route path="/quiz/list" element={<QuizList />} />
+                <Route path="/quiz/play" element={<QuizPlayPage />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </main>
+        </div>
       </ErrorBoundary>
     </BrowserRouter>
   );

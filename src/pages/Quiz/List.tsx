@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "../../store";
@@ -16,6 +16,8 @@ export default function QuestionListPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const topicId = searchParams.get("topicId");
+  const listRef = useRef<HTMLDivElement>(null);
+  const [listHeight, setListHeight] = useState(600);
 
   const dispatch = useDispatch<AppDispatch>();
   const {
@@ -35,6 +37,24 @@ export default function QuestionListPage() {
     dispatch(fetchQuestions(topicId));
   }, [topicId, dispatch, existingTopicId, questions.length]);
 
+  // 창 크기 변경 시 리스트 높이 업데이트
+  useEffect(() => {
+    const updateListHeight = () => {
+      if (!listRef.current) return;
+      const container = listRef.current.parentElement;
+      if (!container) return;
+
+      const headerHeight = 80; // 헤더와 여백 고려
+      const containerHeight = container.clientHeight;
+      const newHeight = Math.max(400, containerHeight - headerHeight);
+      setListHeight(newHeight);
+    };
+
+    updateListHeight();
+    window.addEventListener("resize", updateListHeight);
+    return () => window.removeEventListener("resize", updateListHeight);
+  }, []);
+
   const handleQuestionClick = (questionNumber: number) => {
     dispatch(
       setScrollIndex(
@@ -44,7 +64,8 @@ export default function QuestionListPage() {
     navigate(`/quiz/play?topicId=${topicId}&q=${questionNumber}`);
   };
 
-  const itemSize = useMemo(() => 112, []);
+  // 모바일에서는 더 작은 아이템 크기 사용
+  const itemSize = useMemo(() => (window.innerWidth < 768 ? 96 : 112), []);
   const initialScrollOffset = useMemo(
     () => scrollIndex * itemSize,
     [scrollIndex]
@@ -87,20 +108,25 @@ export default function QuestionListPage() {
 
   return (
     <ErrorBoundary>
-      <main className="p-4 mx-auto">
-        <h2 className="text-xl font-bold mb-6 text-center">
+      <div className="h-full flex flex-col">
+        <h2 className="text-lg md:text-xl font-bold mb-4 md:mb-6 text-center">
           전체 문제 목록 ({questions.length}개)
         </h2>
-        <List
-          height={600}
-          itemCount={questions.length}
-          itemSize={itemSize}
-          width="100%"
-          initialScrollOffset={initialScrollOffset}
+        <div
+          ref={listRef}
+          className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full"
         >
-          {Row}
-        </List>
-      </main>
+          <List
+            height={listHeight}
+            itemCount={questions.length}
+            itemSize={itemSize}
+            width="100%"
+            initialScrollOffset={initialScrollOffset}
+          >
+            {Row}
+          </List>
+        </div>
+      </div>
     </ErrorBoundary>
   );
 }
