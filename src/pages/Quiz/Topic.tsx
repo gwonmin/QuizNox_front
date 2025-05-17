@@ -14,6 +14,11 @@ const QUIZ_TOPICS = [
     name: "Associate(SAA-C03)",
     shortName: "AWS Certified Solutions Architect",
   },
+  {
+    id: "AWS_SOA",
+    name: "Associate(SOA-C02)",
+    shortName: "AWS Certified SysOps Administrator",
+  },
 ];
 
 export default function QuizListPage() {
