@@ -89,7 +89,7 @@ export default function QuizPlayPage() {
 문제: ${currentQuestion.questionNumber}. ${currentQuestion.questionText}
 
 보기:
-${currentQuestion.choices.map((choice, index) => {
+${currentQuestion.choices.map((choice) => {
   const answer = choice.substring(0, 1);
   const text = choice.substring(2);
   return `${answer}. ${text}`;
