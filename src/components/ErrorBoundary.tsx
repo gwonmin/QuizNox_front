@@ -1,4 +1,5 @@
 import React from "react";
+import { Button } from "./ui/button";
 
 interface Props {
   children: React.ReactNode;
@@ -31,15 +32,15 @@ export class ErrorBoundary extends React.Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="p-4 text-center text-red-500">
+        <div className="p-4 text-center text-destructive">
           <h2 className="text-xl font-bold mb-2">오류가 발생했습니다</h2>
           <p className="mb-4">{this.state.error?.message}</p>
-          <button
+          <Button
             onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            variant="default"
           >
             페이지 새로고침
-          </button>
+          </Button>
         </div>
       );
     }

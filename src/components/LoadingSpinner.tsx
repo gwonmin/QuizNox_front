@@ -12,10 +12,10 @@ export const LoadingSpinner: React.FC = () => {
       aria-label="로딩 중"
     >
       <div
-        className="animate-spin rounded-full h-12 w-12 sm:h-8 sm:w-8 border-4 border-blue-500 border-t-transparent"
+        className="animate-spin rounded-full h-12 w-12 sm:h-8 sm:w-8 border-4 border-primary border-t-transparent"
         aria-hidden="true"
       />
-      <span className="ml-3 text-gray-600 text-sm sm:text-base">
+      <span className="ml-3 text-muted-foreground text-sm sm:text-base">
         로딩 중...
       </span>
     </div>
