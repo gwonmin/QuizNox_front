@@ -24,7 +24,6 @@ export default function QuizPlayPage() {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
-  const [showAnswer, setShowAnswer] = useState(false);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [showToast, setShowToast] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
