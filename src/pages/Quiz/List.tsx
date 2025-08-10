@@ -37,17 +37,24 @@ export default function QuestionListPage() {
     dispatch(fetchQuestions(topicId));
   }, [topicId, dispatch, existingTopicId, questions.length]);
 
-  // 리스트 높이 업데이트 함수
+
+
+
+
+  // 리스트 높이 업데이트 함수 - Navbar와 main 패딩 고려
   const updateListHeight = useCallback(() => {
     if (!containerRef.current) return;
     
-    // 컨테이너의 실제 높이 계산
-    const container = containerRef.current;
-    const containerHeight = container.clientHeight;
+    // Navbar 높이 (p-4 = 16px * 2 + 텍스트 높이 ≈ 64px)
+    const navbarHeight = 64;
+    // main 요소의 상하 패딩 (py-8 = 32px * 2 = 64px)
+    const mainPadding = 64;
+    // 제목 높이
+    const titleHeight = 60;
     
-    // 제목과 여백을 고려한 리스트 높이 계산
-    const titleHeight = 80; // 제목 + 여백
-    const newHeight = Math.max(400, containerHeight - titleHeight);
+    // 사용 가능한 높이 계산
+    const availableHeight = window.innerHeight - navbarHeight - mainPadding - titleHeight;
+    const newHeight = Math.max(300, availableHeight);
     
     setListHeight(newHeight);
   }, []);
@@ -64,11 +71,38 @@ export default function QuestionListPage() {
       updateListHeight();
     };
     
+    // 모바일에서는 orientationchange 이벤트도 감지
+    const handleOrientationChange = () => {
+      // 방향 전환 후 약간의 지연을 두고 높이 재계산
+      setTimeout(() => {
+        updateListHeight();
+      }, 300);
+    };
+    
     window.addEventListener("resize", handleResize);
+    window.addEventListener("orientationchange", handleOrientationChange);
+    
+    // visualViewport API 이벤트 (모바일에서 주소창 숨김/표시 감지)
+    if (window.visualViewport) {
+      const handleViewportResize = () => {
+        updateListHeight();
+      };
+      window.visualViewport.addEventListener("resize", handleViewportResize);
+      
+      return () => {
+        clearTimeout(timer);
+        window.removeEventListener("resize", handleResize);
+        window.removeEventListener("orientationchange", handleOrientationChange);
+        if (window.visualViewport) {
+          window.visualViewport.removeEventListener("resize", handleViewportResize);
+        }
+      };
+    }
     
     return () => {
       clearTimeout(timer);
       window.removeEventListener("resize", handleResize);
+      window.removeEventListener("orientationchange", handleOrientationChange);
     };
   }, [updateListHeight]);
 
@@ -93,15 +127,10 @@ export default function QuestionListPage() {
     navigate(`/quiz/play?topicId=${topicId}&q=${questionNumber}`);
   };
 
-  // 모바일에서는 더 큰 아이템 크기 사용하여 내용이 잘리지 않도록 함
+  // 아이템 크기 설정
   const itemSize = useMemo(() => {
-    const isMobile = window.innerWidth < 768;
-    // 모바일에서는 문제 텍스트 길이에 따라 동적으로 크기 조정
-    if (isMobile) {
-      // 기본 크기를 120px로 늘리고, 긴 문제는 더 큰 크기 할당
-      return 120;
-    }
-    return 112;
+    // 터치하기 쉽도록 80px로 설정
+    return 80;
   }, []);
 
   // 동적 아이템 크기 계산 함수
@@ -109,14 +138,11 @@ export default function QuestionListPage() {
     const question = questions[index];
     if (!question) return itemSize;
     
-    const isMobile = window.innerWidth < 768;
-    if (!isMobile) return itemSize;
-    
-    // 모바일에서는 문제 텍스트 길이에 따라 크기 조정
+    // 문제 텍스트 길이에 따라 크기 조정
     const textLength = question.questionText?.length || 0;
-    if (textLength > 100) return 140; // 긴 문제
-    if (textLength > 60) return 130;  // 중간 문제
-    return 120; // 짧은 문제
+    if (textLength > 100) return 95; // 긴 문제
+    if (textLength > 60) return 90;  // 중간 문제
+    return 80; // 짧은 문제
   }, [questions, itemSize]);
 
   // VariableSizeList를 사용하므로 기본 아이템 크기로 초기 스크롤 오프셋 계산
@@ -144,35 +170,59 @@ export default function QuestionListPage() {
     return <p className="p-4 text-center text-muted-foreground">문제가 없습니다.</p>;
   }
 
-  const Row = ({
-    index,
-    style,
-  }: {
-    index: number;
-    style: React.CSSProperties;
-  }) => {
-    const question = questions[index];
-    return (
-      <div style={style} className="flex justify-center">
-        <QuestionCard
-          question={question}
-          onClick={handleQuestionClick}
-          isSelected={index === scrollIndex}
-        />
-      </div>
-    );
-  };
+     const Row = ({
+     index,
+     style,
+   }: {
+     index: number;
+     style: React.CSSProperties;
+   }) => {
+     const question = questions[index];
+     return (
+       <div style={{
+         ...style,
+         // 카드 간 공백 완전 제거
+         margin: 0,
+         padding: 0,
+         border: 'none',
+         outline: 'none'
+       }}>
+         <QuestionCard
+           question={question}
+           onClick={handleQuestionClick}
+           isSelected={index === scrollIndex}
+         />
+       </div>
+     );
+   };
 
   return (
     <ErrorBoundary>
       <div 
         ref={containerRef}
-        className="h-full flex flex-col"
+        className="h-full flex flex-col overflow-hidden"
+        style={{
+          // 전체 화면 스크롤 방지 - Navbar와 main 패딩 고려
+          height: '100%',
+          maxHeight: '100%',
+          overflow: 'hidden'
+        }}
       >
-        <h2 className="text-lg md:text-xl font-bold mb-4 md:mb-6 text-center text-foreground">
+        <h2 className="text-lg md:text-xl font-bold mb-5 text-center text-foreground flex-shrink-0">
           전체 문제 목록 ({questions.length}개)
         </h2>
-        <div className="flex-1">
+        <div 
+          className="flex-1 overflow-hidden" 
+          style={{ 
+            scrollbarWidth: 'auto',
+            msOverflowStyle: 'auto',
+            WebkitOverflowScrolling: 'touch',
+            // 스크롤 영역을 명확히 제한 - Navbar와 main 패딩 고려
+            height: '100%',
+            maxHeight: '100%',
+            overflow: 'hidden'
+          }}
+        >
           <List
             height={listHeight}
             itemCount={questions.length}
@@ -180,7 +230,19 @@ export default function QuestionListPage() {
             width="100%"
             initialScrollOffset={initialScrollOffset}
             estimatedItemSize={itemSize}
-            className="[&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-muted [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full"
+                         className="[&::-webkit-scrollbar]:w-4 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-blue-400 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-blue-500 [&::-webkit-scrollbar]:always-visible"
+            style={{ 
+              padding: 0, 
+              margin: 0,
+              scrollbarWidth: 'auto',
+              msOverflowStyle: 'auto',
+              // 카드 간 공백 완전 제거
+              gap: 0,
+              rowGap: 0,
+              columnGap: 0,
+              // 전체 화면 스크롤 방지
+              overflow: 'auto'
+            }}
           >
             {Row}
           </List>

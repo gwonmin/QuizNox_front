@@ -25,14 +25,20 @@ export function QuestionCard({
 
   return (
     <Card
-      className="w-full cursor-pointer hover:shadow-lg transition-shadow"
+      className="w-full cursor-pointer transition-all duration-200 hover:bg-muted/30"
+      style={{
+        borderRadius: 0,
+        margin: 0,
+        padding: 0,
+        border: 'none'
+      }}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       tabIndex={0}
       role="button"
       aria-label={`문제 ${question.questionNumber}로 이동`}
     >
-      <CardHeader className="pb-1 px-3 md:px-4">
+      <CardHeader className="!p-0" style={{ padding: '4px 8px 2px 8px' }}>
         <div className="flex items-center gap-2">
           <p className="text-sm font-semibold text-muted-foreground">
             문제 {question.questionNumber}
@@ -44,7 +50,7 @@ export function QuestionCard({
           )}
         </div>
       </CardHeader>
-      <CardContent className="pt-0 px-3 md:px-4 pb-2">
+      <CardContent className="!p-0" style={{ padding: '0 8px 4px 8px' }}>
         <CardTitle className="text-sm md:text-base leading-tight break-words line-clamp-2">
           {question.questionText || "내용 없음"}
         </CardTitle>

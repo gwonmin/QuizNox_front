@@ -262,21 +262,21 @@ ${currentQuestion.choices.map((choice) => {
               }
               const isCorrectAnswer = correctAnswers.includes(answer);
               
-              // 정답 확인 후 시각적 피드백
-              let buttonStyle = "";
-              if (isCorrect !== null) {
-                if (isCorrectAnswer) {
-                  buttonStyle = "border-green-500 bg-green-50 text-green-800";
-                } else if (isSelected && !isCorrectAnswer) {
-                  buttonStyle = "border-red-500 bg-red-50 text-red-800";
-                } else {
-                  buttonStyle = "border-gray-300 bg-gray-50 text-gray-600";
-                }
-              } else if (isSelected) {
-                buttonStyle = "border-primary bg-primary/5 text-primary";
-              } else {
-                buttonStyle = "border-border bg-background hover:border-primary/50 hover:bg-muted/50";
-              }
+                             // 정답 확인 후 시각적 피드백
+               let buttonStyle = "";
+               if (isCorrect !== null) {
+                 if (isCorrectAnswer) {
+                   buttonStyle = "border-green-500 bg-green-50 text-green-800";
+                 } else if (isSelected && !isCorrectAnswer) {
+                   buttonStyle = "border-red-500 bg-red-50 text-red-800";
+                 } else {
+                   buttonStyle = "border-gray-300 bg-gray-50 text-gray-600";
+                 }
+               } else if (isSelected) {
+                 buttonStyle = "border-primary bg-primary/5 text-primary";
+               } else {
+                 buttonStyle = "border-border bg-background";
+               }
               
               return (
                 <button
