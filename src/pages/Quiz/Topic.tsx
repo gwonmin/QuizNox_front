@@ -2,7 +2,12 @@ import { Link } from "react-router-dom";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { setScrollIndex } from "../../store/quizSlice";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
 
 const QUIZ_TOPICS = [
   {
@@ -20,6 +25,11 @@ const QUIZ_TOPICS = [
     name: "Associate(SOA-C02)",
     shortName: "AWS Certified SysOps Administrator",
   },
+  {
+    id: "AWS_DOP",
+    name: "Professional(DOP-C02)",
+    shortName: "AWS Certified DevOps Engineer",
+  },
 ];
 
 export default function QuizListPage() {
@@ -30,7 +40,9 @@ export default function QuizListPage() {
 
   return (
     <main className="flex flex-col items-center justify-center p-4 max-w-3xl mx-auto">
-      <h1 className="text-xl font-bold mb-6 text-center text-foreground">문제 유형 선택</h1>
+      <h1 className="text-xl font-bold mb-6 text-center text-foreground">
+        문제 유형 선택
+      </h1>
       <ul className="w-full space-y-3">
         {QUIZ_TOPICS.map((topic) => (
           <li key={topic.id}>
