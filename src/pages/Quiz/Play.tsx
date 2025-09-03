@@ -112,19 +112,33 @@ export default function QuizPlayPage() {
   }, []);
 
   const handlePreviousQuestion = useCallback(() => {
-    setCurrentIndex((prev) => Math.max(prev - 1, 0));
-    dispatch(setScrollIndex(currentIndex - 1));
-    resetState();
-  }, [currentIndex, dispatch, resetState]);
+    const newIndex = Math.max(currentIndex - 1, 0);
+    const newQuestionNumber = questions[newIndex]?.questionNumber;
+    
+    if (newQuestionNumber) {
+      // URL 업데이트 (화면 깜박임 없음)
+      navigate(`/quiz/play?topicId=${topicId}&q=${newQuestionNumber}`, { replace: true });
+      setCurrentIndex(newIndex);
+      dispatch(setScrollIndex(newIndex));
+      resetState();
+    }
+  }, [currentIndex, questions, topicId, navigate, dispatch, resetState]);
 
   const handleNextQuestion = useCallback(() => {
     if (currentIndex < questions.length - 1) {
-      setCurrentIndex((prev) => prev + 1);
-      dispatch(setScrollIndex(currentIndex + 1));
-      resetState();
-      document.documentElement.scrollTo({ top: 0 });
+      const newIndex = currentIndex + 1;
+      const newQuestionNumber = questions[newIndex]?.questionNumber;
+      
+      if (newQuestionNumber) {
+        // URL 업데이트 (화면 깜박임 없음)
+        navigate(`/quiz/play?topicId=${topicId}&q=${newQuestionNumber}`, { replace: true });
+        setCurrentIndex(newIndex);
+        dispatch(setScrollIndex(newIndex));
+        resetState();
+        document.documentElement.scrollTo({ top: 0 });
+      }
     }
-  }, [currentIndex, questions.length, dispatch, resetState]);
+  }, [currentIndex, questions.length, questions, topicId, navigate, dispatch, resetState]);
 
   const copyGPTExplanationPrompt = useCallback(async () => {
     if (!currentQuestion) return;
