@@ -8,9 +8,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/ca
 import { Badge } from "../../components/ui/badge";
 import { GPTExplanationButton } from "../../components/GPTExplanationButton";
 import { QuestionDisplay } from "../../components/QuestionDisplay";
+import { ExamDataError } from "../../components/ExamDataError";
+import { useModalScrollLock } from "../../hooks/useModalScrollLock";
 import { getExamTypeInfo } from "../../constants/examTypes";
 import { formatDuration } from "../../utils/timeUtils";
-import { getExamDisplayName } from "../../utils/examUtils";
+import { getExamDisplayName, getAnswerResultStatus } from "../../utils/examUtils";
+import { ExamResultState } from "../../types/quiz";
 
 export default function MockExamResultPage() {
   const navigate = useNavigate();
@@ -30,42 +33,12 @@ export default function MockExamResultPage() {
     error,
   } = mockExamState;
   
-  const [result, setResult] = useState<{
-    score: number;
-    totalQuestions: number;
-    correctAnswers: number;
-    incorrectAnswers: number;
-    unansweredQuestions: number;
-    passThreshold: number;
-    isPassed: boolean;
-    timeSpent: number;
-    answerDetails: Array<{
-      questionIndex: number;
-      question: string;
-      userAnswer: string | null;
-      correctAnswer: string;
-      isCorrect: boolean;
-      choices: string[];
-    }>;
-  } | null>(null);
+  const [result, setResult] = useState<ExamResultState | null>(null);
 
   const [selectedQuestion, setSelectedQuestion] = useState<number | null>(null);
 
-  // 모달이 열릴 때 배경 스크롤 방지
-  useEffect(() => {
-    if (selectedQuestion !== null) {
-      // 모달이 열릴 때 body 스크롤 방지
-      document.body.style.overflow = 'hidden';
-    } else {
-      // 모달이 닫힐 때 body 스크롤 복원
-      document.body.style.overflow = 'unset';
-    }
-
-    // 컴포넌트 언마운트 시 스크롤 복원
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [selectedQuestion]);
+  // 모달 스크롤 방지
+  useModalScrollLock(selectedQuestion !== null);
 
   // 데이터가 없을 때 다시 로드 시도
   useEffect(() => {
@@ -174,17 +147,10 @@ export default function MockExamResultPage() {
   // 데이터 없음
   if (!questions || questions.length === 0 || !result) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto p-6">
-          <h1 className="text-2xl font-bold mb-4">시험 데이터를 찾을 수 없습니다</h1>
-          <p className="text-muted-foreground mb-6">
-            시험 데이터가 로드되지 않았습니다. 다시 시험을 시작해주세요.
-          </p>
-          <Button onClick={() => navigate("/mock-exam")}>
-            모의고사 선택으로 돌아가기
-          </Button>
-        </div>
-      </div>
+      <ExamDataError
+        onGoBack={() => navigate("/mock-exam")}
+        goBackText="모의고사 선택으로 돌아가기"
+      />
     );
   }
 
@@ -254,41 +220,35 @@ export default function MockExamResultPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-              {result.answerDetails.map((detail, index) => (
-                <div
-                  key={index}
-                  className={`p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 hover:shadow-md ${
-                    !detail.userAnswer
-                      ? "border-gray-200 bg-gray-50 hover:bg-gray-100"
-                      : detail.isCorrect
-                      ? "border-green-200 bg-green-50 hover:bg-green-100"
-                      : "border-red-200 bg-red-50 hover:bg-red-100"
-                  }`}
-                  onClick={() => handleQuestionClick(detail.questionIndex)}
-                >
-                  <div className="flex flex-col items-center gap-2">
-                    <span className="text-sm font-medium">
-                      {detail.questionIndex + 1}
-                    </span>
-                    <Badge
-                      variant={
-                        !detail.userAnswer 
-                          ? "secondary" 
-                          : detail.isCorrect 
-                          ? "default" 
-                          : "destructive"
-                      }
-                      className="text-xs px-2 py-1"
-                    >
-                      {!detail.userAnswer 
-                        ? "미답" 
-                        : detail.isCorrect 
-                        ? "정답" 
-                        : "오답"}
-                    </Badge>
+              {result.answerDetails.map((detail, index) => {
+                const answerStatus = getAnswerResultStatus(detail.userAnswer, detail.correctAnswer);
+                
+                return (
+                  <div
+                    key={index}
+                    className={`p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 hover:shadow-md ${
+                      answerStatus.status === 'unanswered'
+                        ? "border-gray-200 bg-gray-50 hover:bg-gray-100"
+                        : answerStatus.status === 'correct'
+                        ? "border-green-200 bg-green-50 hover:bg-green-100"
+                        : "border-red-200 bg-red-50 hover:bg-red-100"
+                    }`}
+                    onClick={() => handleQuestionClick(detail.questionIndex)}
+                  >
+                    <div className="flex flex-col items-center gap-2">
+                      <span className="text-sm font-medium">
+                        {detail.questionIndex + 1}
+                      </span>
+                      <Badge 
+                        variant={answerStatus.variant}
+                        className="text-xs px-2 py-1"
+                      >
+                        {answerStatus.label}
+                      </Badge>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>

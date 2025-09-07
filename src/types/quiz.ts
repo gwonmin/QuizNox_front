@@ -76,6 +76,39 @@ interface MockExamResult {
   examType: ExamType;
 }
 
+// 시험 결과 상세 정보 타입
+interface ExamResultDetail {
+  questionIndex: number;
+  question: string;
+  userAnswer: string | null;
+  correctAnswer: string;
+  isCorrect: boolean;
+  choices: string[];
+}
+
+// 시험 결과 상태 타입
+interface ExamResultState {
+  score: number;
+  totalQuestions: number;
+  correctAnswers: number;
+  incorrectAnswers: number;
+  unansweredQuestions: number;
+  passThreshold: number;
+  isPassed: boolean;
+  timeSpent: number;
+  answerDetails: ExamResultDetail[];
+}
+
+// 답안 상태 타입
+type AnswerStatus = 'answered' | 'unanswered' | 'correct' | 'incorrect';
+type BadgeVariant = 'default' | 'secondary' | 'destructive';
+
+interface AnswerStatusInfo {
+  status: AnswerStatus;
+  label: string;
+  variant: BadgeVariant;
+}
+
 export type { 
   RawQuestion, 
   Question, 
@@ -84,5 +117,10 @@ export type {
   MockExamConfig, 
   MockExamState, 
   AnswerDetail, 
-  MockExamResult 
+  MockExamResult,
+  ExamResultDetail,
+  ExamResultState,
+  AnswerStatus,
+  BadgeVariant,
+  AnswerStatusInfo
 };

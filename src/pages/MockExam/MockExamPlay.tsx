@@ -6,8 +6,6 @@ import {
   startExam, 
   setAnswer, 
   setCurrentQuestionIndex, 
-  tickTimer, 
-  submitExam, 
   fetchMockExamQuestions,
   resetMockExam
 } from "../../store/mockExamSlice";
@@ -15,9 +13,10 @@ import { LoadingSpinner } from "../../components/LoadingSpinner";
 import { ErrorBoundary } from "../../components/ErrorBoundary";
 import { Button } from "../../components/ui/button";
 import { QuestionDisplay } from "../../components/QuestionDisplay";
+import { ExamProgress } from "../../components/ExamProgress";
+import { useExamTimer } from "../../hooks/useExamTimer";
 import { EXAM_TYPE_IDS } from "../../constants/examTypes";
-import { formatTimer } from "../../utils/timeUtils";
-import { getExamDisplayName, getExamBasicInfo } from "../../utils/examUtils";
+import { getExamBasicInfo, getExamDisplayName, getAnsweredQuestionsCount } from "../../utils/examUtils";
 
 export default function MockExamPlay() {
   const navigate = useNavigate();
@@ -40,6 +39,7 @@ export default function MockExamPlay() {
   const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
   const loadedExamType = useRef<string | null>(null);
   const isSubmittingRef = useRef(false);
+  const isReviewingRef = useRef(false);
 
   // 시험 타입 설정 및 문제 로드
   useEffect(() => {
@@ -59,8 +59,8 @@ export default function MockExamPlay() {
   // 컴포넌트 언마운트 시 시험 데이터 초기화 (제출되지 않은 경우만)
   useEffect(() => {
     return () => {
-      // 제출 중이거나 제출된 경우에는 데이터를 유지
-      if (isSubmittingRef.current || isSubmitted) {
+      // 제출 중이거나 제출된 경우, 또는 검토 중인 경우에는 데이터를 유지
+      if (isSubmittingRef.current || isSubmitted || isReviewingRef.current) {
         return;
       }
       
@@ -70,6 +70,7 @@ export default function MockExamPlay() {
       }
     };
   }, [isStarted, isSubmitted, dispatch]);
+
 
   // 문제 로드 완료 시 현재 문제의 답안 복원
   useEffect(() => {
@@ -83,23 +84,12 @@ export default function MockExamPlay() {
     }
   }, [loading, questions, currentQuestionIndex, answers]);
 
-  // 타이머 시작
-  useEffect(() => {
-    if (isStarted) {
-      const timer = setInterval(() => {
-        dispatch(tickTimer());
-      }, 1000);
-
-      return () => clearInterval(timer);
-    }
-  }, [isStarted, dispatch]);
-
-  // 시간 만료 시 자동 제출
-  useEffect(() => {
-    if (remainingTime === 0 && isStarted) {
-      dispatch(submitExam());
-    }
-  }, [remainingTime, isStarted, dispatch]);
+  // 타이머 관리
+  useExamTimer({
+    isStarted,
+    remainingTime,
+    onTimeExpired: () => navigate(`/mock-exam/review?type=${examType}`)
+  });
 
   // 브라우저 새로고침 방지
   useEffect(() => {
@@ -165,23 +155,6 @@ export default function MockExamPlay() {
     }
   }, [currentQuestionIndex, questions, dispatch, answers]);
 
-  // 시험 제출
-  const handleSubmitExam = useCallback(() => {
-    
-    // 제출 상태 표시
-    isSubmittingRef.current = true;
-    
-    // 마지막 답안 저장
-    const answerString = selectedAnswers.length > 0 ? selectedAnswers.join("") : null;
-    
-    dispatch(setAnswer({ 
-      questionIndex: currentQuestionIndex, 
-      answer: answerString 
-    }));
-    
-    // 즉시 시험 제출
-    dispatch(submitExam());
-  }, [questions, answers, currentQuestionIndex, selectedAnswers, dispatch]);
 
   // 시험 제출 후 결과 페이지로 이동
   useEffect(() => {
@@ -195,8 +168,8 @@ export default function MockExamPlay() {
   // 시험 기본 정보
   const examInfo = getExamBasicInfo(examType);
 
-  // 진행률 계산
-  const progress = questions && questions.length > 0 ? ((currentQuestionIndex + 1) / questions.length) * 100 : 0;
+  // 답변한 문제 수 계산
+  const answeredQuestions = getAnsweredQuestionsCount(answers);
 
   if (loading === "loading") {
     return <LoadingSpinner />;
@@ -276,31 +249,14 @@ export default function MockExamPlay() {
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-background">
-        {/* 헤더 영역 */}
-        <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border px-4 py-2">
-          <div className="flex justify-between items-center mb-2">
-            <div className="text-sm text-muted-foreground">
-              {getExamDisplayName(examType)}
-            </div>
-            <div className="text-sm font-mono">
-              {formatTimer(remainingTime)}
-            </div>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${progress}%` }}
-            ></div>
-          </div>
-          <div className="flex justify-between items-center mt-2">
-            <span className="text-xs text-muted-foreground">
-              문제 {currentQuestionIndex + 1} / {questions ? questions.length : 0}
-            </span>
-            <span className="text-xs text-muted-foreground">
-              {Math.round(progress)}% 완료
-            </span>
-          </div>
-        </div>
+        {/* 시험 진행도 */}
+        <ExamProgress
+          examType={examType}
+          currentQuestionIndex={currentQuestionIndex}
+          totalQuestions={questions ? questions.length : 0}
+          remainingTime={remainingTime}
+          answeredQuestions={answeredQuestions}
+        />
 
         {/* 네비게이션 버튼들 */}
         <div className="flex gap-3">
@@ -315,10 +271,13 @@ export default function MockExamPlay() {
           
           {questions && currentQuestionIndex === questions.length - 1 ? (
             <Button
-              onClick={handleSubmitExam}
-              className="flex-1 bg-red-600 hover:bg-red-700"
+              onClick={() => {
+                isReviewingRef.current = true;
+                navigate(`/mock-exam/review?type=${examType}`);
+              }}
+              className="flex-1 bg-blue-600 hover:bg-blue-700"
             >
-              시험 제출
+              검토하기
             </Button>
           ) : (
             <Button

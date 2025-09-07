@@ -8,6 +8,7 @@ const Home = lazy(() => import("./pages/Home"));
 const MockExam = lazy(() => import("./pages/MockExam/MockExam"));
 const MockExamStart = lazy(() => import("./pages/MockExam/MockExamStart"));
 const MockExamPlay = lazy(() => import("./pages/MockExam/MockExamPlay"));
+const MockExamReview = lazy(() => import("./pages/MockExam/MockExamReview"));
 const MockExamResult = lazy(() => import("./pages/MockExam/MockExamResult"));
 const QuizTopic = lazy(() => import("./pages/Quiz/Topic"));
 const QuizList = lazy(() => import("./pages/Quiz/List"));
@@ -31,6 +32,7 @@ export default function App() {
                 <Route path="/mock-exam" element={<MockExam />} />
                 <Route path="/mock-exam/start" element={<MockExamStart />} />
                 <Route path="/mock-exam/play" element={<MockExamPlay />} />
+                <Route path="/mock-exam/review" element={<MockExamReview />} />
                 <Route path="/mock-exam/result" element={<MockExamResult />} />
                 <Route path="/quiz/topic" element={<QuizTopic />} />
                 <Route path="/quiz/list" element={<QuizList />} />
