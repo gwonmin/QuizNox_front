@@ -1,4 +1,3 @@
-import React from 'react';
 import { formatTimer } from '../utils/timeUtils';
 import { getExamDisplayName } from '../utils/examUtils';
 
