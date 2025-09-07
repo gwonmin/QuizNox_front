@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
-import { Question, ExamType, MockExamState, MockExamResult, AnswerDetail } from "../types/quiz";
-import { EXAM_TYPES } from "../constants/examTypes";
+import { ExamType, MockExamState } from "../types/quiz";
 
 const API_URL = import.meta.env.VITE_API_GATEWAY_URL;
 
@@ -105,7 +104,7 @@ export const mockExamSlice = createSlice({
       state.isCompleted = true;
       state.endTime = Date.now();
     },
-    resetMockExam(state) {
+    resetMockExam() {
       return { ...initialState };
     },
   },
