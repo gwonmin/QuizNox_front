@@ -21,4 +21,68 @@ interface QuizState {
   error: string | null;
 }
 
-export type { RawQuestion, Question, QuizState };
+// 모의고사 관련 타입 추가
+type ExamType = 'associate' | 'professional';
+
+interface MockExamConfig {
+  associate: {
+    timeLimit: number; // 분
+    passThreshold: number;
+    name: string;
+  };
+  professional: {
+    timeLimit: number;
+    passThreshold: number;
+    name: string;
+  };
+}
+
+interface MockExamState {
+  examType: ExamType | null;
+  examTypeId: string | null; // AWS_DVA, AWS_SAA, AWS_SOA, AWS_DOP
+  examName: string | null; // AWS Certified Developer
+  examShortName: string | null; // Developer Associate
+  timeLimit: number; // 분 단위
+  remainingTime: number; // 초 단위
+  currentQuestionIndex: number;
+  answers: (string | null)[]; // 65개 답안
+  questions: Question[]; // 모의고사 문제들
+  isStarted: boolean;
+  isCompleted: boolean;
+  isSubmitted: boolean;
+  startTime: number | null;
+  endTime: number | null;
+  loading: "idle" | "loading" | "succeeded" | "failed";
+  error: string | null;
+}
+
+interface AnswerDetail {
+  questionNumber: number;
+  userAnswer: string | null;
+  correctAnswer: string;
+  isCorrect: boolean;
+}
+
+// 시험 세션 인터페이스
+
+interface MockExamResult {
+  totalQuestions: number;
+  correctAnswers: number;
+  score: number; // 백분율
+  isPassed: boolean;
+  passThreshold: number;
+  timeUsed: number; // 사용한 시간 (초)
+  answers: AnswerDetail[];
+  examType: ExamType;
+}
+
+export type { 
+  RawQuestion, 
+  Question, 
+  QuizState, 
+  ExamType, 
+  MockExamConfig, 
+  MockExamState, 
+  AnswerDetail, 
+  MockExamResult 
+};

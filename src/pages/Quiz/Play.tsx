@@ -6,6 +6,8 @@ import { setScrollIndex } from "../../store/quizSlice";
 import { LoadingSpinner } from "../../components/LoadingSpinner";
 import { ErrorBoundary } from "../../components/ErrorBoundary";
 import { Button } from "../../components/ui/button";
+import { GPTExplanationButton } from "../../components/GPTExplanationButton";
+import { QuestionDisplay } from "../../components/QuestionDisplay";
 
 /**
  * 퀴즈 플레이 페이지 컴포넌트
@@ -25,8 +27,6 @@ export default function QuizPlayPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-  const [showToast, setShowToast] = useState(false);
-  const [toastVisible, setToastVisible] = useState(false);
   const [answerToast, setAnswerToast] = useState(false);
   const [answerToastVisible, setAnswerToastVisible] = useState(false);
   const [answerMessage, setAnswerMessage] = useState("");
@@ -140,57 +140,6 @@ export default function QuizPlayPage() {
     }
   }, [currentIndex, questions.length, questions, topicId, navigate, dispatch, resetState]);
 
-  const copyGPTExplanationPrompt = useCallback(async () => {
-    if (!currentQuestion) return;
-
-    const prompt = `다음 문제에 대해 한국어로 자세한 해설을 부탁드립니다:
-
-문제: ${currentQuestion.questionNumber}. ${currentQuestion.questionText}
-
-보기:
-${currentQuestion.choices.map((choice) => {
-  const answer = choice.substring(0, 1);
-  const text = choice.substring(2);
-  return `${answer}. ${text}`;
-}).join('\n')}
-
-위 문제에 대해 다음을 포함한 상세한 해설을 한국어로 제공해주세요:
-1. 문제의 핵심 개념 설명
-2. 각 보기별 분석
-3. 정답이 되는 이유
-4. 오답이 되는 이유
-5. 관련 개념이나 추가 설명이 필요한 경우`;
-
-    try {
-      await navigator.clipboard.writeText(prompt);
-      setShowToast(true);
-      setToastVisible(true);
-      setTimeout(() => {
-        setToastVisible(false);
-        setTimeout(() => setShowToast(false), 300);
-      }, 3000);
-    } catch (err) {
-      console.error('클립보드 복사 실패:', err);
-      // 폴백: textarea를 사용한 복사
-      const textArea = document.createElement('textarea');
-      textArea.value = prompt;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      setShowToast(true);
-      setToastVisible(true);
-      setTimeout(() => {
-        setToastVisible(false);
-        setTimeout(() => setShowToast(false), 300);
-      }, 3000);
-    }
-  }, [currentQuestion]);
-
-  const dismissToast = useCallback(() => {
-    setToastVisible(false);
-    setTimeout(() => setShowToast(false), 300);
-  }, []);
 
   if (loading === "loading") {
     return <LoadingSpinner />;
@@ -249,71 +198,14 @@ ${currentQuestion.choices.map((choice) => {
         </div>
 
         {/* 메인 콘텐츠 */}
-        <div className="px-4 py-4 space-y-6">
-          {/* 문제 제목 */}
-          <div className="space-y-2">
-            <h1 className="text-lg md:text-xl font-semibold text-foreground leading-relaxed break-words">
-              {currentQuestion.questionNumber}. {currentQuestion.questionText}
-            </h1>
-          </div>
-
-          {/* 선택지 */}
-          <div className="space-y-3">
-            {currentQuestion.choices.map((choice, index) => {
-              const answer = choice.substring(0, 1);
-              const text = choice.substring(2);
-              const isSelected = selectedAnswers.includes(answer);
-              
-              // 정답이 배열인지 문자열인지 확인하고 안전하게 처리
-              let correctAnswers: string[];
-              if (Array.isArray(currentQuestion.mostVotedAnswer)) {
-                correctAnswers = currentQuestion.mostVotedAnswer;
-              } else if (typeof currentQuestion.mostVotedAnswer === 'string') {
-                // 'BD' 같은 문자열을 ['B', 'D']로 분리
-                correctAnswers = currentQuestion.mostVotedAnswer.split('');
-              } else {
-                correctAnswers = [];
-              }
-              const isCorrectAnswer = correctAnswers.includes(answer);
-              
-                             // 정답 확인 후 시각적 피드백
-               let buttonStyle = "";
-               if (isCorrect !== null) {
-                 if (isCorrectAnswer) {
-                   buttonStyle = "border-green-500 bg-green-50 text-green-800";
-                 } else if (isSelected && !isCorrectAnswer) {
-                   buttonStyle = "border-red-500 bg-red-50 text-red-800";
-                 } else {
-                   buttonStyle = "border-gray-300 bg-gray-50 text-gray-600";
-                 }
-               } else if (isSelected) {
-                 buttonStyle = "border-primary bg-primary/5 text-primary";
-               } else {
-                 buttonStyle = "border-border bg-background";
-               }
-              
-              return (
-                <button
-                  key={index}
-                  onClick={() => handleAnswerToggle(answer)}
-                  disabled={isCorrect !== null} // 정답 확인 후 선택 불가
-                  className={`w-full p-4 text-left rounded-lg border-2 transition-all duration-200 ${buttonStyle} ${
-                    isCorrect !== null ? 'cursor-default' : 'cursor-pointer'
-                  }`}
-                  aria-label={`${answer}번 선택지: ${text}`}
-                >
-                  <div className="flex items-start">
-                    <span className="font-bold mr-3 mt-0.5 flex-shrink-0 text-lg">
-                      {answer}.
-                    </span>
-                    <span className="flex-1 text-left leading-relaxed break-words">
-                      {text}
-                    </span>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
+        <div className="px-4 py-4">
+          <QuestionDisplay
+            question={currentQuestion}
+            correctAnswer={currentQuestion.mostVotedAnswer}
+            selectedAnswers={selectedAnswers}
+            isCorrect={isCorrect}
+            onAnswerToggle={handleAnswerToggle}
+          />
 
           {/* 정답 결과 섹션 제거 - 토스트로 대체 */}
 
@@ -343,46 +235,20 @@ ${currentQuestion.choices.map((choice) => {
             </div>
 
             {/* GPT 해설 요청 버튼 - 오른쪽 구석 */}
-            <Button
-              onClick={copyGPTExplanationPrompt}
-              className="absolute top-0 right-0 p-2 rounded-md text-white transition-colors bg-purple-600 hover:bg-purple-700"
-              aria-label="GPT 해설 요청 프롬프트 복사"
-              title="GPT 해설 요청 프롬프트 복사"
-            >
-              <span className="text-lg">📋</span>
-            </Button>
+            <div className="absolute top-0 right-0">
+              <GPTExplanationButton
+                question={{
+                  questionNumber: currentQuestion.questionNumber,
+                  questionText: currentQuestion.questionText,
+                  choices: currentQuestion.choices
+                }}
+                correctAnswer={currentQuestion.mostVotedAnswer}
+                userAnswer={selectedAnswers.join("") || null}
+              />
+            </div>
           </div>
         </div>
 
-        {/* 토스트 알림 */}
-        {showToast && (
-          <div 
-            className="fixed bottom-4 left-4 right-4 z-50"
-            onClick={dismissToast}
-          >
-            <div className={`bg-background border border-border text-foreground px-4 py-3 rounded-lg shadow-lg transform transition-all duration-300 ease-out ${
-              toastVisible 
-                ? 'opacity-100 translate-y-0' 
-                : 'opacity-0 translate-y-2'
-            }`}>
-              <div className="flex items-center gap-3">
-                <div className="flex-shrink-0">
-                  <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
-                    <span className="text-green-600 text-sm">✓</span>
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-foreground">
-                    해설용 프롬프트 복사 완료
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    ChatGPT에 붙여넣기 하세요
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* 정답 확인 결과 토스트 */}
         {answerToast && (

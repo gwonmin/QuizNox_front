@@ -1,0 +1,391 @@
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "../../store";
+import { fetchMockExamQuestions } from "../../store/mockExamSlice";
+import { Button } from "../../components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
+import { Badge } from "../../components/ui/badge";
+import { GPTExplanationButton } from "../../components/GPTExplanationButton";
+import { QuestionDisplay } from "../../components/QuestionDisplay";
+import { getExamTypeInfo } from "../../constants/examTypes";
+import { formatDuration } from "../../utils/timeUtils";
+import { getExamDisplayName } from "../../utils/examUtils";
+
+export default function MockExamResultPage() {
+  const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+  const [searchParams] = useSearchParams();
+  const examTypeFromUrl = searchParams.get("type");
+  
+  const mockExamState = useSelector((state: RootState) => state.mockExam);
+  const {
+    examType,
+    examName,
+    questions,
+    answers,
+    startTime,
+    endTime,
+    loading,
+    error,
+  } = mockExamState;
+  
+  const [result, setResult] = useState<{
+    score: number;
+    totalQuestions: number;
+    correctAnswers: number;
+    incorrectAnswers: number;
+    unansweredQuestions: number;
+    passThreshold: number;
+    isPassed: boolean;
+    timeSpent: number;
+    answerDetails: Array<{
+      questionIndex: number;
+      question: string;
+      userAnswer: string | null;
+      correctAnswer: string;
+      isCorrect: boolean;
+      choices: string[];
+    }>;
+  } | null>(null);
+
+  const [selectedQuestion, setSelectedQuestion] = useState<number | null>(null);
+
+  // 모달이 열릴 때 배경 스크롤 방지
+  useEffect(() => {
+    if (selectedQuestion !== null) {
+      // 모달이 열릴 때 body 스크롤 방지
+      document.body.style.overflow = 'hidden';
+    } else {
+      // 모달이 닫힐 때 body 스크롤 복원
+      document.body.style.overflow = 'unset';
+    }
+
+    // 컴포넌트 언마운트 시 스크롤 복원
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [selectedQuestion]);
+
+  // 데이터가 없을 때 다시 로드 시도
+  useEffect(() => {
+    if (examTypeFromUrl && (!questions || questions.length === 0) && loading !== "loading") {
+      dispatch(fetchMockExamQuestions(examTypeFromUrl));
+    }
+  }, [examTypeFromUrl, questions, answers, loading, examType, examName, dispatch]);
+
+  // 시험 결과 계산
+  useEffect(() => {
+    if (questions && questions.length > 0 && answers) {
+
+      const examInfo = getExamTypeInfo(examTypeFromUrl || '');
+      const passThreshold = examInfo?.passThreshold || 45;
+      
+      let correctAnswers = 0;
+      let incorrectAnswers = 0;
+      let unansweredQuestions = 0;
+      
+      const answerDetails = questions.map((question, index) => {
+        const userAnswer = answers[index];
+        const correctAnswer = question.mostVotedAnswer;
+        const isCorrect = userAnswer === correctAnswer;
+        
+        
+        if (!userAnswer) {
+          unansweredQuestions++;
+        } else if (isCorrect) {
+          correctAnswers++;
+        } else {
+          incorrectAnswers++;
+        }
+        
+        return {
+          questionIndex: index,
+          question: question.questionText,
+          userAnswer,
+          correctAnswer,
+          isCorrect,
+          choices: question.choices
+        };
+      });
+
+      const totalQuestions = questions.length;
+      const score = correctAnswers;
+      const isPassed = score >= passThreshold;
+      
+      // 시험 시간 계산 (초단위)
+      const timeSpent = startTime && endTime ? Math.round((endTime - startTime) / 1000) : 0;
+
+      const newResult = {
+        score,
+        totalQuestions,
+        correctAnswers,
+        incorrectAnswers,
+        unansweredQuestions,
+        passThreshold,
+        isPassed,
+        timeSpent,
+        answerDetails
+      };
+
+      setResult(newResult);
+    }
+  }, [questions, answers, examTypeFromUrl, startTime, endTime]);
+
+
+  // 문제 클릭 핸들러
+  const handleQuestionClick = (questionIndex: number) => {
+    setSelectedQuestion(questionIndex);
+  };
+
+  // 모달 닫기
+  const handleCloseModal = () => {
+    setSelectedQuestion(null);
+  };
+
+
+  // 로딩 중
+  if (loading === "loading") {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">결과를 계산하는 중입니다...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 에러 상태
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <h1 className="text-2xl font-bold text-destructive mb-4">오류 발생</h1>
+          <p className="text-muted-foreground mb-6">{error}</p>
+          <Button onClick={() => navigate("/mock-exam")}>
+            모의고사 선택으로 돌아가기
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // 데이터 없음
+  if (!questions || questions.length === 0 || !result) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <h1 className="text-2xl font-bold mb-4">시험 데이터를 찾을 수 없습니다</h1>
+          <p className="text-muted-foreground mb-6">
+            시험 데이터가 로드되지 않았습니다. 다시 시험을 시작해주세요.
+          </p>
+          <Button onClick={() => navigate("/mock-exam")}>
+            모의고사 선택으로 돌아가기
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        {/* 헤더 */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold mb-2">시험 결과</h1>
+          <p className="text-muted-foreground">
+            {examName || getExamDisplayName(examTypeFromUrl || '')}
+          </p>
+        </div>
+
+        {/* 결과 요약 */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="text-center">시험 결과 요약</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* 점수 */}
+              <div className="text-center">
+                <div className="text-4xl font-bold mb-2 text-primary">
+                  {result.score} / {result.totalQuestions}
+                </div>
+                <p className="text-muted-foreground">정답 수</p>
+                <Badge 
+                  variant={result.isPassed ? "default" : "destructive"}
+                  className="mt-2"
+                >
+                  {result.isPassed ? "합격" : "불합격"}
+                </Badge>
+              </div>
+
+              {/* 통계 */}
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span>정답:</span>
+                  <span className="font-semibold text-green-600">{result.correctAnswers}문제</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>오답:</span>
+                  <span className="font-semibold text-red-600">{result.incorrectAnswers}문제</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>미답:</span>
+                  <span className="font-semibold text-gray-600">{result.unansweredQuestions}문제</span>
+              </div>
+                <div className="flex justify-between">
+                  <span>소요 시간:</span>
+                  <span className="font-semibold">{formatDuration(result.timeSpent)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>합격 기준:</span>
+                  <span className="font-semibold">{result.passThreshold}문제 이상</span>
+                </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+        {/* 문제별 상세 결과 - 블록 구조 */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>문제별 상세 결과 (클릭하여 상세 내용 확인)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              {result.answerDetails.map((detail, index) => (
+                <div
+                  key={index}
+                  className={`p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 hover:shadow-md ${
+                    !detail.userAnswer
+                      ? "border-gray-200 bg-gray-50 hover:bg-gray-100"
+                      : detail.isCorrect
+                      ? "border-green-200 bg-green-50 hover:bg-green-100"
+                      : "border-red-200 bg-red-50 hover:bg-red-100"
+                  }`}
+                  onClick={() => handleQuestionClick(detail.questionIndex)}
+                >
+                  <div className="flex flex-col items-center gap-2">
+                    <span className="text-sm font-medium">
+                      {detail.questionIndex + 1}
+                    </span>
+                    <Badge
+                      variant={
+                        !detail.userAnswer 
+                          ? "secondary" 
+                          : detail.isCorrect 
+                          ? "default" 
+                          : "destructive"
+                      }
+                      className="text-xs px-2 py-1"
+                    >
+                      {!detail.userAnswer 
+                        ? "미답" 
+                        : detail.isCorrect 
+                        ? "정답" 
+                        : "오답"}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 액션 버튼들 */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Button
+            onClick={() => navigate("/mock-exam")}
+            variant="outline"
+            className="flex-1 sm:flex-none"
+          >
+            다른 모의고사 보기
+          </Button>
+                  <Button
+            onClick={() => navigate("/")}
+            className="flex-1 sm:flex-none"
+          >
+            홈으로 돌아가기
+                  </Button>
+                </div>
+      </div>
+
+      {/* 모달 */}
+      {selectedQuestion !== null && result && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-background rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold">
+                  문제 {selectedQuestion + 1}
+                </h2>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCloseModal}
+                >
+                  닫기
+                </Button>
+                </div>
+
+              {(() => {
+                const detail = result.answerDetails[selectedQuestion];
+                return (
+                  <div className="space-y-4">
+                    <QuestionDisplay
+                      question={{
+                        questionNumber: selectedQuestion + 1,
+                        questionText: detail.question,
+                        choices: detail.choices,
+                        mostVotedAnswer: detail.correctAnswer
+                      }}
+                      correctAnswer={detail.correctAnswer}
+                      userAnswer={detail.userAnswer}
+                      showAnswer={true}
+                      disabled={true}
+                    />
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4 text-sm">
+                        <div className="flex items-center gap-2">
+                          <span className="text-gray-600">정답:</span>
+                          <span className="font-mono bg-gray-100 px-2 py-1 rounded">
+                            {detail.correctAnswer}
+                          </span>
+                        </div>
+                        {detail.userAnswer && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-gray-600">내 답:</span>
+                            <span className="font-mono bg-gray-100 px-2 py-1 rounded">
+                              {detail.userAnswer}
+                            </span>
+                          </div>
+                        )}
+                        {!detail.userAnswer && (
+                          <span className="text-gray-500">미답</span>
+                        )}
+                      </div>
+                      
+                      {/* GPT 해설 버튼 */}
+                      <GPTExplanationButton
+                        question={{
+                          questionNumber: selectedQuestion + 1,
+                          questionText: questions[selectedQuestion].questionText,
+                          choices: questions[selectedQuestion].choices
+                        }}
+                        correctAnswer={detail.correctAnswer}
+                        userAnswer={detail.userAnswer}
+                      />
+                    </div>
+                  </div>
+                );
+              })()}
+                </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}

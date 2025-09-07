@@ -7,6 +7,8 @@ export default function Home() {
         <p className="text-md text-muted-foreground leading-relaxed">
           이 서비스는 덤프 퀴즈 플랫폼이에요.
           <br />
+          (모의고사 기능은 PC, 테블릿 환경에서만 사용 가능합니다.)
+          <br />
           <br />
           문제에 오류가 있는 경우 알려주세요.
           <br />
