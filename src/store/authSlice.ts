@@ -20,7 +20,6 @@ import {
   RegisterRequest,
   UpdateUsernameRequest,
   UpdatePasswordRequest,
-  User,
 } from '../types/api';
 
 // 초기 상태
