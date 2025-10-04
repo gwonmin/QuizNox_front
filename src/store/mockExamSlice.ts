@@ -1,7 +1,6 @@
 import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 import { ExamType, MockExamState } from "../types/quiz";
-
-const API_URL = import.meta.env.VITE_API_GATEWAY_URL;
+import { quizApi } from "../services/api";
 
 // 모의고사 설정 (공통 상수에서 생성)
 const MOCK_EXAM_CONFIG = {
@@ -22,17 +21,13 @@ export const fetchMockExamQuestions = createAsyncThunk(
   "mockExam/fetchQuestions",
   async (topicId: string) => {
     try {
-      const response = await fetch(`${API_URL}/questions?topicId=${topicId}`);
-      if (!response.ok) {
-        throw new Error("모의고사 문제를 불러오는데 실패했습니다.");
-      }
-      const data = await response.json();
-      if (!data || !Array.isArray(data)) {
+      const response = await quizApi.get(`/questions?topicId=${topicId}`);
+      if (!response.data || !Array.isArray(response.data)) {
         throw new Error("잘못된 응답 형식입니다.");
       }
 
       // 전체 문제에서 랜덤하게 65문제 선택
-      const shuffled = data.sort(() => 0.5 - Math.random());
+      const shuffled = response.data.sort(() => 0.5 - Math.random());
       const selectedQuestions = shuffled.slice(0, 65);
 
       return selectedQuestions.map((rawQuestion: any, index: number) => ({

@@ -1,7 +1,6 @@
 import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 import { Question, QuizState, RawQuestion } from "../types/quiz";
-
-const API_URL = import.meta.env.VITE_API_GATEWAY_URL;
+import { quizApi } from "../services/api";
 
 const mapQuestion = (rawQuestion: RawQuestion): Question => ({
   questionNumber: Number(rawQuestion.question_number),
@@ -13,16 +12,12 @@ const mapQuestion = (rawQuestion: RawQuestion): Question => ({
 export const fetchQuestions = createAsyncThunk(
   "quiz/fetchQuestions",
   async (topicId: string) => {
-    const response = await fetch(`${API_URL}/questions?topicId=${topicId}`);
-    if (!response.ok) {
-      throw new Error("문제를 불러오는데 실패했습니다.");
-    }
-    const data = await response.json();
+    const response = await quizApi.get(`/questions?topicId=${topicId}`);
     // API 응답이 QuestionResponse 타입인지 확인
-    if (!data || !Array.isArray(data)) {
+    if (!response.data || !Array.isArray(response.data)) {
       throw new Error("잘못된 응답 형식입니다.");
     }
-    return data.map(mapQuestion);
+    return response.data.map(mapQuestion);
   }
 );
 
