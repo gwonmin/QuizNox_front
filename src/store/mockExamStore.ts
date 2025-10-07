@@ -31,7 +31,7 @@ interface MockExamStore extends MockExamState {
 
 export const useMockExamStore = create<MockExamStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       // Initial state
       examType: null,
       examTypeId: null,

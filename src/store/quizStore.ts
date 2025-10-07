@@ -21,7 +21,7 @@ interface QuizStore extends QuizState {
 
 export const useQuizStore = create<QuizStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       // Initial state
       topicId: '',
       questions: [],
