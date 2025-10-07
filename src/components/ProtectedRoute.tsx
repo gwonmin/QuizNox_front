@@ -3,6 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useCurrentUser } from '../hooks/queries/useAuthQueries';
 import { getAccessToken, clearTokens } from '../utils/tokenUtils';
+import { User } from '../types/api';
 import { LoadingSpinner } from './LoadingSpinner';
 
 interface ProtectedRouteProps {
@@ -23,16 +24,28 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   // 사용자 정보가 로드되면 스토어에 저장
   useEffect(() => {
     if (currentUser) {
-      setUser(currentUser);
+      // MeResponse를 User 타입으로 변환
+      const user: User = {
+        user_id: currentUser.user_id,
+        username: currentUser.username,
+        is_active: true, // MeResponse에서 가져온 사용자는 활성 상태로 가정
+        created_at: currentUser.created_at,
+        last_login_at: currentUser.last_login_at,
+        username_changed_at: undefined, // MeResponse에 없으므로 undefined
+      };
+      setUser(user);
     }
   }, [currentUser, setUser]);
 
   // 401 에러인 경우 (토큰 만료) 로그아웃 처리
   useEffect(() => {
-    if (error?.response?.status === 401) {
-      // 토큰이 만료된 경우 로그아웃 처리
-      clearTokens();
-      resetAuth();
+    if (error && typeof error === 'object' && 'response' in error) {
+      const apiError = error as { response?: { status?: number } };
+      if (apiError.response?.status === 401) {
+        // 토큰이 만료된 경우 로그아웃 처리
+        clearTokens();
+        resetAuth();
+      }
     }
   }, [error, resetAuth]);
 
