@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useMockExamStore } from "../../store/mockExamStore";
+import { useMockExamQuestions } from "../../hooks/queries/useQuizQueries";
 import { LoadingSpinner } from "../../components/LoadingSpinner";
 import { ErrorBoundary } from "../../components/ErrorBoundary";
 import { Button } from "../../components/ui/button";
@@ -22,14 +23,15 @@ export default function MockExamPlay() {
     questions,
     isStarted,
     isSubmitted,
-    loading,
-    error,
     startExam,
     setAnswer,
     setCurrentQuestionIndex,
-    fetchMockExamQuestions,
+    setQuestions,
     resetMockExam,
   } = useMockExamStore();
+
+  // TanStack Query로 모의고사 문제 가져오기
+  const { data: mockExamQuestions, isPending: isLoading, error } = useMockExamQuestions(examType || '');
 
   const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
   const loadedExamType = useRef<string | null>(null);
@@ -44,18 +46,21 @@ export default function MockExamPlay() {
       return;
     }
 
-    // 이미 로드된 examType이 아니면 로드
-    if (loadedExamType.current !== examType) {
-      fetchMockExamQuestions(examType);
+    // TanStack Query에서 가져온 문제를 Zustand에 저장
+    if (mockExamQuestions && mockExamQuestions.length > 0 && loadedExamType.current !== examType) {
+      setQuestions(mockExamQuestions);
       loadedExamType.current = examType;
     }
-  }, [examType, fetchMockExamQuestions, navigate]);
+  }, [examType, navigate, mockExamQuestions, setQuestions]);
 
   // 컴포넌트 언마운트 시 시험 데이터 초기화 (제출되지 않은 경우만)
   useEffect(() => {
+    const isSubmitting = isSubmittingRef.current;
+    const isReviewing = isReviewingRef.current;
+    
     return () => {
       // 제출 중이거나 제출된 경우, 또는 검토 중인 경우에는 데이터를 유지
-      if (isSubmittingRef.current || isSubmitted || isReviewingRef.current) {
+      if (isSubmitting || isSubmitted || isReviewing) {
         return;
       }
       
@@ -66,10 +71,25 @@ export default function MockExamPlay() {
     };
   }, [isStarted, isSubmitted, resetMockExam]);
 
+  // 다른 페이지로 이동할 때 시험 데이터 초기화 (검토 완료 후)
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      // 검토 완료 후 다른 페이지로 이동하는 경우에만 초기화
+      if (isSubmitted && !isReviewingRef.current) {
+        resetMockExam();
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isSubmitted, resetMockExam]);
+
 
   // 문제 로드 완료 시 현재 문제의 답안 복원
   useEffect(() => {
-    if (loading === "succeeded" && questions && questions.length > 0) {
+    if (questions && questions.length > 0) {
       const currentAnswer = answers[currentQuestionIndex];
       if (currentAnswer) {
         setSelectedAnswers(currentAnswer.split(""));
@@ -77,7 +97,8 @@ export default function MockExamPlay() {
         setSelectedAnswers([]);
       }
     }
-  }, [loading, questions, currentQuestionIndex]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [questions, currentQuestionIndex]); // answers 제거하여 무한 루프 방지
 
   // 타이머 관리
   useExamTimer({
@@ -125,7 +146,7 @@ export default function MockExamPlay() {
   useEffect(() => {
     const answerString = selectedAnswers.length > 0 ? selectedAnswers.join("") : null;
     setAnswer(currentQuestionIndex, answerString);
-  }, [selectedAnswers, currentQuestionIndex]);
+  }, [selectedAnswers, currentQuestionIndex, setAnswer]);
 
   // 이전 문제
   const handlePreviousQuestion = useCallback(() => {
@@ -135,7 +156,7 @@ export default function MockExamPlay() {
       const prevAnswer = answers[currentQuestionIndex - 1];
       setSelectedAnswers(prevAnswer ? prevAnswer.split("") : []);
     }
-  }, [currentQuestionIndex, setCurrentQuestionIndex]);
+  }, [currentQuestionIndex, setCurrentQuestionIndex, answers]);
 
   // 다음 문제
   const handleNextQuestion = useCallback(() => {
@@ -145,7 +166,7 @@ export default function MockExamPlay() {
       const nextAnswer = answers[currentQuestionIndex + 1];
       setSelectedAnswers(nextAnswer ? nextAnswer.split("") : []);
     }
-  }, [currentQuestionIndex, questions, setCurrentQuestionIndex]);
+  }, [currentQuestionIndex, questions, setCurrentQuestionIndex, answers]);
 
 
   // 시험 제출 후 결과 페이지로 이동
@@ -163,14 +184,14 @@ export default function MockExamPlay() {
   // 답변한 문제 수 계산
   const answeredQuestions = getAnsweredQuestionsCount(answers);
 
-  if (loading === "loading") {
+  if (isLoading) {
     return <LoadingSpinner />;
   }
 
   if (error) {
     return (
       <div className="text-center p-4">
-        <p className="text-destructive mb-4">{error}</p>
+        <p className="text-destructive mb-4">{error.message || '문제를 불러오는데 실패했습니다.'}</p>
         <Button onClick={() => navigate("/mock-exam")}>
           모의고사 선택으로 돌아가기
         </Button>

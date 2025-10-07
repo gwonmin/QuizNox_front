@@ -1,13 +1,15 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { useAuthStore } from "../store/authStore";
+import { useLogout } from "../hooks/queries/useAuthQueries";
 import { Button } from "./ui/button";
 
 export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   
-  const { isAuthenticated, user, loading, logout } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
+  const { mutate: logout, isPending: loading } = useLogout();
   const hideNavbar = location.pathname === "/quiz/play";
   
   // 드롭다운 상태 관리
@@ -33,17 +35,16 @@ export default function Navbar() {
     };
   }, []);
 
-  const handleLogout = async () => {
-    try {
-      // 드롭다운 닫기
-      setIsDropdownOpen(false);
-      setIsMobileDropdownOpen(false);
-      
-      await logout();
-      navigate('/login');
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
+  const handleLogout = () => {
+    // 드롭다운 닫기
+    setIsDropdownOpen(false);
+    setIsMobileDropdownOpen(false);
+    
+    logout(undefined, {
+      onSuccess: () => {
+        navigate('/login');
+      },
+    });
   };
 
   const toggleDropdown = () => {

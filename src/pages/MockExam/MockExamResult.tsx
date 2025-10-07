@@ -19,30 +19,33 @@ export default function MockExamResultPage() {
   const examTypeFromUrl = searchParams.get("type");
   
   const {
-    examType,
     examName,
-    questions,
     answers,
     startTime,
     endTime,
-    loading,
-    error,
-    fetchMockExamQuestions,
+    resetMockExam,
   } = useMockExamStore();
   
+  // Zustand에서 직접 문제 데이터 가져오기 (결과 페이지에서는 이미 로드된 데이터 사용)
+  const { questions } = useMockExamStore();
+  
   const [result, setResult] = useState<ExamResultState | null>(null);
-
   const [selectedQuestion, setSelectedQuestion] = useState<number | null>(null);
 
   // 모달 스크롤 방지
   useModalScrollLock(selectedQuestion !== null);
 
-  // 데이터가 없을 때 다시 로드 시도
+  // 다른 페이지로 이동할 때 시험 데이터 초기화
   useEffect(() => {
-    if (examTypeFromUrl && (!questions || questions.length === 0) && loading !== "loading") {
-      fetchMockExamQuestions(examTypeFromUrl);
-    }
-  }, [examTypeFromUrl, questions, answers, loading, examType, examName, fetchMockExamQuestions]);
+    const handleBeforeUnload = () => {
+      resetMockExam();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [resetMockExam]);
 
   // 시험 결과 계산
   useEffect(() => {
@@ -113,26 +116,13 @@ export default function MockExamResultPage() {
     setSelectedQuestion(null);
   };
 
-
-  // 로딩 중
-  if (loading === "loading") {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">결과를 계산하는 중입니다...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // 에러 상태
-  if (error) {
+  // 문제 데이터가 없는 경우
+  if (!questions || questions.length === 0) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center max-w-md mx-auto p-6">
-          <h1 className="text-2xl font-bold text-destructive mb-4">오류 발생</h1>
-          <p className="text-muted-foreground mb-6">{error}</p>
+          <h1 className="text-2xl font-bold text-destructive mb-4">시험 데이터 없음</h1>
+          <p className="text-muted-foreground mb-6">시험 문제를 찾을 수 없습니다. 다시 시험을 시작해주세요.</p>
           <Button onClick={() => navigate("/mock-exam")}>
             모의고사 선택으로 돌아가기
           </Button>
@@ -141,8 +131,8 @@ export default function MockExamResultPage() {
     );
   }
 
-  // 데이터 없음
-  if (!questions || questions.length === 0 || !result) {
+  // 결과 데이터가 없는 경우
+  if (!result) {
     return (
       <ExamDataError
         onGoBack={() => navigate("/mock-exam")}

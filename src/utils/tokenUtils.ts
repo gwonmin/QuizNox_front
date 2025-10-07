@@ -42,7 +42,7 @@ export const clearTokens = (): void => {
 /**
  * JWT 토큰 디코드 (페이로드 추출)
  */
-export const decodeToken = (token: string): any => {
+export const decodeToken = (token: string): { exp?: number; [key: string]: unknown } | null => {
   try {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -72,7 +72,7 @@ export const isTokenExpired = (token: string): boolean => {
     // exp는 초 단위, Date.now()는 밀리초 단위
     const currentTime = Date.now() / 1000;
     return payload.exp < currentTime;
-  } catch (error) {
+  } catch {
     return true;
   }
 };
@@ -92,7 +92,7 @@ export const isTokenExpiringSoon = (token: string): boolean => {
     
     // 5분(300초) 이내에 만료되면 true
     return timeUntilExpiry < 300;
-  } catch (error) {
+  } catch {
     return true;
   }
 };

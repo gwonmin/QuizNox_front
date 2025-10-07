@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useQuizStore } from "../../store/quizStore";
+import { useQuestions } from "../../hooks/queries/useQuizQueries";
 import { LoadingSpinner } from "../../components/LoadingSpinner";
 import { ErrorBoundary } from "../../components/ErrorBoundary";
 import { Button } from "../../components/ui/button";
@@ -17,7 +18,14 @@ export default function QuizPlayPage() {
   const q = Number(searchParams.get("q"));
   const topicId = searchParams.get("topicId");
 
-  const { questions, loading, error, setScrollIndex } = useQuizStore();
+  const { setScrollIndex } = useQuizStore();
+  
+  // TanStack Query로 문제 데이터 가져오기
+  const {
+    data: questions = [],
+    isLoading: loading,
+    error,
+  } = useQuestions(topicId || '');
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
@@ -133,15 +141,15 @@ export default function QuizPlayPage() {
         document.documentElement.scrollTo({ top: 0 });
       }
     }
-  }, [currentIndex, questions.length, questions, topicId, navigate, setScrollIndex, resetState]);
+  }, [currentIndex, questions, topicId, navigate, setScrollIndex, resetState]);
 
 
-  if (loading === "loading") {
+  if (loading) {
     return <LoadingSpinner />;
   }
 
   if (error) {
-    return <p className="p-4 text-center text-destructive">{error}</p>;
+    return <p className="p-4 text-center text-destructive">{error.message}</p>;
   }
 
   if (!questions.length) {

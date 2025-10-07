@@ -35,7 +35,7 @@ export interface Tokens {
 }
 
 // API 공통 응답 형식
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data: T;
   message?: string;

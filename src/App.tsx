@@ -1,7 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Suspense, lazy, useEffect } from "react";
-import { useAuthStore } from "./store/authStore";
-import { getAccessToken } from "./utils/tokenUtils";
+import { Suspense, lazy } from "react";
 import Navbar from "./components/Navbar";
 import { LoadingSpinner } from "./components/LoadingSpinner";
 import { ErrorBoundary } from "./components/ErrorBoundary";
@@ -21,15 +19,8 @@ const Register = lazy(() => import("./pages/Auth/Register"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function AppContent() {
-  const { user, fetchCurrentUser } = useAuthStore();
-  const accessToken = getAccessToken();
-
-  // 앱 시작 시 토큰이 있으면 사용자 정보 가져오기
-  useEffect(() => {
-    if (accessToken && !user) {
-      fetchCurrentUser();
-    }
-  }, [accessToken, user, fetchCurrentUser]);
+  // App 레벨에서는 useCurrentUser를 호출하지 않음
+  // ProtectedRoute에서만 호출하여 중복 방지
 
   return (
     <Suspense fallback={<LoadingSpinner />}>

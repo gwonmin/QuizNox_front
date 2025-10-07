@@ -99,7 +99,7 @@ export const getAnsweredQuestionsCount = (answers: (string | null)[]): number =>
  * @param answers 답안 배열
  * @returns 유효성 검사 결과
  */
-export const validateExamData = (questions: any[], answers: (string | null)[]) => {
+export const validateExamData = (questions: unknown[], answers: (string | null)[]) => {
   return {
     hasQuestions: questions && questions.length > 0,
     hasAnswers: answers && answers.length > 0,

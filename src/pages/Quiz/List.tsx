@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuizStore } from "../../store/quizStore";
+import { useQuestions } from "../../hooks/queries/useQuizQueries";
 import { VariableSizeList as List } from "react-window";
 import { QuestionCard } from "../../components/QuestionCard";
 import { LoadingSpinner } from "../../components/LoadingSpinner";
@@ -18,23 +19,24 @@ export default function QuestionListPage() {
   const [listHeight, setListHeight] = useState(600);
 
   const {
-    questions,
     scrollIndex,
-    loading,
-    error,
-    topicId: existingTopicId,
     setScrollIndex,
-    fetchQuestions,
+    setQuestions,
   } = useQuizStore();
 
+  // TanStack Query로 문제 데이터 가져오기
+  const {
+    data: questions = [],
+    isLoading: loading,
+    error,
+  } = useQuestions(topicId || '');
+
+  // 문제 데이터가 로드되면 스토어에 저장
   useEffect(() => {
-    if (!topicId) return;
-
-    // 이미 같은 topicId의 데이터가 있으면 API 호출하지 않음
-    if (existingTopicId === topicId && questions.length > 0) return;
-
-    fetchQuestions(topicId);
-  }, [topicId, fetchQuestions, existingTopicId, questions.length]);
+    if (questions.length > 0 && topicId) {
+      setQuestions(questions);
+    }
+  }, [questions, topicId, setQuestions]);
 
 
 
@@ -155,12 +157,12 @@ export default function QuestionListPage() {
     return <p className="p-4 text-center text-destructive">쿼리가 없습니다.</p>;
   }
 
-  if (loading === "loading") {
+  if (loading) {
     return <LoadingSpinner />;
   }
 
   if (error) {
-    return <p className="p-4 text-center text-destructive">{error}</p>;
+    return <p className="p-4 text-center text-destructive">{error.message}</p>;
   }
 
   if (!questions.length) {

@@ -48,8 +48,8 @@ const quizApiClient: AxiosInstance = axios.create({
 let isRefreshing = false;
 // 토큰 갱신 중 대기 중인 요청들
 let failedQueue: Array<{
-  resolve: (value?: any) => void;
-  reject: (reason?: any) => void;
+  resolve: (value?: unknown) => void;
+  reject: (reason?: unknown) => void;
 }> = [];
 
 /**
@@ -283,8 +283,15 @@ export const logout = async (): Promise<ApiResponse<LogoutResponse>> => {
   try {
     const refreshToken = getRefreshToken();
     
+    // refresh token이 없으면 성공으로 처리 (이미 로그아웃된 상태)
     if (!refreshToken) {
-      throw new Error('Refresh token not found');
+      console.log('Refresh token not found, treating as successful logout');
+      return {
+        success: true,
+        status: 200,
+        message: '이미 로그아웃된 상태입니다.',
+        data: { message: '이미 로그아웃된 상태입니다.' }
+      };
     }
 
     console.log('Logout API 호출 시작');

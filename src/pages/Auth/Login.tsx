@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
+import { useLogin } from '../../hooks/queries/useAuthQueries';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { isAuthenticated, loading, error, login, clearError } = useAuthStore();
+  const { isAuthenticated, clearError } = useAuthStore();
+  const { mutate: login, isPending: loading, error } = useLogin();
 
   const [formData, setFormData] = useState({
     username: '',
@@ -70,12 +72,11 @@ export default function Login() {
       return;
     }
 
-    try {
-      await login(formData);
-      navigate('/');
-    } catch (error) {
-      // 에러는 Zustand에서 처리
-    }
+    login(formData, {
+      onSuccess: () => {
+        navigate('/');
+      },
+    });
   };
 
   return (
@@ -96,7 +97,7 @@ export default function Login() {
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
             {(error || validationError) && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-600">{error || validationError}</p>
+                <p className="text-sm text-red-600">{error?.message || validationError}</p>
               </div>
             )}
 
