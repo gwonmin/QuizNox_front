@@ -4,7 +4,7 @@ import { useQuizStore } from "../../store/quizStore";
 import { useQuestions } from "../../hooks/queries/useQuizQueries";
 import { VariableSizeList as List } from "react-window";
 import { QuestionCard } from "../../components/QuestionCard";
-import { LoadingSpinner } from "../../components/LoadingSpinner";
+import { LoadingOverlay } from "../../components/LoadingOverlay";
 import { ErrorBoundary } from "../../components/ErrorBoundary";
 
 /**
@@ -158,7 +158,11 @@ export default function QuestionListPage() {
   }
 
   if (loading) {
-    return <LoadingSpinner />;
+    return (
+      <>
+        <LoadingOverlay show={true} />
+      </>
+    );
   }
 
   if (error) {

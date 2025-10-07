@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import Navbar from "./components/Navbar";
-import { LoadingSpinner } from "./components/LoadingSpinner";
+import { LoadingOverlay } from "./components/LoadingOverlay";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -23,7 +23,7 @@ function AppContent() {
   // ProtectedRoute에서만 호출하여 중복 방지
 
   return (
-    <Suspense fallback={<LoadingSpinner />}>
+    <Suspense fallback={<LoadingOverlay show={true} />}>
       <Routes>
         {/* 인증 페이지 - 헤더 없이 전체 화면 */}
         <Route path="/login" element={<Login />} />
@@ -36,7 +36,7 @@ function AppContent() {
             <div className="h-screen flex flex-col">
               <Navbar />
               <main className="flex-1 container mx-auto px-4 py-8">
-                <Suspense fallback={<LoadingSpinner />}>
+                <Suspense fallback={<LoadingOverlay show={true} />}>
                   <Routes>
                     {/* 보호된 라우트 (인증 필요) */}
                     <Route

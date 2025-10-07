@@ -4,6 +4,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useLogin } from '../../hooks/queries/useAuthQueries';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
+import { LoadingOverlay } from '../../components/LoadingOverlay';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -156,6 +157,9 @@ export default function Login() {
           </form>
         </Card>
       </div>
+      
+      {/* 로딩 오버레이 */}
+      <LoadingOverlay show={loading} message="로그인 중..." />
     </div>
   );
 }

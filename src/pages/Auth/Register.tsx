@@ -4,6 +4,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useRegister } from '../../hooks/queries/useAuthQueries';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
+import { LoadingOverlay } from '../../components/LoadingOverlay';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -184,6 +185,9 @@ export default function Register() {
           </form>
         </Card>
       </div>
+      
+      {/* 로딩 오버레이 */}
+      <LoadingOverlay show={loading} message="회원가입 중..." />
     </div>
   );
 }

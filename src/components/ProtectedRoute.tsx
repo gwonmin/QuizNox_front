@@ -4,7 +4,7 @@ import { useAuthStore } from '../store/authStore';
 import { useCurrentUser } from '../hooks/queries/useAuthQueries';
 import { getAccessToken, clearTokens } from '../utils/tokenUtils';
 import { User } from '../types/api';
-import { LoadingSpinner } from './LoadingSpinner';
+import { LoadingOverlay } from './LoadingOverlay';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -58,7 +58,12 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   if (!isAuthenticated) {
     // 사용자 정보를 가져오는 중이면 로딩 표시
     if (isLoading) {
-      return <LoadingSpinner />;
+      return (
+        <>
+          {children}
+          <LoadingOverlay show={true} />
+        </>
+      );
     }
     // 로딩이 끝났는데 인증되지 않았으면 리다이렉트
     return <Navigate to="/login" state={{ from: location }} replace />;
@@ -68,7 +73,12 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   if (!user) {
     // 사용자 정보를 가져오는 중이면 로딩 표시
     if (isLoading) {
-      return <LoadingSpinner />;
+      return (
+        <>
+          {children}
+          <LoadingOverlay show={true} />
+        </>
+      );
     }
     // 로딩이 끝났는데 사용자 정보가 없으면 리다이렉트
     return <Navigate to="/login" state={{ from: location }} replace />;

@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useMockExamStore } from "../../store/mockExamStore";
 import { useMockExamQuestions } from "../../hooks/queries/useQuizQueries";
-import { LoadingSpinner } from "../../components/LoadingSpinner";
+import { LoadingOverlay } from "../../components/LoadingOverlay";
 import { ErrorBoundary } from "../../components/ErrorBoundary";
 import { Button } from "../../components/ui/button";
 import { QuestionDisplay } from "../../components/QuestionDisplay";
@@ -185,7 +185,11 @@ export default function MockExamPlay() {
   const answeredQuestions = getAnsweredQuestionsCount(answers);
 
   if (isLoading) {
-    return <LoadingSpinner />;
+    return (
+      <>
+        <LoadingOverlay show={true} />
+      </>
+    );
   }
 
   if (error) {

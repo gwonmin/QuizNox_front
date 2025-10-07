@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useQuizStore } from "../../store/quizStore";
 import { useQuestions } from "../../hooks/queries/useQuizQueries";
-import { LoadingSpinner } from "../../components/LoadingSpinner";
+import { LoadingOverlay } from "../../components/LoadingOverlay";
 import { ErrorBoundary } from "../../components/ErrorBoundary";
 import { Button } from "../../components/ui/button";
 import { GPTExplanationButton } from "../../components/GPTExplanationButton";
@@ -145,7 +145,11 @@ export default function QuizPlayPage() {
 
 
   if (loading) {
-    return <LoadingSpinner />;
+    return (
+      <>
+        <LoadingOverlay show={true} />
+      </>
+    );
   }
 
   if (error) {
