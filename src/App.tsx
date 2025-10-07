@@ -1,8 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Suspense, lazy, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "./store";
-import { fetchCurrentUser } from "./store/authSlice";
+import { useAuthStore } from "./store/authStore";
 import { getAccessToken } from "./utils/tokenUtils";
 import Navbar from "./components/Navbar";
 import { LoadingSpinner } from "./components/LoadingSpinner";
@@ -23,16 +21,15 @@ const Register = lazy(() => import("./pages/Auth/Register"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function AppContent() {
-  const dispatch = useDispatch<AppDispatch>();
-  const { user } = useSelector((state: RootState) => state.auth);
+  const { user, fetchCurrentUser } = useAuthStore();
   const accessToken = getAccessToken();
 
   // 앱 시작 시 토큰이 있으면 사용자 정보 가져오기
   useEffect(() => {
     if (accessToken && !user) {
-      dispatch(fetchCurrentUser());
+      fetchCurrentUser();
     }
-  }, [accessToken, user, dispatch]);
+  }, [accessToken, user, fetchCurrentUser]);
 
   return (
     <Suspense fallback={<LoadingSpinner />}>

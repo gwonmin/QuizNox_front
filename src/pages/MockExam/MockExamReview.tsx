@@ -1,8 +1,6 @@
 import { useState, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { RootState, AppDispatch } from "../../store";
-import { setAnswer, submitExam } from "../../store/mockExamSlice";
+import { useMockExamStore } from "../../store/mockExamStore";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
@@ -15,17 +13,17 @@ import { getExamDisplayName, getAnswerStatus, getAnsweredQuestionsCount, validat
 
 export default function MockExamReview() {
   const navigate = useNavigate();
-  const dispatch = useDispatch<AppDispatch>();
   const [searchParams] = useSearchParams();
   const examType = searchParams.get("type") as string;
   
-  const mockExamState = useSelector((state: RootState) => state.mockExam);
   const {
     questions,
     answers,
     remainingTime,
     isStarted,
-  } = mockExamState;
+    setAnswer,
+    submitExam,
+  } = useMockExamStore();
 
   const [selectedQuestion, setSelectedQuestion] = useState<number | null>(null);
   const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
@@ -72,17 +70,14 @@ export default function MockExamReview() {
   const handleSaveAnswer = useCallback(() => {
     if (selectedQuestion !== null) {
       const answerString = selectedAnswers.length > 0 ? selectedAnswers.join("") : null;
-      dispatch(setAnswer({ 
-        questionIndex: selectedQuestion, 
-        answer: answerString 
-      }));
+      setAnswer(selectedQuestion, answerString);
       handleCloseModal();
     }
-  }, [selectedQuestion, selectedAnswers, dispatch]);
+  }, [selectedQuestion, selectedAnswers, setAnswer]);
 
   // 시험 제출
   const handleSubmitExam = () => {
-    dispatch(submitExam());
+    submitExam();
     navigate(`/mock-exam/result?type=${examType}`);
   };
 

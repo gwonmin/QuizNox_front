@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState, AppDispatch } from "../../store";
-import { setScrollIndex, fetchQuestions } from "../../store/quizSlice";
+import { useQuizStore } from "../../store/quizStore";
 import { VariableSizeList as List } from "react-window";
 import { QuestionCard } from "../../components/QuestionCard";
 import { LoadingSpinner } from "../../components/LoadingSpinner";
@@ -19,14 +17,15 @@ export default function QuestionListPage() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [listHeight, setListHeight] = useState(600);
 
-  const dispatch = useDispatch<AppDispatch>();
   const {
     questions,
     scrollIndex,
     loading,
     error,
     topicId: existingTopicId,
-  } = useSelector((state: RootState) => state.quiz);
+    setScrollIndex,
+    fetchQuestions,
+  } = useQuizStore();
 
   useEffect(() => {
     if (!topicId) return;
@@ -34,8 +33,8 @@ export default function QuestionListPage() {
     // 이미 같은 topicId의 데이터가 있으면 API 호출하지 않음
     if (existingTopicId === topicId && questions.length > 0) return;
 
-    dispatch(fetchQuestions(topicId));
-  }, [topicId, dispatch, existingTopicId, questions.length]);
+    fetchQuestions(topicId);
+  }, [topicId, fetchQuestions, existingTopicId, questions.length]);
 
 
 
@@ -119,10 +118,8 @@ export default function QuestionListPage() {
   }, [questions.length, updateListHeight]);
 
   const handleQuestionClick = (questionNumber: number) => {
-    dispatch(
-      setScrollIndex(
-        questions.findIndex((q) => q.questionNumber === questionNumber)
-      )
+    setScrollIndex(
+      questions.findIndex((q) => q.questionNumber === questionNumber)
     );
     navigate(`/quiz/play?topicId=${topicId}&q=${questionNumber}`);
   };

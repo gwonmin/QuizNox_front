@@ -1,8 +1,6 @@
 import { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../store';
-import { fetchCurrentUser } from '../store/authSlice';
+import { useAuthStore } from '../store/authStore';
 import { getAccessToken } from '../utils/tokenUtils';
 import { LoadingSpinner } from './LoadingSpinner';
 
@@ -14,17 +12,16 @@ interface ProtectedRouteProps {
  * 인증이 필요한 라우트를 보호하는 컴포넌트
  */
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const dispatch = useDispatch<AppDispatch>();
   const location = useLocation();
-  const { isAuthenticated, loading, user } = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated, loading, user, fetchCurrentUser } = useAuthStore();
   const accessToken = getAccessToken();
 
   // 토큰은 있지만 사용자 정보가 없는 경우 (페이지 새로고침 등)
   useEffect(() => {
     if (accessToken && !user && !loading) {
-      dispatch(fetchCurrentUser());
+      fetchCurrentUser();
     }
-  }, [accessToken, user, loading, dispatch]);
+  }, [accessToken, user, loading, fetchCurrentUser]);
 
   // 로딩 중
   if (loading || (accessToken && !user)) {

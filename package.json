@@ -4,14 +4,13 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "dev": "pnpm vite",
+    "build": "pnpm tsc -b && pnpm vite build",
+    "lint": "pnpm eslint .",
+    "preview": "pnpm vite preview"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",
-    "@reduxjs/toolkit": "^2.6.1",
     "axios": "^1.12.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -19,12 +18,11 @@
     "lucide-react": "^0.539.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-redux": "^9.2.0",
     "react-router-dom": "^7.4.0",
     "react-window": "^1.8.11",
-    "redux-persist": "^6.0.0",
     "shadcn-ui": "^0.9.5",
-    "tailwind-merge": "^3.3.1"
+    "tailwind-merge": "^3.3.1",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",

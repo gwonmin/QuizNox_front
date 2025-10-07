@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { RootState, AppDispatch } from "../../store";
-import { fetchMockExamQuestions } from "../../store/mockExamSlice";
+import { useMockExamStore } from "../../store/mockExamStore";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
@@ -17,11 +15,9 @@ import { ExamResultState } from "../../types/quiz";
 
 export default function MockExamResultPage() {
   const navigate = useNavigate();
-  const dispatch = useDispatch<AppDispatch>();
   const [searchParams] = useSearchParams();
   const examTypeFromUrl = searchParams.get("type");
   
-  const mockExamState = useSelector((state: RootState) => state.mockExam);
   const {
     examType,
     examName,
@@ -31,7 +27,8 @@ export default function MockExamResultPage() {
     endTime,
     loading,
     error,
-  } = mockExamState;
+    fetchMockExamQuestions,
+  } = useMockExamStore();
   
   const [result, setResult] = useState<ExamResultState | null>(null);
 
@@ -43,9 +40,9 @@ export default function MockExamResultPage() {
   // 데이터가 없을 때 다시 로드 시도
   useEffect(() => {
     if (examTypeFromUrl && (!questions || questions.length === 0) && loading !== "loading") {
-      dispatch(fetchMockExamQuestions(examTypeFromUrl));
+      fetchMockExamQuestions(examTypeFromUrl);
     }
-  }, [examTypeFromUrl, questions, answers, loading, examType, examName, dispatch]);
+  }, [examTypeFromUrl, questions, answers, loading, examType, examName, fetchMockExamQuestions]);
 
   // 시험 결과 계산
   useEffect(() => {

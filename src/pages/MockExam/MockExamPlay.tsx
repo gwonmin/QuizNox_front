@@ -1,14 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState, AppDispatch } from "../../store";
-import { 
-  startExam, 
-  setAnswer, 
-  setCurrentQuestionIndex, 
-  fetchMockExamQuestions,
-  resetMockExam
-} from "../../store/mockExamSlice";
+import { useMockExamStore } from "../../store/mockExamStore";
 import { LoadingSpinner } from "../../components/LoadingSpinner";
 import { ErrorBoundary } from "../../components/ErrorBoundary";
 import { Button } from "../../components/ui/button";
@@ -23,8 +15,6 @@ export default function MockExamPlay() {
   const [searchParams] = useSearchParams();
   const examType = searchParams.get("type") as string;
 
-  const dispatch = useDispatch<AppDispatch>();
-  const mockExamState = useSelector((state: RootState) => state.mockExam);
   const {
     remainingTime,
     currentQuestionIndex,
@@ -34,7 +24,12 @@ export default function MockExamPlay() {
     isSubmitted,
     loading,
     error,
-  } = mockExamState;
+    startExam,
+    setAnswer,
+    setCurrentQuestionIndex,
+    fetchMockExamQuestions,
+    resetMockExam,
+  } = useMockExamStore();
 
   const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
   const loadedExamType = useRef<string | null>(null);
@@ -51,10 +46,10 @@ export default function MockExamPlay() {
 
     // 이미 로드된 examType이 아니면 로드
     if (loadedExamType.current !== examType) {
-      dispatch(fetchMockExamQuestions(examType));
+      fetchMockExamQuestions(examType);
       loadedExamType.current = examType;
     }
-  }, [examType, dispatch, navigate]);
+  }, [examType, fetchMockExamQuestions, navigate]);
 
   // 컴포넌트 언마운트 시 시험 데이터 초기화 (제출되지 않은 경우만)
   useEffect(() => {
@@ -66,10 +61,10 @@ export default function MockExamPlay() {
       
       // 시험이 시작되었지만 제출되지 않은 경우에만 초기화
       if (isStarted && !isSubmitted) {
-        dispatch(resetMockExam());
+        resetMockExam();
       }
     };
-  }, [isStarted, isSubmitted, dispatch]);
+  }, [isStarted, isSubmitted, resetMockExam]);
 
 
   // 문제 로드 완료 시 현재 문제의 답안 복원
@@ -82,7 +77,7 @@ export default function MockExamPlay() {
         setSelectedAnswers([]);
       }
     }
-  }, [loading, questions, currentQuestionIndex, answers]);
+  }, [loading, questions, currentQuestionIndex]);
 
   // 타이머 관리
   useExamTimer({
@@ -112,8 +107,8 @@ export default function MockExamPlay() {
 
   // 시험 시작
   const handleStartExam = useCallback(() => {
-    dispatch(startExam());
-  }, [dispatch]);
+    startExam();
+  }, [startExam]);
 
   // 답안 선택
   const handleAnswerToggle = useCallback((choice: string) => {
@@ -126,34 +121,31 @@ export default function MockExamPlay() {
     });
   }, []);
 
-  // selectedAnswers가 변경될 때마다 Redux store에 저장
+  // selectedAnswers가 변경될 때마다 store에 저장
   useEffect(() => {
     const answerString = selectedAnswers.length > 0 ? selectedAnswers.join("") : null;
-    dispatch(setAnswer({ 
-      questionIndex: currentQuestionIndex, 
-      answer: answerString 
-    }));
-  }, [selectedAnswers, currentQuestionIndex, dispatch, answers]);
+    setAnswer(currentQuestionIndex, answerString);
+  }, [selectedAnswers, currentQuestionIndex]);
 
   // 이전 문제
   const handlePreviousQuestion = useCallback(() => {
     if (currentQuestionIndex > 0) {
-      dispatch(setCurrentQuestionIndex(currentQuestionIndex - 1));
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
       // 이전 문제의 답안이 있으면 복원, 없으면 빈 배열
       const prevAnswer = answers[currentQuestionIndex - 1];
       setSelectedAnswers(prevAnswer ? prevAnswer.split("") : []);
     }
-  }, [currentQuestionIndex, dispatch, answers]);
+  }, [currentQuestionIndex, setCurrentQuestionIndex]);
 
   // 다음 문제
   const handleNextQuestion = useCallback(() => {
     if (questions && currentQuestionIndex < questions.length - 1) {
-      dispatch(setCurrentQuestionIndex(currentQuestionIndex + 1));
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
       // 다음 문제의 답안이 있으면 복원, 없으면 빈 배열
       const nextAnswer = answers[currentQuestionIndex + 1];
       setSelectedAnswers(nextAnswer ? nextAnswer.split("") : []);
     }
-  }, [currentQuestionIndex, questions, dispatch, answers]);
+  }, [currentQuestionIndex, questions, setCurrentQuestionIndex]);
 
 
   // 시험 제출 후 결과 페이지로 이동

@@ -1,8 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../store";
-import { setScrollIndex } from "../../store/quizSlice";
+import { useQuizStore } from "../../store/quizStore";
 import { LoadingSpinner } from "../../components/LoadingSpinner";
 import { ErrorBoundary } from "../../components/ErrorBoundary";
 import { Button } from "../../components/ui/button";
@@ -19,10 +17,7 @@ export default function QuizPlayPage() {
   const q = Number(searchParams.get("q"));
   const topicId = searchParams.get("topicId");
 
-  const dispatch = useDispatch();
-  const questions = useSelector((state: RootState) => state.quiz.questions);
-  const loading = useSelector((state: RootState) => state.quiz.loading);
-  const error = useSelector((state: RootState) => state.quiz.error);
+  const { questions, loading, error, setScrollIndex } = useQuizStore();
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
@@ -119,10 +114,10 @@ export default function QuizPlayPage() {
       // URL 업데이트 (화면 깜박임 없음)
       navigate(`/quiz/play?topicId=${topicId}&q=${newQuestionNumber}`, { replace: true });
       setCurrentIndex(newIndex);
-      dispatch(setScrollIndex(newIndex));
+      setScrollIndex(newIndex);
       resetState();
     }
-  }, [currentIndex, questions, topicId, navigate, dispatch, resetState]);
+  }, [currentIndex, questions, topicId, navigate, setScrollIndex, resetState]);
 
   const handleNextQuestion = useCallback(() => {
     if (currentIndex < questions.length - 1) {
@@ -133,12 +128,12 @@ export default function QuizPlayPage() {
         // URL 업데이트 (화면 깜박임 없음)
         navigate(`/quiz/play?topicId=${topicId}&q=${newQuestionNumber}`, { replace: true });
         setCurrentIndex(newIndex);
-        dispatch(setScrollIndex(newIndex));
+        setScrollIndex(newIndex);
         resetState();
         document.documentElement.scrollTo({ top: 0 });
       }
     }
-  }, [currentIndex, questions.length, questions, topicId, navigate, dispatch, resetState]);
+  }, [currentIndex, questions.length, questions, topicId, navigate, setScrollIndex, resetState]);
 
 
   if (loading === "loading") {

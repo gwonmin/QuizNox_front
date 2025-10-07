@@ -1,7 +1,6 @@
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { resetMockExam, setExamType } from "../../store/mockExamSlice";
+import { useMockExamStore } from "../../store/mockExamStore";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import { getExamTypeInfo, createExamTypeData } from "../../constants/examTypes";
@@ -10,13 +9,13 @@ import { getExamBasicInfo } from "../../utils/examUtils";
 export default function MockExamStart() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const { resetMockExam, setExamType } = useMockExamStore();
   const examType = searchParams.get("type") as string;
 
   // 페이지 진입 시 이전 시험 데이터 초기화
   useEffect(() => {
-    dispatch(resetMockExam());
-  }, [dispatch]);
+    resetMockExam();
+  }, [resetMockExam]);
 
   const examInfo = getExamTypeInfo(examType);
   const examBasicInfo = getExamBasicInfo(examType);
@@ -36,7 +35,7 @@ export default function MockExamStart() {
     // 시험 정보를 store에 저장
     const examData = createExamTypeData(examType);
     if (examData) {
-      dispatch(setExamType(examData));
+      setExamType(examData);
     }
     
     navigate(`/mock-exam/play?type=${examType}`);

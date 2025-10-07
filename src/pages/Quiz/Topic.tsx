@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { setScrollIndex } from "../../store/quizSlice";
+import { useQuizStore } from "../../store/quizStore";
 import {
   Card,
   CardContent,
@@ -33,10 +32,10 @@ const QUIZ_TOPICS = [
 ];
 
 export default function QuizListPage() {
-  const dispatch = useDispatch();
+  const { setScrollIndex } = useQuizStore();
   useEffect(() => {
-    dispatch(setScrollIndex(0));
-  }, [dispatch]);
+    setScrollIndex(0);
+  }, [setScrollIndex]);
 
   return (
     <main className="flex flex-col items-center justify-center p-4 max-w-3xl mx-auto">

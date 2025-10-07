@@ -1,16 +1,13 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
 import { useState, useRef, useEffect } from "react";
-import { RootState, AppDispatch } from "../store";
-import { logout } from "../store/authSlice";
+import { useAuthStore } from "../store/authStore";
 import { Button } from "./ui/button";
 
 export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const dispatch = useDispatch<AppDispatch>();
   
-  const { isAuthenticated, user, loading } = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated, user, loading, logout } = useAuthStore();
   const hideNavbar = location.pathname === "/quiz/play";
   
   // 드롭다운 상태 관리
@@ -42,7 +39,7 @@ export default function Navbar() {
       setIsDropdownOpen(false);
       setIsMobileDropdownOpen(false);
       
-      await dispatch(logout()).unwrap();
+      await logout();
       navigate('/login');
     } catch (error) {
       console.error('Logout error:', error);

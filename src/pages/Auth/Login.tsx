@@ -1,15 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../../store';
-import { login, clearError } from '../../store/authSlice';
+import { useAuthStore } from '../../store/authStore';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 
 export default function Login() {
   const navigate = useNavigate();
-  const dispatch = useDispatch<AppDispatch>();
-  const { isAuthenticated, loading, error } = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated, loading, error, login, clearError } = useAuthStore();
 
   const [formData, setFormData] = useState({
     username: '',
@@ -28,9 +25,9 @@ export default function Login() {
   // 컴포넌트 언마운트 시 에러 초기화
   useEffect(() => {
     return () => {
-      dispatch(clearError());
+      clearError();
     };
-  }, [dispatch]);
+  }, [clearError]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -74,10 +71,10 @@ export default function Login() {
     }
 
     try {
-      await dispatch(login(formData)).unwrap();
+      await login(formData);
       navigate('/');
     } catch (error) {
-      // 에러는 Redux에서 처리
+      // 에러는 Zustand에서 처리
     }
   };
 

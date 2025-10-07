@@ -1,7 +1,5 @@
 import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '../store';
-import { tickTimer } from '../store/mockExamSlice';
+import { useMockExamStore } from '../store/mockExamStore';
 
 interface UseExamTimerProps {
   isStarted: boolean;
@@ -10,18 +8,18 @@ interface UseExamTimerProps {
 }
 
 export function useExamTimer({ isStarted, remainingTime, onTimeExpired }: UseExamTimerProps) {
-  const dispatch = useDispatch<AppDispatch>();
+  const { tickTimer } = useMockExamStore();
 
   // 타이머 실행
   useEffect(() => {
     if (isStarted) {
       const timer = setInterval(() => {
-        dispatch(tickTimer());
+        tickTimer();
       }, 1000);
 
       return () => clearInterval(timer);
     }
-  }, [isStarted, dispatch]);
+  }, [isStarted, tickTimer]);
 
   // 시간 만료 처리
   useEffect(() => {
