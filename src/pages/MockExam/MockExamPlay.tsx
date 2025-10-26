@@ -55,21 +55,21 @@ export default function MockExamPlay() {
 
   // 컴포넌트 언마운트 시 시험 데이터 초기화 (제출되지 않은 경우만)
   useEffect(() => {
-    const isSubmitting = isSubmittingRef.current;
-    const isReviewing = isReviewingRef.current;
-    
     return () => {
+      // store의 현재 상태를 확인하여 안전하게 처리
+      const store = useMockExamStore.getState();
+      
       // 제출 중이거나 제출된 경우, 또는 검토 중인 경우에는 데이터를 유지
-      if (isSubmitting || isSubmitted || isReviewing) {
+      if (isSubmittingRef.current || store.isSubmitted || isReviewingRef.current) {
         return;
       }
       
       // 시험이 시작되었지만 제출되지 않은 경우에만 초기화
-      if (isStarted && !isSubmitted) {
+      if (store.isStarted && !store.isSubmitted) {
         resetMockExam();
       }
     };
-  }, [isStarted, isSubmitted, resetMockExam]);
+  }, [resetMockExam]);
 
   // 다른 페이지로 이동할 때 시험 데이터 초기화 (검토 완료 후)
   useEffect(() => {
