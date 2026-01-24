@@ -20,6 +20,7 @@ import {
   UpdateUsernameRequest,
   UpdatePasswordRequest,
 } from '../../types/api';
+import { extractErrorMessage } from '../../utils/errorUtils';
 
 /**
  * 현재 사용자 정보 조회
@@ -60,12 +61,18 @@ export const useLogin = () => {
 
   return useMutation({
     mutationFn: async (credentials: LoginRequest) => {
-      const response = await loginApi(credentials);
-      
-      if (response.success && response.data) {
-        return response.data;
-      } else {
-        throw new Error(response.message || '로그인에 실패했습니다.');
+      try {
+        const response = await loginApi(credentials);
+        
+        if (response.success && response.data) {
+          return response.data;
+        } else {
+          throw new Error(response.message || '로그인에 실패했습니다.');
+        }
+      } catch (error) {
+        // Axios 에러인 경우 백엔드 메시지 추출
+        const errorMessage = extractErrorMessage(error, '로그인에 실패했습니다.');
+        throw new Error(errorMessage);
       }
     },
     onSuccess: (data) => {
@@ -94,12 +101,18 @@ export const useRegister = () => {
 
   return useMutation({
     mutationFn: async (userData: RegisterRequest) => {
-      const response = await registerApi(userData);
-      
-      if (response.success && response.data) {
-        return response.data;
-      } else {
-        throw new Error(response.message || '회원가입에 실패했습니다.');
+      try {
+        const response = await registerApi(userData);
+        
+        if (response.success && response.data) {
+          return response.data;
+        } else {
+          throw new Error(response.message || '회원가입에 실패했습니다.');
+        }
+      } catch (error) {
+        // Axios 에러인 경우 백엔드 메시지 추출
+        const errorMessage = extractErrorMessage(error, '회원가입에 실패했습니다.');
+        throw new Error(errorMessage);
       }
     },
     onSuccess: (data) => {
@@ -159,12 +172,18 @@ export const useUpdateUsername = () => {
 
   return useMutation({
     mutationFn: async (data: UpdateUsernameRequest) => {
-      const response = await updateUsernameApi(data);
-      
-      if (response.success && response.data) {
-        return response.data;
-      } else {
-        throw new Error(response.message || '사용자명 변경에 실패했습니다.');
+      try {
+        const response = await updateUsernameApi(data);
+        
+        if (response.success && response.data) {
+          return response.data;
+        } else {
+          throw new Error(response.message || '사용자명 변경에 실패했습니다.');
+        }
+      } catch (error) {
+        // Axios 에러인 경우 백엔드 메시지 추출
+        const errorMessage = extractErrorMessage(error, '사용자명 변경에 실패했습니다.');
+        throw new Error(errorMessage);
       }
     },
     onSuccess: (data) => {
@@ -188,12 +207,18 @@ export const useUpdateUsername = () => {
 export const useUpdatePassword = () => {
   return useMutation({
     mutationFn: async (data: UpdatePasswordRequest) => {
-      const response = await updatePasswordApi(data);
-      
-      if (response.success) {
-        return response.message || '비밀번호가 성공적으로 변경되었습니다.';
-      } else {
-        throw new Error(response.message || '비밀번호 변경에 실패했습니다.');
+      try {
+        const response = await updatePasswordApi(data);
+        
+        if (response.success) {
+          return response.message || '비밀번호가 성공적으로 변경되었습니다.';
+        } else {
+          throw new Error(response.message || '비밀번호 변경에 실패했습니다.');
+        }
+      } catch (error) {
+        // Axios 에러인 경우 백엔드 메시지 추출
+        const errorMessage = extractErrorMessage(error, '비밀번호 변경에 실패했습니다.');
+        throw new Error(errorMessage);
       }
     },
   });
