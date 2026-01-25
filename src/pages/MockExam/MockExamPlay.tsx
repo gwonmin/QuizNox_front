@@ -9,7 +9,11 @@ import { QuestionDisplay } from "../../components/QuestionDisplay";
 import { ExamProgress } from "../../components/ExamProgress";
 import { useExamTimer } from "../../hooks/useExamTimer";
 import { EXAM_TYPE_IDS } from "../../constants/examTypes";
-import { getExamBasicInfo, getExamDisplayName, getAnsweredQuestionsCount } from "../../utils/examUtils";
+import {
+  getExamBasicInfo,
+  getExamDisplayName,
+  getAnsweredQuestionsCount,
+} from "../../utils/examUtils";
 
 export default function MockExamPlay() {
   const navigate = useNavigate();
@@ -31,7 +35,11 @@ export default function MockExamPlay() {
   } = useMockExamStore();
 
   // TanStack Query로 모의고사 문제 가져오기
-  const { data: mockExamQuestions, isPending: isLoading, error } = useMockExamQuestions(examType || '');
+  const {
+    data: mockExamQuestions,
+    isPending: isLoading,
+    error,
+  } = useMockExamQuestions(examType || "");
 
   const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
   const loadedExamType = useRef<string | null>(null);
@@ -47,7 +55,11 @@ export default function MockExamPlay() {
     }
 
     // TanStack Query에서 가져온 문제를 Zustand에 저장
-    if (mockExamQuestions && mockExamQuestions.length > 0 && loadedExamType.current !== examType) {
+    if (
+      mockExamQuestions &&
+      mockExamQuestions.length > 0 &&
+      loadedExamType.current !== examType
+    ) {
       setQuestions(mockExamQuestions);
       loadedExamType.current = examType;
     }
@@ -58,12 +70,16 @@ export default function MockExamPlay() {
     return () => {
       // store의 현재 상태를 확인하여 안전하게 처리
       const store = useMockExamStore.getState();
-      
+
       // 제출 중이거나 제출된 경우, 또는 검토 중인 경우에는 데이터를 유지
-      if (isSubmittingRef.current || store.isSubmitted || isReviewingRef.current) {
+      if (
+        isSubmittingRef.current ||
+        store.isSubmitted ||
+        isReviewingRef.current
+      ) {
         return;
       }
-      
+
       // 시험이 시작되었지만 제출되지 않은 경우에만 초기화
       if (store.isStarted && !store.isSubmitted) {
         resetMockExam();
@@ -80,12 +96,11 @@ export default function MockExamPlay() {
       }
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener("beforeunload", handleBeforeUnload);
     return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, [isSubmitted, resetMockExam]);
-
 
   // 문제 로드 완료 시 현재 문제의 답안 복원
   useEffect(() => {
@@ -104,7 +119,7 @@ export default function MockExamPlay() {
   useExamTimer({
     isStarted,
     remainingTime,
-    onTimeExpired: () => navigate(`/mock-exam/review?type=${examType}`)
+    onTimeExpired: () => navigate(`/mock-exam/review?type=${examType}`),
   });
 
   // 브라우저 새로고침 방지
@@ -137,14 +152,15 @@ export default function MockExamPlay() {
       const newAnswers = prev.includes(choice)
         ? prev.filter((ans) => ans !== choice)
         : [...prev, choice];
-      
+
       return newAnswers;
     });
   }, []);
 
   // selectedAnswers가 변경될 때마다 store에 저장
   useEffect(() => {
-    const answerString = selectedAnswers.length > 0 ? selectedAnswers.join("") : null;
+    const answerString =
+      selectedAnswers.length > 0 ? selectedAnswers.join("") : null;
     setAnswer(currentQuestionIndex, answerString);
   }, [selectedAnswers, currentQuestionIndex, setAnswer]);
 
@@ -168,15 +184,12 @@ export default function MockExamPlay() {
     }
   }, [currentQuestionIndex, questions, setCurrentQuestionIndex, answers]);
 
-
   // 시험 제출 후 결과 페이지로 이동
   useEffect(() => {
     if (isSubmitted) {
       navigate(`/mock-exam/result?type=${examType}`);
     }
   }, [isSubmitted, navigate, examType]);
-
-
 
   // 시험 기본 정보
   const examInfo = getExamBasicInfo(examType);
@@ -195,7 +208,9 @@ export default function MockExamPlay() {
   if (error) {
     return (
       <div className="text-center p-4">
-        <p className="text-destructive mb-4">{error.message || '문제를 불러오는데 실패했습니다.'}</p>
+        <p className="text-destructive mb-4">
+          {error.message || "문제를 불러오는데 실패했습니다."}
+        </p>
         <Button onClick={() => navigate("/mock-exam")}>
           모의고사 선택으로 돌아가기
         </Button>
@@ -219,7 +234,7 @@ export default function MockExamPlay() {
               <li>• 합격 기준: {examInfo.passThreshold}문제 이상 정답</li>
             </ul>
           </div>
-          <Button 
+          <Button
             onClick={handleStartExam}
             className="w-full bg-green-600 hover:bg-green-700"
             size="lg"
@@ -238,7 +253,7 @@ export default function MockExamPlay() {
         <p className="text-muted-foreground mb-6">
           시험이 제출되었습니다. 결과를 확인하시겠습니까?
         </p>
-        <Button 
+        <Button
           onClick={() => navigate(`/mock-exam/result?type=${examType}`)}
           className="bg-blue-600 hover:bg-blue-700"
         >
@@ -249,7 +264,11 @@ export default function MockExamPlay() {
   }
 
   // 문제가 로드되지 않았거나 현재 문제가 없는 경우
-  if (!questions || questions.length === 0 || !questions[currentQuestionIndex]) {
+  if (
+    !questions ||
+    questions.length === 0 ||
+    !questions[currentQuestionIndex]
+  ) {
     return (
       <div className="text-center p-4">
         <p className="text-muted-foreground">문제를 불러오는 중입니다...</p>
@@ -285,7 +304,7 @@ export default function MockExamPlay() {
           >
             ← 이전
           </Button>
-          
+
           {questions && currentQuestionIndex === questions.length - 1 ? (
             <Button
               onClick={() => {
@@ -297,10 +316,7 @@ export default function MockExamPlay() {
               검토하기
             </Button>
           ) : (
-            <Button
-              onClick={handleNextQuestion}
-              className="flex-1"
-            >
+            <Button onClick={handleNextQuestion} className="flex-1">
               다음 →
             </Button>
           )}
