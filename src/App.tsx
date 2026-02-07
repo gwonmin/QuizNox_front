@@ -14,6 +14,9 @@ const MockExamResult = lazy(() => import("./pages/MockExam/MockExamResult"));
 const QuizTopic = lazy(() => import("./pages/Quiz/Topic"));
 const QuizList = lazy(() => import("./pages/Quiz/List"));
 const QuizPlayPage = lazy(() => import("./pages/Quiz/Play"));
+const Handbook = lazy(() => import("./pages/Handbook/Handbook"));
+const HandbookLayer = lazy(() => import("./pages/Handbook/HandbookLayer"));
+const HandbookView = lazy(() => import("./pages/Handbook/HandbookView"));
 const Login = lazy(() => import("./pages/Auth/Login"));
 const Register = lazy(() => import("./pages/Auth/Register"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -119,7 +122,31 @@ function AppContent() {
                         </ProtectedRoute>
                       }
                     />
-                    
+                    <Route
+                      path="/handbook"
+                      element={
+                        <ProtectedRoute>
+                          <Handbook />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/handbook/:layerId"
+                      element={
+                        <ProtectedRoute>
+                          <HandbookLayer />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/handbook/:layerId/:slug"
+                      element={
+                        <ProtectedRoute>
+                          <HandbookView />
+                        </ProtectedRoute>
+                      }
+                    />
+
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </Suspense>

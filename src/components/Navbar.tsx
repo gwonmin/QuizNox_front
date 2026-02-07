@@ -68,6 +68,9 @@ export default function Navbar() {
             <Link to="/" className="hover:text-primary-foreground/80 transition-colors">
               홈
             </Link>
+            <Link to="/handbook" className="hover:text-primary-foreground/80 transition-colors">
+              핸드북
+            </Link>
             <Link to="/quiz/topic" className="hover:text-primary-foreground/80 transition-colors">
               문제풀기
             </Link>
@@ -142,8 +145,11 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* 모바일 메뉴 */}
+          {/* 모바일 메뉴: 핸드북, 문제풀기만 노출 (모의고사는 데스크톱 전용) */}
           <div className="md:hidden flex items-center gap-2">
+            <Link to="/handbook" className="text-primary-foreground hover:text-primary-foreground/80 transition-colors">
+              핸드북
+            </Link>
             <Link to="/quiz/topic" className="text-primary-foreground hover:text-primary-foreground/80 transition-colors">
               문제풀기
             </Link>

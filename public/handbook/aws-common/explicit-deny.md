@@ -1,0 +1,18 @@
+# Explicit Deny 우선
+
+IAM 정책 평가에서 **명시적 Deny**가 **Allow보다 우선**합니다.
+
+## 원칙
+
+- `"Effect": "Deny"`가 **어느 정책에든** 있으면 해당 액션은 **거부**
+- Allow가 여러 개 있어도, Deny 하나면 거부
+- 정책이 없으면 기본값은 거부(Deny by default)
+
+## 활용
+
+- **권한 제한**: "이 역할은 S3는 되지만 이 버킷만 불가"처럼 예외를 Deny로 명시
+- **보안**: 실수로 넓은 Allow를 줘도, Deny로 구간을 막을 수 있음
+
+## 요약
+
+- Explicit Deny > Explicit Allow > (없으면) 거부

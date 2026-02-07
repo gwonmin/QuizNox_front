@@ -86,4 +86,30 @@
   color: #6b7280; /* gray-500 */
 }
 
+/* 핸드북 다이어그램: 클릭 가능한 노드 (링크 패턴 – 연한 배경 + 호버 시 강조) */
+.markdown-body a.handbook-diagram-link,
+.markdown-body a[data-handbook-diagram-link] {
+  cursor: pointer;
+}
+/* 클릭 가능 노드만 연한 배경으로 구분 (일반 링크와 비슷한 톤) */
+.markdown-body a.handbook-diagram-link rect,
+.markdown-body a.handbook-diagram-link path,
+.markdown-body a[data-handbook-diagram-link] rect,
+.markdown-body a[data-handbook-diagram-link] path {
+  fill: #eff6ff !important;
+  stroke: #93c5fd;
+  transition: fill 0.15s ease, stroke 0.15s ease, filter 0.15s ease;
+}
+.markdown-body a.handbook-diagram-link:hover rect,
+.markdown-body a.handbook-diagram-link:hover path,
+.markdown-body a[data-handbook-diagram-link]:hover rect,
+.markdown-body a[data-handbook-diagram-link]:hover path {
+  fill: #dbeafe !important;
+  stroke: #2563eb;
+}
+.markdown-body a.handbook-diagram-link:hover text,
+.markdown-body a[data-handbook-diagram-link]:hover text {
+  fill: #1d4ed8 !important;
+}
+
 
