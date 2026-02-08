@@ -1,5 +1,5 @@
 import { memo, useEffect, useMemo, useState } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate, useLocation } from "react-router-dom";
 import { MarkdownViewer } from "../../components/MarkdownViewer";
 import { LoadingSpinner } from "../../components/LoadingSpinner";
 import { getHandbookDoc } from "../../constants/handbookManifest";
@@ -13,20 +13,18 @@ function DocHeader({
   layerId,
   layerTitle,
   sectionTitle,
-  sectionId,
+  scrollBackHash,
 }: {
   layerId: string;
   layerTitle: string;
   sectionTitle: string;
-  sectionId?: string;
+  scrollBackHash?: string;
 }) {
   const hasDiagram = layerId && LAYERS_WITH_DIAGRAM.includes(layerId) && getDiagramConfig(layerId);
   const diagramHref =
-    hasDiagram && layerId && sectionId
-      ? `/handbook/${layerId}#section-${sectionId}`
-      : hasDiagram && layerId
-        ? `/handbook/${layerId}#diagram`
-        : `/handbook/${layerId}`;
+    hasDiagram && layerId
+      ? `/handbook/${layerId}${scrollBackHash ?? ""}`
+      : `/handbook/${layerId}`;
   return (
     <header className="mb-6">
       <nav aria-label="breadcrumb" className="text-sm text-muted-foreground">
@@ -90,6 +88,7 @@ function useHandbookDoc(layerId: string | undefined, slug: string | undefined) {
 const HandbookView = memo(function HandbookView() {
   const { layerId, slug } = useParams<{ layerId: string; slug: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const [content, setContent] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -200,7 +199,7 @@ const HandbookView = memo(function HandbookView() {
         layerId={meta.layer.id}
         layerTitle={meta.layer.title}
         sectionTitle={meta.section.title}
-        sectionId={meta.section.id}
+        scrollBackHash={(location.state as { scrollBackHash?: string } | null)?.scrollBackHash}
       />
       <MarkdownViewer
         key={`${layerId}-${slug}`}

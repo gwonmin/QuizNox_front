@@ -1,16 +1,43 @@
 # Launch Template
 
-**EC2 인스턴스 시작 설정**을 재사용 가능한 템플릿으로 정의합니다.
+**EC2 인스턴스 시작 설정**(AMI, 인스턴스 타입, 스토리지, 네트워크, 태그 등)을 **버전 관리**하며 재사용하는 리소스입니다.
 
-## 동작
+---
 
-- AMI, 인스턴스 타입, 스토리지, 네트워크, 태그 등 **한 번 정의** 후 재사용.
-- ASG·Spot 등에서 Launch Template 지정해 일관된 인스턴스 생성.
+## 특징
 
-## Launch Configuration과 차이
+- **Launch Configuration**과 달리 **버전** 관리·여러 인스턴스 타입·다양한 조합 가능. ASG는 Launch Template 기반 권장.
+- **Spot**: 최대 가격·풀 등 지정 가능. ASG에서 On-Demand + Spot 혼합 시 Launch Template에 Spot 옵션.
+- **User Data**, IAM Instance Profile, 보안 그룹, 스토리지(볼륨 타입·크기) 등 한 번 정의 후 ASG·단일 실행에 재사용.
+- **Instance warmup**: ASG에서 인스턴스 웜업 시간 설정 가능. 부팅이 긴 앱은 **Warm Pool**과 조합.
 
-- Launch Template은 **버전** 관리·다양한 조합 가능. Launch Config는 단일 설정.
+---
+
+## 시나리오
+
+| 시나리오 | 접근 |
+|----------|------|
+| ASG에서 On-Demand 3대 + Spot 3대, Spot 최대 가격 지정 | **Launch Template** 하나에 AMI·인스턴스 타입·**Spot 최대 가격** 설정. ASG에서 해당 Launch Template 사용, On-Demand/Spot 혼합 용량 지정. |
+| 여러 리전에 동일 스택 배포 시 AMI 차이 | CloudFormation **Mappings**에 리전별 AMI ID. Launch Template(또는 EC2 리소스)에서 Fn::FindInMap으로 AMI 참조. |
+| 인스턴스 시작 시 앱 자동 설치 | Launch Template **User Data**에 스크립트 또는 **State Manager** 연동으로 부트스트랩. |
+| 트래픽 급증 대비, 부팅 시간이 길 때 | **Warm Pool**로 미리 Stopped 인스턴스 유지. Launch Template으로 동일 설정. |
+
+---
+
+## 기출빈출
+
+| 시나리오 | 접근 |
+|----------|------|
+| ASG에서 On-Demand + Spot 혼합, Spot 최대 가격 지정 | **Launch Template**에 Spot 최대 가격 설정. ASG에서 해당 Launch Template 사용. (Launch Config는 Spot 가격 지정 불가.) |
+| 여러 리전 동일 스택 배포 시 AMI ID 차이 | CloudFormation **Mappings** + Fn::FindInMap으로 리전별 AMI. Launch Template에서 참조. |
+| 부팅이 긴 앱, 트래픽 급증 시 빠른 스케일아웃 | **Warm Pool**로 Stopped 인스턴스 미리 확보. Launch Template으로 동일 설정. |
+| 인스턴스 시작 시 자동 설정 | Launch Template **User Data** 또는 **State Manager** 연동. |
+
+---
 
 ## 요약
 
-- Launch Template = 인스턴스 시작 설정 템플릿. 버전 관리·재사용.
+| 항목 | 내용 |
+|------|------|
+| Launch Config와 차이 | 버전 관리·다양한 인스턴스 타입·Spot 옵션 등. ASG는 Launch Template 권장. |
+| 기출 포인트 | Mappings로 리전별 AMI, On-Demand+Spot Launch Template, User Data/State Manager, Warm Pool. |

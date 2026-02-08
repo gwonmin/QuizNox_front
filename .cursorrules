@@ -1,53 +1,90 @@
-# QUIZNOX Cursor Rules (default instructions for all AI edits)
+# QUIZNOX Cursor 규칙 (AI 편집 시 기본 지침)
 
-## Core principles
-- Always follow Clean Code principles: readability > cleverness.
-- Prefer small, single-responsibility functions/modules.
-- Avoid deep nesting; use early returns/guard clauses.
-- Prefer explicitness over implicit behavior.
+## 핵심 원칙
+- Clean Code 원칙을 따른다: 가독성 > 영리한 코드.
+- 작고 단일 책임의 함수·모듈을 선호한다.
+- 깊은 중첩을 피하고, early return·guard clause를 활용한다.
+- 암시적 동작보다 명시적 동작을 선호한다.
 
 ## TypeScript / React
-- TypeScript strict mindset: no implicit any, avoid `as` type assertions unless unavoidable.
-- Prefer `unknown` + type guards over `any`.
-- Prefer named exports for utilities; default export only for React components (1 per file).
-- Keep components presentational when possible; move domain logic to hooks/services.
-- Avoid overusing useEffect; derive state when possible.
-- Use stable callbacks/memoization only when it's measurable/necessary, not by default.
+- TypeScript 엄격 모드: implicit any 금지, `as` 단언은 불가피할 때만.
+- `any` 대신 `unknown` + 타입 가드를 사용한다.
+- 유틸은 named export, React 컴포넌트만 default export (파일당 1개).
+- 컴포넌트는 가능하면 presentational로 두고, 도메인 로직은 훅·서비스로 분리한다.
+- useEffect 과용을 피하고, 상태는 파생 가능하면 파생으로 처리한다.
+- 메모이제이션·안정 콜백은 측정 가능·필요할 때만 사용하고, 기본값으로 쓰지 않는다.
 
-## Architecture / boundaries
-- Separate concerns:
-  - UI components: rendering + user interaction only
-  - hooks: orchestration + side effects
-  - services: API calls / persistence
-  - domain: pure business rules (no fetch, no localStorage, no React)
-- Do not mix network calls directly inside UI components unless the file is explicitly a page-level container.
+## 아키텍처 / 경계
+- 관심사를 분리한다:
+  - UI 컴포넌트: 렌더링 + 사용자 상호작용만
+  - 훅: 오케스트레이션 + 부수 효과
+  - 서비스: API 호출·영속성
+  - 도메인: 순수 비즈니스 규칙 (fetch, localStorage, React 없음)
+- 페이지급 컨테이너가 아닌 UI 컴포넌트 안에 네트워크 호출을 직접 넣지 않는다.
 
-## Error handling & robustness
-- Add proper error handling for async calls (try/catch) and surface user-friendly errors.
-- Never swallow errors silently.
-- Validate external inputs (API responses, user input) using schema validation (e.g., zod) when applicable.
+## 에러 처리·견고성
+- 비동기 호출에 try/catch 등 적절한 에러 처리를 넣고, 사용자에게 알기 쉬운 메시지를 보여준다.
+- 에러를 조용히 삼키지 않는다.
+- 외부 입력(API 응답, 사용자 입력)은 스키마 검증(zod 등)으로 검증한다.
 
-## Testing mindset (even if tests are not requested)
-- Write code that is testable: pure functions, dependency injection where it helps.
-- When changing logic, consider edge cases and add minimal tests if the project already has a test setup.
+## 테스트 관점 (테스트를 요청하지 않았어도)
+- 테스트 가능하게 작성한다: 순수 함수, 필요 시 의존성 주입.
+- 로직 변경 시 경계 케이스를 고려하고, 이미 테스트가 있다면 최소한의 테스트를 추가한다.
 
-## Naming & style
-- Use intention-revealing names: no abbreviations unless common (id, url).
-- No magic numbers/strings; extract constants.
-- Keep file sizes reasonable; refactor if a file grows too large.
-- Comments should explain WHY, not WHAT.
+## 네이밍·스타일
+- 의도가 드러나는 이름을 쓴다. id, url처럼 흔한 것만 축약.
+- 매직 넘버·문자열은 상수로 추출한다.
+- 파일 크기를 적정하게 유지하고, 커지면 리팩터링한다.
+- 주석은 WHAT이 아니라 WHY를 설명한다.
 
-## Performance & DX
-- Avoid premature optimization.
-- Prefer simple, predictable code.
-- Keep imports clean and sorted; remove unused code.
+## 성능·개발 경험
+- 조기 최적화를 피한다.
+- 단순하고 예측 가능한 코드를 선호한다.
+- import는 정리·정렬하고, 미사용 코드는 제거한다.
 
-## Refactor policy (important)
-- When editing code, also refactor nearby code if it improves clarity without changing behavior.
-- If a larger refactor is needed, propose a small incremental refactor plan and implement the first step.
+## 리팩터 정책 (중요)
+- 코드 수정 시, 동작은 유지하면서 가독성이 나아지면 주변 코드도 함께 리팩터한다.
+- 큰 리팩터가 필요하면 단계별 계획을 제안하고, 첫 단계만 적용한다.
 
-## Output expectations
-- For any non-trivial change, include a brief summary:
-  - What changed
-  - Why it changed
-  - Any follow-up TODOs
+## Markdown (handbook) 문서 작성 규칙
+
+핸드북 및 공용 MD 문서는 **이해하기 쉬운 흐름**과 **도식 중심**으로 일관된 퀄리티를 유지한다.
+
+### 구조 원칙: Simple, Specific, Structure
+- **Simple**: 한 주제당 핵심만. 불필요한 설명·중복 제거.
+- **Specific**: 정의·단위·예시를 구체적으로. "언제 중요한가", "예시 규칙" 등을 표·불릿으로 명시.
+- **Structure**: 제목 → 한 줄 흐름 요약 → 본문(표·불릿) → 도식 → 요약 표 순서로 통일.
+
+### 한 줄 흐름 요약 (필수)
+- 문서 **맨 위**에 해당 개념의 **동작 흐름을 한두 문장**으로 요약한다.
+- 예: `**1단계 Prepare** → 모두 "가능" → **2단계 Commit**. 하나라도 No면 Abort.`
+- 예: `**Queue**: 1메시지 → 1소비자. **Pub/Sub**: 1이벤트 → 구독한 전원이 각각 수신.`
+- 독자가 다이어그램을 보기 전에 "무슨 순서로 일어나는지"를 먼저 파악할 수 있게 한다.
+
+### 도식 우선, 글은 보조
+- 흐름·비교는 **Mermaid 다이어그램**(sequenceDiagram, flowchart)으로 표현하고, 긴 문단은 줄인다.
+- 시퀀스가 있으면 sequenceDiagram으로 단계별 흐름을 보여준다.
+- 비교(2PC vs Saga, Queue vs Pub/Sub 등)는 도식 + 짧은 표로 정리한다.
+
+### Mermaid 문법 (호환성)
+- **노드 라벨**: `?`, `()`, `<br/>` 는 문법 오류를 유발할 수 있으므로 제거하거나 다른 표현으로 대체. (예: `{실패?}` → `{실패 여부}`, `O(N)` → `N`)
+- **Note**: `Note over`, `Note right of` 는 일부 환경에서 오류 가능 → 설명은 다이어그램 위/아래 문장으로 옮기고 Note는 생략 권장.
+- **subgraph id**: 한글·특수문자 대신 ASCII id 사용 권장. (예: `subgraph sagaf [Saga]`)
+- **노드 텍스트**: 슬래시(`/`)는 `또는`, `및` 등으로 바꾸면 안전. (예: `대기/거절` → `대기 또는 거절`)
+
+### 금지·자제
+- "시험에서 자주 나옵니다", "출제 포인트" 등 **시험·출제 중심 멘트**는 넣지 않는다. 개념 이해 중심으로만 서술.
+- 도식 없이 장문만 나열하지 않는다.
+
+### 표 사용
+- 비교(장단점, 항목별 차이), 요약(정의·의미·예시)은 **표**로 정리해 한눈에 보이게 한다.
+- 표 다음에 필요 시 한두 문장 보충만 한다.
+
+### 예시
+- "직관", "실제 예시"는 **구체적인 상황·숫자·케이스**를 들어 설명한다. (예: A계정→B계정 이체, TTL 1시간 RPO 등)
+
+## 변경 시 요약
+- 사소하지 않은 변경에는 짧은 요약을 포함한다:
+  - 무엇을 바꿨는지
+  - 왜 바꿨는지
+  - 남은 작업(TODO)이 있으면 적어 둔다

@@ -1,14 +1,32 @@
 # Cross-account 접근 패턴
 
-**다른 AWS 계정**의 리소스에 접근하는 방식입니다.
+**다른 AWS 계정**의 리소스에 접근할 때, 계정 B가 역할을 만들어 **계정 A가 그 역할을 Assume**하도록 허용(Trust policy)하고, A가 AssumeRole로 임시 자격을 받아 B 리소스에 접근하는 방식입니다.
 
-## 패턴
+---
+
+## 1. 패턴
 
 - **역할 위임**: 계정 A가 계정 B의 역할을 AssumeRole하도록 B가 허용(Trust policy)
 - **리소스 정책**: 계정 B의 S3 버킷 정책 등에서 계정 A의 역할/사용자 허용
 - **AssumeRole**로 계정 B 역할을 맡으면, B 계정 내 리소스에 접근
 
+---
+
+```mermaid
+sequenceDiagram
+  participant A as 계정 A
+  participant B as 계정 B
+  participant R as B의 역할
+  B->>R: Trust policy로 A의 Assume 허용
+  A->>R: AssumeRole 호출
+  R-->>A: 임시 자격 증명
+  A->>B: B 계정 리소스 접근
+```
+
 ## 요약
 
-- Cross-account = 계정 B가 A에게 역할 Assume 허용 + A가 AssumeRole 호출
-- 리소스 정책(Resource-based)으로 “어떤 외부 주체를 허용할지” 정의
+| 단계 | 설명 |
+|------|------|
+| 1 | 계정 B가 역할 생성 후 Trust policy로 계정 A의 Assume 허용 |
+| 2 | 계정 A가 AssumeRole 호출하여 임시 자격 증명 발급 |
+| 3 | A가 B 계정 리소스 접근, 리소스 정책으로 허용 대상 정의 |

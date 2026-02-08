@@ -1,90 +1,89 @@
-# 2. AWS 공통 · 개요
 
-시험 공통 기반 서비스 사고와 의사결정 프레임을 한눈에 볼 수 있습니다.  
-노드를 클릭하면 해당 개념 문서로 이동합니다.
 
 ---
 
-## IAM 심화
+## 1. Networking (VPC · 서브넷 · 보안)
 
 ```mermaid
 flowchart TB
-  subgraph iam [IAM 심화]
+  subgraph vpc [VPC · 서브넷 · 보안]
+    SUB([Public / Private subnet])
+    RT([Route Table])
+    GW([IGW vs NAT])
+    EIP([Elastic IP])
+    SG([Security Group])
+    NL([NACL])
+    EP([VPC Endpoint])
+  end
+```
+
+---
+
+## 2. Identity & Access (IAM)
+
+```mermaid
+flowchart TB
+  subgraph iam [IAM]
+    UR([User vs Role])
     P([Policy Evaluation])
     I([Identity-based vs Resource-based])
     E([Explicit Deny])
     S([STS / AssumeRole])
     C([Cross-account])
+    M([MFA])
   end
-  P --> I --> E
-  S --> C
 ```
 
 ---
 
-## VPC 기본 구조
+## 3. Storage & Data (S3 · EBS · EFS · RDS · DynamoDB · ElastiCache)
 
 ```mermaid
 flowchart TB
-  subgraph vpc [VPC 기본]
-    SUB([Public / Private subnet])
-    GW([IGW vs NAT])
-    SG([Security Group])
-    NL([NACL])
-    EP([VPC Endpoint])
+  subgraph stor [S3 · EBS · EFS · RDS · DynamoDB · ElastiCache]
+    S3([S3])
+    EBS([EBS 기본])
+    EFS([EFS 기본])
+    RDS([RDS 기본])
+    DDB([DynamoDB])
+    EC([ElastiCache])
   end
-  SUB --> GW --> SG
-  NL --> EP
 ```
 
 ---
 
-## S3 핵심
+## 4. Compute & Scaling (EC2 · Lambda · ECS · EKS · ELB · ASG)
 
 ```mermaid
 flowchart TB
-  subgraph s3 [S3 핵심]
-    CON([S3 Consistency])
-    VER([S3 Versioning])
-    LIF([S3 Lifecycle])
-    SSE([SSE-S3 vs SSE-KMS])
-    CR([CRR / SRR])
-  end
-  CON --> VER --> LIF
-  SSE --> CR
-```
-
----
-
-## Auto Scaling & ELB
-
-```mermaid
-flowchart TB
-  subgraph asg [ASG & ELB]
+  subgraph comp [EC2 · Lambda · ECS · EKS · ELB · ASG]
+    EC2([EC2 개요])
+    LB([Lambda])
+    ECS([ECS 기본])
+    EKS([EKS 기본])
+    ELB([ALB vs NLB])
     TG([Target Group])
     HC([Health Check])
     ST([Sticky Session])
+    ASG([ASG 기본])
     SC([Scaling Policy])
   end
-  TG --> HC
-  ST --> SC
 ```
 
 ---
 
-## Monitoring & Logging
+## 5. Monitoring & Logging (CloudWatch · 감사)
 
 ```mermaid
 flowchart TB
-  subgraph mon [Monitoring & Logging]
+  subgraph mon [CloudWatch · 감사]
     CW([CloudWatch Metrics / Logs])
+    DB([Dashboard])
     AL([Alarm])
     CT([CloudTrail vs Config])
   end
-  CW --> AL
-  AL --> CT
 ```
 
 ---
 
-세부 설명은 각 개념 문서에서 이어서 읽을 수 있습니다.
+세부 설명은 각 대분류 아래 개념 문서에서 이어서 읽을 수 있습니다.

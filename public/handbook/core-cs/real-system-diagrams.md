@@ -1,161 +1,156 @@
-# Core CS · 실제 구조 흐름
 
-네트워크 · 분산 시스템 · 보안 기본 · 운영 & 신뢰성이 **실제 구조에서 어떻게 쓰이는지** 흐름으로만 정리했습니다.  
-다이어그램 노드를 클릭하면 해당 개념 문서로 이동합니다.
 
 ---
 
-## 1. 네트워크
+## 1. Networking Fundamentals
 
-### 1-1. 주소 · 서브넷 · 라우팅 · NAT
+### 주소 · 라우팅 · NAT · DNS · 프로토콜 · LB
 
 ```mermaid
 flowchart LR
-  subgraph addr [주소]
-    IP([📍 IP / CIDR])
-    SUB([🔀 서브넷])
+  subgraph addr [주소·경로]
+    IP([IP / CIDR / Subnet])
+    RT([Routing])
+    N([NAT])
   end
-  subgraph path [경로]
-    RT([📋 라우팅 테이블])
-    N([🔄 NAT])
-  end
-  IP --> SUB
-  SUB --> RT
-  RT --> N
-  N --> E[💻 컴퓨트]
-```
-
-### 1-2. 프로토콜 · DNS · TLS · 로드밸런서
-
-```mermaid
-flowchart TB
-  U[👤 User]
-  subgraph protocol [전송·프로토콜]
-    P([📡 TCP/UDP])
-  end
-  subgraph name [이름 해석]
-    D([🌐 DNS])
-  end
-  subgraph secure [보안]
-    T([🔒 TLS])
+  subgraph protocol [프로토콜·보안]
+    D([DNS])
+    P([TCP / UDP])
+    T([HTTP / TLS])
   end
   subgraph lb [로드밸런싱]
-    L7([⚖️ L7 LB])
-    L4([⚖️ L4 LB])
+    L7([L7 LB])
+    L4([L4 LB])
   end
-  E[💻 컴퓨트]
-  U --> P
-  P --> D
-  D --> T
-  T --> L7
-  L7 --> L4
-  L4 --> E
+  IP --> RT --> N
+  N --> D --> P --> T
+  T --> L7 --> L4
+  L4 --> E[컴퓨트]
 ```
 
 ---
 
-## 2. 분산 시스템
+## 2. Data & Storage Fundamentals
 
-### 2-1. 확장 · Stateless · Scale-up / Scale-out
+### Block / File / Object · IOPS · ACID · Index · Cache
+
+```mermaid
+flowchart TB
+  subgraph storage [저장 유형]
+    B([Block])
+    F([File])
+    O([Object])
+  end
+  subgraph perf [성능·일관성]
+    IO([Latency / Throughput / IOPS])
+    AC([ACID / 트랜잭션 / 락])
+    IX([Index])
+  end
+  subgraph cache [캐시]
+    C([Cache hit/miss, TTL])
+  end
+  B --> IO
+  F --> IO
+  O --> IO
+  IO --> AC
+  AC --> IX
+  IX --> C
+```
+
+---
+
+## 3. Distributed Systems Essentials
+
+### Stateless · Scale · 일관성 · Queue · Idempotency · 분산 TX · 분산 락
 
 ```mermaid
 flowchart LR
   subgraph scale [확장]
-    SU([📈 Scale-up])
-    SO([↔️ Scale-out])
+    SU([Scale-up])
+    SO([Scale-out])
   end
   subgraph app [앱]
-    S([⚡ Stateless])
-    ST([💾 Stateful])
+    S([Stateless])
+    ST([Stateful])
+  end
+  subgraph msg [메시징]
+    Q([Queue])
+    P([Pub/Sub])
+  end
+  subgraph safe [일관성·재시도·분산]
+    ID([Idempotency])
+    CON([Consistency Model])
+    CAP([CAP])
+    DT([분산 TX · 분산 락])
   end
   SU --> ST
   SO --> S
-  S --> Q([📬 Queue])
-```
-
-### 2-2. Queue · Pub-Sub · Event-driven · 일관성 · CAP
-
-```mermaid
-flowchart LR
-  subgraph msg [메시징]
-    Q([📬 Queue])
-    P([📢 Pub-Sub])
-    EV([⚡ Event-driven])
-  end
-  subgraph safe [복원]
-    ID([🔁 Idempotency])
-    RB([🔄 Retry/Backoff])
-  end
-  subgraph data [저장]
-    CAP([📐 CAP])
-    CON([⚖️ Consistency Model])
-  end
+  S --> Q
   Q --> ID
-  P --> EV
-  ID --> RB
-  RB --> Q
-  EV --> CON
+  P --> CON
+  ID --> CON
   CAP --> CON
+  CON --> DT
 ```
 
 ---
 
-## 3. 보안 기본
+## 4. Security Basics
 
-### 3-1. 인증 · 인가 · 암호화 · 최소 권한 · 방화벽
+### 인증·인가 · 암호화·해시 · 최소 권한 · 네트워크 보안
 
 ```mermaid
 flowchart TB
-  subgraph auth [인증/인가]
-    A1([🔐 Authentication])
-    A2([🎫 Authorization])
+  subgraph auth [인증·인가]
+    A1([Authn])
+    A2([Authz])
+  end
+  subgraph crypto [암호화]
+    H([Hash vs Encryption])
+    SY([Symmetric / Asymmetric])
   end
   subgraph policy [정책]
-    LP([🛡️ Least Privilege])
+    LP([Least Privilege])
   end
-  subgraph data [해시·암호화]
-    H([#️⃣ Hash vs Encryption])
-  end
-  subgraph boundary [경계]
-    FW([🧱 Firewall])
+  subgraph net [네트워크 보안]
+    FW([인바운드/아웃바운드])
   end
   A1 --> A2
-  A2 --> LP
-  LP --> H
-  H --> FW
+  A2 --> H
+  H --> SY
+  SY --> LP
+  LP --> FW
 ```
 
 ---
 
-## 4. 운영 & 신뢰성
+## 5. Reliability & Operations
 
-### 4-1. HA · 관측성 · 복구 · SLI/SLO · 캐시
+### 관측성 · 장애 대응 · Throttling · DR · HA · SLO
 
 ```mermaid
 flowchart TB
-  subgraph ha [고가용성]
-    HA([🏗️ HA 설계])
-  end
   subgraph observe [관측성]
-    O([📊 Logs / Metrics / Traces])
-    AL([🔔 Alarm])
+    O([Logs / Metrics / Traces])
+  end
+  subgraph failure [장애 대응]
+    RB([Retry / Backoff / Jitter])
+    TH([Throttling / Rate limit])
   end
   subgraph dr [복구]
-    RPO([⏪ RPO])
-    RTO([⏱️ RTO])
+    RPO([RPO])
+    RTO([RTO])
   end
-  subgraph goal [목표]
-    S([🎯 SLI / SLO])
+  subgraph ha [고가용성]
+    HA([HA / active-active])
+    SLO([SLI / SLO])
   end
-  subgraph perf [성능]
-    C([💾 캐시 원리])
-  end
-  HA --> O
-  O --> AL
-  AL --> S
+  O --> RB
+  RB --> TH
+  TH --> RPO
   RPO --> RTO
-  RTO --> S
-  C --> O
+  RTO --> HA
+  HA --> SLO
 ```
 
 ---

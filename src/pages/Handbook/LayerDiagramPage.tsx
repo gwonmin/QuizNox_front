@@ -23,24 +23,28 @@ export function LayerDiagramPage() {
 
   useEffect(() => {
     if (!content || !layer) return;
-    const wrapper = diagramRef.current;
-    if (wrapper) {
-      wrapper.querySelectorAll("h2").forEach((el) => {
-        const text = el.textContent?.trim();
-        const section = layer.sections.find((s) => s.title === text);
-        if (section) (el as HTMLElement).id = `section-${section.id}`;
-      });
-    }
     const hash = window.location.hash?.slice(1);
-    const scrollToTarget = () => {
-      if (hash?.startsWith("section-")) {
-        document.getElementById(hash)?.scrollIntoView({ behavior: "smooth", block: "start" });
-      } else if (hash === "diagram" || !window.location.hash) {
-        diagramRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (hash === "diagram" || !hash) {
+      const t = setTimeout(
+        () => diagramRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+        100
+      );
+      return () => clearTimeout(t);
+    }
+    if (!hash.startsWith("doc-")) return;
+    const POLL_MS = 80;
+    const MAX_WAIT_MS = 6000;
+    const started = Date.now();
+    const interval = setInterval(() => {
+      const el = document.getElementById(hash);
+      if (el) {
+        clearInterval(interval);
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      } else if (Date.now() - started > MAX_WAIT_MS) {
+        clearInterval(interval);
       }
-    };
-    const t = setTimeout(scrollToTarget, 600);
-    return () => clearTimeout(t);
+    }, POLL_MS);
+    return () => clearInterval(interval);
   }, [content, layer]);
 
   useEffect(() => {
@@ -111,33 +115,11 @@ export function LayerDiagramPage() {
           content={content}
           className="max-w-4xl"
           diagramLinks={config.diagramLinks}
-          onDiagramLinkClick={(path) => navigate(path)}
+          onDiagramLinkClick={(path, scrollHash) =>
+          navigate(path, { state: scrollHash ? { scrollBackHash: scrollHash } : undefined })
+        }
         />
       </div>
-      <nav className="mt-10 pt-8 border-t border-border" aria-label="섹션별 목차">
-        <h2 className="text-sm font-semibold text-foreground mb-3">섹션별 목차</h2>
-        <ul className="space-y-4">
-          {layer.sections.map((section) => (
-            <li key={section.id}>
-              <h3 className="text-sm font-medium text-muted-foreground mb-2">
-                {section.title}
-              </h3>
-              <ul className="flex flex-wrap gap-x-2 gap-y-1">
-                {section.docs.map((doc) => (
-                  <li key={doc.slug}>
-                    <Link
-                      to={`/handbook/${layerId}/${doc.slug}`}
-                      className="text-sm text-primary hover:underline"
-                    >
-                      {doc.title}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </li>
-          ))}
-        </ul>
-      </nav>
     </main>
   );
 }

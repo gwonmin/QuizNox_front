@@ -1,7 +1,9 @@
 # Scale-up vs Scale-out
 
-**용량을 늘리는 두 방식**입니다.  
-Scale-up = 수직 확장, Scale-out = 수평 확장.
+**Scale-up**: 한 서버 스펙 업 → 더 큰 1대.  
+**Scale-out**: 서버 1대 → 2대 → N대.
+
+용량을 늘리는 두 방식입니다. (수직 vs 수평 확장)
 
 ## Scale-up (수직 확장)
 

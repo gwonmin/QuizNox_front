@@ -1,6 +1,9 @@
 # Consistency Model (Strong / Eventual)
 
-**여러 노드가 같은 데이터를 언제 같은 값으로 보는지**에 대한 모델입니다.
+**Strong**: 쓰기 → 동기 복제 후 응답 → 어디서 읽어도 최신.  
+**Eventual**: 쓰기 → 즉시 응답 → 비동기 복제 후 수렴.
+
+여러 노드가 같은 데이터를 **언제 같은 값으로 보는지**에 대한 모델입니다.
 
 ## Strong Consistency (강한 일관성)
 
@@ -23,7 +26,6 @@ sequenceDiagram
   participant C as Client
   participant N1 as 노드1
   participant N2 as 노드2
-  Note over N1,N2: Strong
   C->>N1: 쓰기
   N1->>N2: 동기 복제
   N1-->>C: 성공
@@ -36,7 +38,6 @@ sequenceDiagram
   participant C as Client
   participant N1 as 노드1
   participant N2 as 노드2
-  Note over N1,N2: Eventual
   C->>N1: 쓰기
   N1-->>C: 성공
   N1->>N2: 비동기 복제

@@ -1,16 +1,47 @@
 # CodePipeline
 
-**CI/CD 파이프라인** 오케스트레이션 서비스입니다.
+**CI/CD 파이프라인** 오케스트레이션 서비스입니다. **소스 → 빌드 → 배포** 단계를 스테이지·액션으로 정의하고, 소스 변경 시 자동 실행하거나 수동 실행합니다.
 
-## 동작
+---
 
-- **스테이지·액션**으로 소스 → 빌드 → 배포 단계 정의.
-- 소스 변경 시 자동 실행 또는 수동 실행.
+## 1. 특징
 
-## 연동
+- **스테이지·액션**: 소스(CodeCommit, GitHub, S3 등) → 빌드(CodeBuild) → 배포(CodeDeploy, Lambda, CloudFormation 등). 각 스테이지에 액션 추가.
+- **소스**: CodeCommit, GitHub, S3, Bitbucket 등. **코드 저장**은 CodeCommit 등; 파이프라인은 이 소스를 가져와 빌드·배포.
+- **실행 순서**: 한 스테이지가 **성공**해야 다음 스테이지 진행. 이전 스테이지 실패 시 배포 단계 미실행.
+- **수동 승인**: 스테이지에 **수동 승인 액션** 추가 → 프로덕션 배포 전 승인. 알림은 SNS·Notification rule로 연동.
+- **테스트**: CodeBuild 스테이지에서 **buildspec**에 테스트·테스트 리포트 설정 → 배포 전 검증.
 
-- CodeCommit, GitHub, S3 등 소스. CodeBuild, CodeDeploy, Lambda 등 액션.
+---
+
+## 2. 시나리오
+
+| 조건 | 선택 |
+|------|------|
+| **소스 저장** 후 자동 빌드·배포 | CodePipeline 소스 = CodeCommit(또는 GitHub); 스테이지에 CodeBuild·CodeDeploy 등 |
+| **배포가 안 됨** | 이전 스테이지(소스·빌드·테스트) **실패** 여부 확인; **main(또는 지정 브랜치)** 변경인지 확인 |
+| **단위 테스트** 자동 실행 | CodeBuild 스테이지 추가, buildspec에서 test·reports 설정; 테스트 실패 시 파이프라인 실패 |
+| **프로덕션 배포 전 승인** | 배포 스테이지 전에 **수동 승인 액션** 추가; SNS로 승인자에게 알림 |
+| **멀티 리전·멀티 계정** | CloudFormation **StackSets**로 여러 리전·계정에 배포; 파이프라인에서 StackSets 액션 |
+
+---
+
+## 기출빈출
+
+| 시나리오 | 접근 |
+|----------|------|
+| CI/CD 소스 저장 | **CodeCommit**(또는 GitHub 등); 파이프라인 소스 스테이지에 연결. |
+| 배포가 안 됨 | **이전 스테이지**(소스·빌드·테스트) 실패 여부 확인; **지정 브랜치**(예: main) 변경인지 확인. |
+| 단위 테스트 자동 실행 | **CodeBuild** 스테이지 추가, **buildspec**에 test·reports 설정; 배포 스테이지 **전**에 배치. |
+| 프로덕션 배포 전 승인 | 배포 스테이지 전 **수동 승인 액션** 추가; SNS로 승인자 알림. |
+| CodeDeploy In-place 훅 순서 | **ApplicationStop** → **BeforeInstall** → **AfterInstall** → **ApplicationStart**. |
+
+---
 
 ## 요약
 
-- CodePipeline = 파이프라인 오케스트레이션. 소스·빌드·배포 단계 연결.
+| 항목 | 설명 |
+|------|------|
+| CodePipeline | 소스 → 빌드 → 배포 파이프라인 오케스트레이션 |
+| 실패 시 | 이전 스테이지 실패 시 이후 단계 미실행 |
+| 조건 | "저장소" → CodeCommit / "테스트" → CodeBuild buildspec / "승인" → 수동 승인 액션 |

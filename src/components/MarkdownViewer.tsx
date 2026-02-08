@@ -15,17 +15,17 @@ interface MarkdownViewerProps {
   className?: string;
   /** 노드 텍스트 → 핸드북 경로. 있으면 다이어그램 노드 클릭 시 해당 문서로 이동 */
   diagramLinks?: Record<string, string>;
-  /** diagramLinks 사용 시 클릭 시 SPA 이동용 (미제공 시 일반 링크로 이동) */
-  onDiagramLinkClick?: (path: string) => void;
+  /** diagramLinks 사용 시 클릭 시 SPA 이동용. (path, scrollHash) 전달 시 이전 버튼에서 해당 노드로 스크롤 가능 */
+  onDiagramLinkClick?: (path: string, scrollHash?: string) => void;
 }
 
 function injectDiagramLinks(
   container: HTMLElement,
   links: Record<string, string>,
-  onNavigate?: (path: string) => void
+  onNavigate?: (path: string, scrollHash?: string) => void
 ): void {
   const wrappers = container.querySelectorAll(".mermaid-wrapper");
-  wrappers.forEach((wrapper) => {
+  wrappers.forEach((wrapper, wrapperIndex) => {
     const svg = wrapper.querySelector("svg");
     if (!svg) return;
     const nodes = svg.querySelectorAll("g.node");
@@ -34,8 +34,11 @@ function injectDiagramLinks(
       const text = (g.textContent ?? "").trim();
       for (const [key, path] of Object.entries(links)) {
         if (text.includes(key)) {
+          const slug = path.split("/").filter(Boolean).pop() ?? "";
+          const nodeId = slug ? `doc-${wrapperIndex}-${slug}` : "";
           const a = document.createElementNS(SVG_NS, "a");
           a.setAttributeNS(XLINK_NS, "href", path);
+          if (nodeId) a.setAttribute("id", nodeId);
           a.setAttribute("data-handbook-diagram-link", "true");
           a.setAttribute("class", "handbook-diagram-link");
           a.style.cursor = "pointer";
@@ -43,9 +46,10 @@ function injectDiagramLinks(
           a.appendChild(g);
           g.setAttribute("data-handbook-linked", "true");
           if (onNavigate) {
+            const scrollHash = nodeId ? `#${nodeId}` : undefined;
             a.addEventListener("click", (e) => {
               e.preventDefault();
-              onNavigate(path);
+              onNavigate(path, scrollHash);
             });
           }
           break;

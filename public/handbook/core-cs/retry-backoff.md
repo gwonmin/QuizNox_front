@@ -1,6 +1,8 @@
 # Retry / Backoff 전략
 
-**실패한 요청을 다시 시도할 때** 어떻게·언제 할지에 대한 전략입니다.
+**요청** → 실패 시 **Backoff 대기** → **재시도**. (Exponential: 1s → 2s → 4s … 재시도 시점 분산)
+
+실패한 요청을 **다시 시도할 때** 어떻게·언제 할지에 대한 전략입니다.
 
 ## Retry (재시도)
 
@@ -24,7 +26,7 @@
 
 ```mermaid
 flowchart LR
-  R[요청] --> F{실패?}
+  R[요청] --> F{실패 여부}
   F -->|Yes| W[Backoff 대기]
   W --> R
   F -->|No| O[완료]
@@ -35,9 +37,9 @@ sequenceDiagram
   participant C as Client
   participant S as Server
   C->>S: 요청 1
-  S-->>C: 5xx / 타임아웃
-  Note over C: Backoff 대기 (예: 1s)
-  C->>S: 요청 2 (재시도)
+  S-->>C: 5xx 또는 타임아웃
+  C->>C: Backoff 대기
+  C->>S: 요청 2 재시도
   S-->>C: 200 OK
 ```
 

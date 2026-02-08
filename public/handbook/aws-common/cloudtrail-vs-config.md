@@ -1,18 +1,38 @@
 # CloudTrail vs Config 차이
 
-**API 호출 기록** vs **리소스 설정·변경 이력**을 담당합니다.
+**CloudTrail**은 "누가 어떤 API를 호출했는지" **이벤트 로그**, **Config**는 "리소스 설정이 어떻게 바뀌었는지" **스냅샷·변경 이력**을 담당하는 AWS 서비스입니다.
 
-## CloudTrail
+---
+
+## 1. CloudTrail
 
 - **누가, 언제, 어떤 API**를 호출했는지 이벤트 로그
 - 감사·규정 준수·보안 분석
 - 리전·글로벌 서비스 트레일 지원
 
-## Config
+---
+
+## 2. Config
 
 - **리소스 설정 스냅샷·변경 이력**
 - “리소스가 어떻게 바뀌었는지”, 규칙 기반 평가(Compliance)
 - 원하는 리소스 타입만 기록 가능
+
+---
+
+```mermaid
+flowchart LR
+  subgraph ct [CloudTrail]
+    API[API 호출] --> EVT[이벤트 로그]
+    EVT --> Q1[누가 언제 어떤 API]
+  end
+  subgraph cfg [Config]
+    RES[리소스] --> SNAP[스냅샷 및 변경 이력]
+    SNAP --> Q2[설정이 어떻게 바뀌었나]
+  end
+```
+
+---
 
 ## 요약
 

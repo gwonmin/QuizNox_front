@@ -16,10 +16,11 @@ export function CoreCSDiagramPage() {
   const diagramRef = useRef<HTMLDivElement>(null);
 
   const H2_TO_SECTION_ID: Record<string, string> = {
-    "1. 네트워크": "section-network",
-    "2. 분산 시스템": "section-distributed",
-    "3. 보안 기본": "section-security-basics",
-    "4. 운영 & 신뢰성": "section-operations-reliability",
+    "1. Networking Fundamentals": "section-networking",
+    "2. Data & Storage Fundamentals": "section-data-storage",
+    "3. Distributed Systems Essentials": "section-distributed",
+    "4. Security Basics": "section-security-basics",
+    "5. Reliability & Operations": "section-reliability-operations",
   };
 
   useEffect(() => {
@@ -90,7 +91,7 @@ export function CoreCSDiagramPage() {
         </Link>
         <h1 className="text-xl font-bold mt-2 text-foreground">1. Core CS</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          순수 CS 기반 개념 · 실제 구조 흐름 (노드 클릭 시 개념 문서로 이동)
+          노드 클릭 시 개념 문서로 이동
         </p>
       </div>
       <div id="diagram" ref={diagramRef}>
