@@ -1,0 +1,51 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="Routing Table은 목적지에 따라 패킷을 어느 다음 홉으로 보낼지 결정하는 테이블입니다."
+  bullets={[
+    "목적지(CIDR 범위) → 다음 홉 또는 출구 인터페이스 매핑",
+    "기본 라우트(0.0.0.0/0)는 다른 항목에 맞지 않을 때 쓰는 마지막 출구",
+  ]}
+/>
+
+## Routing Table 구조 한눈에 보기
+
+<KeyTable
+  columns={["항목", "내용"]}
+  rows={[
+    [
+      "역할",
+      "각 목적지(또는 목적지 범위)에 대해 다음 홉(Next Hop) 또는 출구 인터페이스를 정의한다.",
+    ],
+    [
+      "조회 방식",
+      "라우터·L3 장비가 패킷의 목적지 IP를 보고 테이블을 조회해 전달 경로를 결정한다.",
+    ],
+    [
+      "기본 라우트(0.0.0.0/0)",
+      "다른 항목에 일치하지 않을 때 사용하는 기본 출구. 인터넷 게이트웨이 등으로 향하는 경로에 자주 사용된다.",
+    ],
+  ]}
+/>
+
+## 예시 엔트리
+
+<KeyTable
+  columns={["목적지(CIDR)", "다음 홉 / 출구"]}
+  rows={[
+    ["10.0.0.0/24", "로컬 / 직접 연결"],
+    ["0.0.0.0/0", "기본 게이트웨이"],
+  ]}
+/>
+
+## 패킷 처리 흐름
+
+<MermaidDiagram
+  code={`flowchart LR
+  P["패킷 도착"] --> L["라우팅 테이블 조회"]
+  L --> N["다음 홉 결정"]
+  N --> F["해당 인터페이스로 전달"]`}
+/>
+

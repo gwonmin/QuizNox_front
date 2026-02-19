@@ -1,0 +1,78 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="실제 분산 시스템에서는 네트워크 파티션(P)을 피할 수 없으므로, 결국 일관성(CP) 우선 또는 가용성(AP) 우선 중 하나를 선택해야 합니다."
+  bullets={[
+    "C(Consistency): 모든 노드가 같은 시점에 같은 데이터를 본다.",
+    "A(Availability): 모든 요청에 항상 응답한다.",
+    "P(Partition tolerance): 네트워크 분할이 나도 시스템이 동작한다.",
+  ]}
+/>
+
+## CAP 세 가지 속성
+
+<KeyTable
+  columns={["속성", "의미"]}
+  rows={[
+    [
+      "C (Consistency)",
+      "모든 노드가 같은 시점에 같은 데이터를 본다. 쓰기 직후 어디서 읽어도 최신 값을 본다.",
+    ],
+    [
+      "A (Availability)",
+      "모든 요청에 항상 응답한다. 거절·타임아웃 없이 응답을 돌려준다.",
+    ],
+    [
+      "P (Partition tolerance)",
+      "네트워크 분할(일부 노드 간 통신 끊김)이 나도 시스템이 동작한다.",
+    ],
+  ]}
+/>
+
+## CP vs AP 정리
+
+<KeyTable
+  columns={["선택", "특징"]}
+  rows={[
+    [
+      "CP (일관성 우선)",
+      "파티션 시 일관성을 지키기 위해 응답을 거절·대기할 수 있어 가용성을 희생한다.",
+    ],
+    [
+      "AP (가용성 우선)",
+      "파티션 시에도 응답은 하되, 일시적으로 오래된 값이 보일 수 있어 일관성을 희생한다.",
+    ],
+  ]}
+/>
+
+## 개념 도식
+
+<MermaidDiagram
+  code={`flowchart TB
+  CAP["C A P 중 2개만"]
+  CAP --> CP["CP: 일관성 우선"]
+  CAP --> AP["AP: 가용성 우선"]
+  CP --> C1["파티션 시 대기 또는 거절"]
+  AP --> A1["파티션 시에도 응답, 구식 값 가능"]`}
+/>
+
+## 실제 예시
+
+<KeyTable
+  columns={["선택", "예시", "이유"]}
+  rows={[
+    [
+      "CP",
+      "분산 DB(강한 일관성 모드), 락 서비스",
+      "금융·재고처럼 “잘못된 값보다는 못 주는 게 나을 때” 일관성 우선 선택.",
+    ],
+    [
+      "AP",
+      "캐시, DNS, 일부 NoSQL",
+      "“항상 응답은 해주고, 잠깐 오래된 값이면 수용”할 때 가용성 우선 선택.",
+    ],
+  ]}
+/>
+

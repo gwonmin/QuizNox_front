@@ -1,0 +1,71 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="Idempotency(멱등성)는 같은 요청을 여러 번 보내도 결과가 한 번 처리한 것과 동일하게 유지되는 성질입니다."
+  bullets={[
+    "f(x) = f(f(x))인 연산처럼, 재시도해도 상태가 더 이상 변하지 않는다.",
+    "네트워크 재시도·타임아웃이 있는 환경에서 이중 차감·중복 주문을 막기 위해 필요하다.",
+  ]}
+/>
+
+## 멱등 O vs 멱등 X
+
+<KeyTable
+  columns={["구분", "예시", "여러 번 호출 시"]}
+  rows={[
+    [
+      "멱등",
+      "GET 조회, “이름을 김철수로 설정”",
+      "조회는 같은 응답, 설정은 같은 상태로 유지된다.",
+    ],
+    [
+      "멱등 아님",
+      "“잔액 1만 원 차감”, “주문 1건 생성”",
+      "호출할 때마다 차감·생성이 반복되어 이중 차감·중복 주문이 발생한다.",
+    ],
+  ]}
+/>
+
+## 왜 중요한가
+
+<KeyTable
+  columns={["상황", "이유"]}
+  rows={[
+    [
+      "클라이언트 재시도, 타임아웃 후 재전송",
+      "같은 요청이 여러 번 들어와도 중복 처리되지 않도록 해야 한다.",
+    ],
+    [
+      "결제·차감·생성 연산",
+      "멱등하지 않으면 재시도 시 이중 차감·이중 생성이 발생할 수 있다.",
+    ],
+  ]}
+/>
+
+## 구현 관점
+
+<KeyTable
+  columns={["방법", "설명"]}
+  rows={[
+    [
+      "멱등 키(Idempotency Key)",
+      "요청마다 고유 ID를 두고, 같은 ID의 요청은 한 번만 처리하고 이후에는 스킵하거나 이전 결과를 반환한다.",
+    ],
+    [
+      "멱등 연산 설계",
+      "“설정값으로 덮어쓰기”처럼 여러 번 호출해도 결과가 같게 연산 자체를 설계한다.",
+    ],
+  ]}
+/>
+
+## 멱등 처리 흐름 도식
+
+<MermaidDiagram
+  code={`flowchart LR
+  R["요청"] --> K{"멱등 키 확인"}
+  K -->|"첫 요청"| P["처리"]
+  K -->|"재시도"| S["스킵 또는 이전 결과 반환"]`}
+/>
+

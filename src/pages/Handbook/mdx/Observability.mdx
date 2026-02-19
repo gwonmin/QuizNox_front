@@ -1,0 +1,65 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="Observability는 Logs·Metrics·Traces 세 가지 데이터를 통해 시스템이 어떻게 동작하는지 파악하는 능력입니다."
+  bullets={[
+    "Logs: 무슨 일이 일어났는지 이벤트·메시지를 기록한다.",
+    "Metrics: 얼마나 사용·부하가 있는지 수치로 본다.",
+    "Traces: 어디서 느리고 병목인지 요청 경로를 따라 추적한다.",
+  ]}
+/>
+
+## Logs / Metrics / Traces 한눈에 보기
+
+<KeyTable
+  columns={["유형", "설명", "대표 질문"]}
+  rows={[
+    [
+      "Logs",
+      "이벤트·메시지 기록으로 '언제, 무엇이, 어디서' 일어났는지를 남긴다. 텍스트·구조화 로그, 레벨(debug, info, error) 등.",
+      "무슨 일이 일어났는가?",
+    ],
+    [
+      "Metrics",
+      "CPU, 메모리, 요청 수, 지연 시간, 에러율 등 숫자 지표를 시계열로 수집해 모니터링·알람·SLO 측정에 사용한다.",
+      "얼마나 사용·부하가 있는가?",
+    ],
+    [
+      "Traces",
+      "요청이 서비스 A → B → C로 지나가는 경로와 구간별 소요 시간을 기록해 분산 환경의 병목·실패 구간을 파악한다.",
+      "어디에서 느리고 병목이 발생하는가?",
+    ],
+  ]}
+/>
+
+## 개념 도식
+
+<MermaidDiagram
+  code={`flowchart LR
+  L["Logs"]
+  M["Metrics"]
+  T["Traces"]
+  L --> G["상태 파악"]
+  M --> G
+  T --> G`}
+/>
+
+## 실제 예시
+
+<KeyTable
+  columns={["유형", "예시"]}
+  rows={[
+    [
+      "Logs",
+      '2024-01-15 10:00:00 ERROR [order-service] 결제 타임아웃 orderId=123',
+    ],
+    ["Metrics", "CPU 80%, 요청/초 1000, p99 지연 200ms, 에러율 1%"],
+    [
+      "Traces",
+      "요청 ID abc → API Gateway 5ms → Order 50ms → Payment 200ms (병목 지점)",
+    ],
+  ]}
+/>
+

@@ -1,0 +1,84 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="Hash는 단방향으로 원본을 복구할 수 없는 함수이고, Encryption은 키로 양방향 암호화·복호화가 가능한 방식입니다."
+  bullets={[
+    "Hash: 원본 → 고정 길이 값, 역산 불가. 비밀번호 저장·무결성 검증에 사용한다.",
+    "Encryption: 키로 암호화/복호화가 가능해 기밀성(Confidentiality)을 제공한다.",
+  ]}
+/>
+
+## Hash vs Encryption 한눈에 비교
+
+<KeyTable
+  columns={["구분", "Hash", "Encryption"]}
+  rows={[
+    [
+      "방향",
+      "단방향(원본 → 해시값)",
+      "양방향(암호화 ↔ 복호화)",
+    ],
+    [
+      "원본 복구",
+      "불가",
+      "가능(적절한 키 필요)",
+    ],
+    [
+      "주요 용도",
+      "비밀번호 저장, 무결성 검증(체크섬)",
+      "저장·전송 데이터의 기밀 유지",
+    ],
+  ]}
+/>
+
+## Hash와 Encryption 개념 도식
+
+<MermaidDiagram
+  code={`flowchart LR
+  subgraph hash [Hash]
+    A["원본"] -->|"해시"| B["해시값"]
+  end
+  subgraph enc [Encryption]
+    C["원본"] -->|"암호화·키"| D["암호문"]
+    D -->|"복호화·키"| C
+  end`}
+/>
+
+## 대칭키 vs 비대칭키 암호화
+
+<KeyTable
+  columns={["구분", "Symmetric (대칭)", "Asymmetric (비대칭)"]}
+  rows={[
+    [
+      "키",
+      "같은 키 1개로 암호화·복호화",
+      "공개키·개인키 2개(쌍)를 사용",
+    ],
+    [
+      "특징",
+      "연산이 가벼우나 키 교환·관리가 과제",
+      "키 배포는 쉬우나 연산이 상대적으로 무겁다.",
+    ],
+    [
+      "용도 예",
+      "대용량 데이터 암호화",
+      "키 교환, 전자서명 등",
+    ],
+  ]}
+/>
+
+## 암호화 방식 도식
+
+<MermaidDiagram
+  code={`flowchart LR
+  subgraph sym [Symmetric]
+    K1["동일 키"] --> E1["암호화/복호화"]
+  end
+  subgraph asym [Asymmetric]
+    P["공개키"] --> E2["암호화"]
+    Q["개인키"] --> D2["복호화"]
+  end`}
+/>
+

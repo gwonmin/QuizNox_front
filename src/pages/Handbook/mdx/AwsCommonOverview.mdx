@@ -1,0 +1,87 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="AWS 공통 레이어는 네트워킹, IAM, 스토리지, 컴퓨트, 모니터링 등 대부분의 시험과 실무에서 반복해서 등장하는 기초 서비스를 한 번에 정리합니다."
+  bullets={[
+    "VPC / 서브넷 / SG / NACL / VPC Endpoint 등 네트워킹 뼈대",
+    "IAM User / Role / Policy, STS, Cross-account 접근",
+    "S3, EBS, EFS, RDS, DynamoDB, ElastiCache 기초 개념",
+    "EC2 / Lambda / ECS / EKS / ELB / ASG, CloudWatch / CloudTrail / Config",
+  ]}
+/>
+
+## 1. Networking (VPC · 서브넷 · 보안)
+
+<MermaidDiagram
+  code={`flowchart TB
+  subgraph vpc [VPC_서브넷_보안]
+    SUB["Public / Private subnet"]
+    RT["Route Table"]
+    GW["IGW vs NAT"]
+    EIP["Elastic IP"]
+    SG["Security Group"]
+    NL["NACL"]
+    EP["VPC Endpoint"]
+  end`}
+/>
+
+## 2. Identity & Access (IAM)
+
+<MermaidDiagram
+  code={`flowchart TB
+  subgraph iam [IAM]
+    UR["User vs Role"]
+    P["Policy Evaluation"]
+    I["Identity-based vs Resource-based"]
+    E["Explicit Deny"]
+    S["STS / AssumeRole"]
+    C["Cross-account"]
+    M["MFA"]
+  end`}
+/>
+
+## 3. Storage & Data (S3 · EBS · EFS · RDS · DynamoDB · ElastiCache)
+
+<MermaidDiagram
+  code={`flowchart TB
+  subgraph stor [Storage_Data]
+    S3["S3"]
+    EBS["EBS 기본"]
+    EFS["EFS 기본"]
+    RDS["RDS 기본"]
+    DDB["DynamoDB"]
+    EC["ElastiCache"]
+  end`}
+/>
+
+## 4. Compute & Scaling (EC2 · Lambda · ECS · EKS · ELB · ASG)
+
+<MermaidDiagram
+  code={`flowchart TB
+  subgraph comp [Compute_Scaling]
+    EC2["EC2 개요"]
+    LB["Lambda"]
+    ECS["ECS 기본"]
+    EKS["EKS 기본"]
+    ELB["ALB vs NLB"]
+    TG["Target Group"]
+    HC["Health Check"]
+    ST["Sticky Session"]
+    ASG["ASG 기본"]
+    SC["Scaling Policy"]
+  end`}
+/>
+
+## 5. Monitoring & Logging (CloudWatch · 감사)
+
+<MermaidDiagram
+  code={`flowchart TB
+  subgraph mon [CloudWatch_감사]
+    CW["CloudWatch Metrics / Logs"]
+    DB["Dashboard"]
+    AL["Alarm"]
+    CT["CloudTrail vs Config"]
+  end`}
+/>
+

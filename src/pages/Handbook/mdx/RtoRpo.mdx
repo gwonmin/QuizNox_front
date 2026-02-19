@@ -1,0 +1,92 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="RTO / RPO는 장애 발생 시 복구 목표를 정할 때 쓰는 두 가지 시간 지표입니다."
+  bullets={[
+    "RPO: 어느 시점까지의 데이터를 복구할 수 있어야 하는지(데이터 손실 허용 범위).",
+    "RTO: 장애 이후 얼마 안에 서비스를 다시 올려야 하는지(다운타임 허용 범위).",
+    "둘 다 백업·복제 주기와 복구 자동화·대체 시스템 설계의 기준이 된다.",
+  ]}
+/>
+
+## RPO / RTO 한눈에 보기
+
+<KeyTable
+  columns={["구분", "질문", "단위"]}
+  rows={[
+    [
+      "RPO (Recovery Point Objective)",
+      "얼마나 과거까지의 데이터를 복구할 수 있어야 하는가?",
+      "시간(데이터 손실 허용 범위)",
+    ],
+    [
+      "RTO (Recovery Time Objective)",
+      "장애 발생 후 얼마 안에 서비스를 복구해야 하는가?",
+      "시간(다운타임 허용 범위)",
+    ],
+  ]}
+/>
+
+## RPO (Recovery Point Objective)
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    [
+      "의미",
+      "복구 시점 목표로, 장애가 나도 어느 시점까지의 데이터는 복구 가능해야 하는지를 뜻한다.",
+    ],
+    [
+      "예시",
+      "RPO 1시간 = 최대 1시간치 데이터 손실을 허용한다.",
+    ],
+    [
+      "설계 영향",
+      "백업·복제 주기를 이 값에 맞춰야 한다(예: 1시간 RPO면 1시간 이내 복제 또는 백업 필요).",
+    ],
+  ]}
+/>
+
+## RTO (Recovery Time Objective)
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    [
+      "의미",
+      "복구 시간 목표로, 장애 발생 후 서비스를 얼마나 빨리 다시 올려야 하는지에 대한 기준이다.",
+    ],
+    [
+      "예시",
+      "RTO 4시간 = 서비스 다운 타임을 최대 4시간까지 허용한다.",
+    ],
+    [
+      "설계 영향",
+      "복구 절차, 자동화, 대체 시스템(콜드/웜/핫 스탠바이) 설계에 직접적인 제약을 준다.",
+    ],
+  ]}
+/>
+
+## 개념 도식
+
+<MermaidDiagram
+  code={`flowchart LR
+  T["장애 발생"]
+  T --> P["RPO: 어디까지 복구"]
+  T --> R["RTO: 언제까지 복구"]
+  P --> D["데이터 및 백업 설계"]
+  R --> O["복구 절차 및 자동화 설계"]`}
+/>
+
+## 실제 예시 표
+
+<KeyTable
+  columns={["지표", "예시 값", "의미"]}
+  rows={[
+    ["RPO 1시간", "백업/복제 1시간 이내", "최대 1시간치 데이터 손실 허용."],
+    ["RTO 4시간", "4시간 이내 복구", "서비스 다운 4시간까지 허용."],
+  ]}
+/>
+

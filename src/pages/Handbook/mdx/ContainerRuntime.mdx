@@ -1,0 +1,258 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="Container Runtime은 노드에서 이미지를 풀·실행·중지하는 실행 엔진이고, 오케스트레이션은 여러 노드·Pod를 대상으로 스케줄링·헬스체크·스케일링·롤링 업데이트를 자동화하는 계층입니다. Kubernetes는 kubelet이 CRI로 런타임을 호출해 Pod를 띄우고, Control Plane이 Scheduler·Health Check·Auto Scaling으로 원하는 상태를 유지한다."
+  bullets={[
+    "Runtime: containerd, CRI-O 등이 노드에서 이미지 풀·컨테이너 격리·생명주기를 담당하고, kubelet이 CRI로 이들을 호출한다.",
+    "오케스트레이션: Pod/Task, Service Endpoint, Scheduler, Health Check, Auto Scaling, Rolling Update로 배포·가용성을 관리한다.",
+    "단일 클러스터는 Control Plane 1개로 단순 운영, 멀티 클러스터는 지역·환경별 여러 클러스터를 연동해 격리·규정 대응을 확보한다.",
+  ]}
+/>
+
+## Runtime 핵심 개념
+
+<KeyTable
+  columns={["구분", "의미"]}
+  rows={[
+    [
+      "이미지 풀(Pull)",
+      "레지스트리에서 필요한 이미지를 가져와 노드 로컬 캐시에 저장한다.",
+    ],
+    [
+      "컨테이너 실행",
+      "이미지를 기반으로 프로세스를 생성하고, 네임스페이스·cgroups로 격리한다.",
+    ],
+    [
+      "네트워크·볼륨 연결",
+      "컨테이너 네트워크 인터페이스를 생성하고, 지정된 볼륨을 마운트한다.",
+    ],
+  ]}
+/>
+
+## Kubernetes와 Container Runtime 관계
+
+**한 줄 흐름:** Control Plane이 Pod를 노드에 스케줄하면, 해당 노드의 **kubelet**이 **CRI**를 통해 런타임을 호출해 이미지 풀 → Sandbox(Pod 네트워크·PID 네임스페이스) → 컨테이너 생성·시작 순으로 실행한다.
+
+<KeyTable
+  columns={["구분", "역할", "비고"]}
+  rows={[
+    [
+      "Control Plane",
+      "API Server, Scheduler, Controller Manager. Pod 스펙 저장·노드 선택·원하는 상태 유지.",
+      "실제 컨테이너를 띄우지 않고, 어떤 노드에서 띄울지만 결정한다.",
+    ],
+    [
+      "Data Plane (노드)",
+      "kubelet + Container Runtime. 스케줄된 Pod 스펙을 받아 해당 노드에서 이미지 풀·컨테이너 실행·상태 보고.",
+      "kubelet은 노드당 하나, 런타임(containerd 등)과 CRI로 통신한다.",
+    ],
+    [
+      "kubelet",
+      "노드 에이전트. API Server와 통신해 할당된 Pod 목록을 받고, CRI를 통해 런타임에 이미지 풀·Pod Sandbox·컨테이너 생성·시작·중지 요청.",
+      "헬스체크(Probe) 실행, 상태를 API Server에 보고하는 역할도 수행한다.",
+    ],
+  ]}
+/>
+
+<MermaidDiagram
+  code={`flowchart TB
+  subgraph cp [Control Plane]
+    api["API Server"]
+    sched["Scheduler"]
+  end
+  subgraph node1 [Node 1]
+    kubelet1["kubelet"]
+    rt1["Container Runtime"]
+    kubelet1 --> rt1
+  end
+  subgraph node2 [Node 2]
+    kubelet2["kubelet"]
+    rt2["Container Runtime"]
+    kubelet2 --> rt2
+  end
+  api --> sched
+  sched -->|Pod 배치| kubelet1
+  sched -->|Pod 배치| kubelet2`}
+/>
+
+## CRI (Container Runtime Interface)
+
+Kubernetes가 다양한 런타임(containerd, CRI-O 등)을 플러그인처럼 쓰기 위한 표준 인터페이스다. gRPC 기반이며, **ImageService**(이미지 풀·목록·삭제)와 **RuntimeService**(Pod Sandbox·컨테이너 생성·시작·중지·상태 조회)로 나뉜다.
+
+<KeyTable
+  columns={["CRI 서비스", "주요 역할"]}
+  rows={[
+    ["ImageService", "PullImage, ListImages, RemoveImage 등. 레지스트리에서 이미지를 가져오고 노드 캐시를 관리한다."],
+    ["RuntimeService", "RunPodSandbox( Pod용 네트워크·PID 네임스페이스 ), CreateContainer, StartContainer, StopContainer 등. 실제 컨테이너 생명주기 제어."],
+  ]}
+/>
+
+## Pod가 노드에서 실행되기까지
+
+<MermaidDiagram
+  code={`sequenceDiagram
+  participant API as API Server
+  participant Sched as Scheduler
+  participant Kubelet as kubelet
+  participant CRI as CRI
+  participant Runtime as Runtime
+  participant Reg as Registry
+
+  API -> Sched: 스케줄 대기 중인 Pod
+  Sched -> API: Pod를 Node A에 바인딩
+  API -> Kubelet: Pod 스펙 수신
+  Kubelet -> CRI: RunPodSandbox
+  CRI -> Runtime: Sandbox 생성
+  Runtime --> CRI: Sandbox 준비 완료
+  CRI --> Kubelet: Sandbox 준비 완료
+  Kubelet -> CRI: PullImage
+  CRI -> Runtime: 이미지 풀 요청
+  Runtime -> Reg: 이미지 풀
+  Reg --> Runtime: 이미지 전달
+  Runtime --> CRI: 이미지 준비
+  CRI --> Kubelet: 이미지 준비
+  Kubelet -> CRI: CreateContainer, StartContainer
+  CRI -> Runtime: 컨테이너 생성 및 시작
+  Runtime --> CRI: Running
+  CRI --> Kubelet: Running
+  Kubelet -> API: Pod 상태 보고`}
+/>
+
+<KeyTable
+  columns={["단계", "설명"]}
+  rows={[
+    ["1. 스케줄링", "Scheduler가 리소스·제약 조건을 보고 Pod를 특정 노드에 바인딩한다. 해당 노드의 kubelet이 담당한다."],
+    ["2. Pod Sandbox", "kubelet이 CRI RunPodSandbox를 호출해 Pod 단위의 네트워크·PID 네임스페이스( pause 컨테이너 등)를 만든다."],
+    ["3. 이미지 풀", "컨테이너 이미지가 노드에 없으면 PullImage로 레지스트리에서 받아온다. 있으면 캐시를 사용한다."],
+    ["4. 컨테이너 생성·시작", "CreateContainer로 스펙 전달, StartContainer로 실행. 여러 컨테이너면 스펙 순서대로 처리한다."],
+    ["5. 상태 보고", "kubelet이 Pod·Container 상태를 주기적으로 API Server에 보고해, Control Plane이 원하는 상태와 일치하는지 판단한다."],
+  ]}
+/>
+
+## OCI와 런타임 구현
+
+런타임이 따르는 표준으로 **OCI(Open Container Initiative)** 가 있다. **이미지 스펙**(레이어·매니페스트 포맷)과 **런타임 스펙**(파일시스템 번들·실행 규격)으로 나뉘며, containerd·CRI-O는 이 스펙을 구현해 Kubernetes CRI와 연결된다. Docker 이미지는 OCI 호환 형식으로 변환해 사용할 수 있다.
+
+## 컨테이너 오케스트레이션 핵심 개념
+
+<KeyTable
+  columns={["구분", "의미", "예시"]}
+  rows={[
+    ["Pod / Task", "컨테이너 하나 또는 여러 개를 하나의 배포 단위로 묶은 실행 단위.", "Kubernetes Pod, ECS Task."],
+    ["Service Endpoint", "애플리케이션에 들어오는 트래픽을 Pod/Task로 라우팅하는 엔드포인트.", "Kubernetes Service, ECS Service + Load Balancer."],
+    ["Scheduler", "Pod/Task를 어떤 노드에 배치할지 결정하는 컴포넌트.", "노드 리소스, taint/toleration, affinity 등을 고려해 스케줄링."],
+    ["Health Check", "실행 중인 Pod/Task가 정상 동작 중인지 주기적으로 검사해, 비정상 인스턴스를 교체 또는 트래픽 대상에서 제외한다.", "Liveness / Readiness Probe, Target Group Health Check."],
+    ["Auto Scaling", "메트릭 기반으로 Pod/Task 수를 늘리거나 줄여 부하에 대응한다.", "HPA, ECS Service Auto Scaling."],
+    ["Rolling Update", "구 버전 인스턴스를 점진적으로 새 버전으로 교체해 무중단에 가깝게 배포한다.", "Deployment RollingUpdate, 최소/최대 Surge 설정."],
+  ]}
+/>
+
+## 오케스트레이션 흐름 도식
+
+<MermaidDiagram
+  code={`flowchart TB
+  user["사용자 트래픽"] --> svc["Service Endpoint"]
+  svc --> pod1["Pod/Task 1"]
+  svc --> pod2["Pod/Task 2"]
+  svc --> pod3["Pod/Task 3"]
+  pod1 --> backend["공유 스토리지 또는 백엔드"]
+  pod2 --> backend
+  pod3 --> backend`}
+/>
+
+<MermaidDiagram
+  code={`flowchart LR
+  subgraph cp [Orchestrator Control Plane]
+    sch["Scheduler"]
+    hc["Health Check"]
+    sc["Auto Scaling"]
+    ru["Rolling Update"]
+  end
+  sch --> nodes["노드들"]
+  hc --> pods["Pod 집합"]
+  sc --> pods
+  ru --> pods`}
+/>
+
+## 단일 클러스터 vs 멀티 클러스터
+
+**한 줄 흐름:** 단일 클러스터는 하나의 Control Plane이 모든 노드를 관리한다. 멀티 클러스터는 지역·환경·테넌트별로 여러 클러스터를 두고, 배포·정책·트래픽 라우팅으로 연동해 가용성·격리·규정 대응을 만족시킨다.
+
+<KeyTable
+  columns={["구분", "단일 클러스터", "멀티 클러스터"]}
+  rows={[
+    ["구조", "Control Plane 1개가 여러 워커 노드를 관리. API Server, Scheduler, etcd가 한 세트.", "독립적인 클러스터를 여러 개 두고, 상위에서 배포·정책·네트워킹으로 연동."],
+    ["장점", "구성이 단순하고 운영·디버깅이 쉽다. 리소스 풀을 한 곳에서 스케줄링.", "지역·AZ 분산으로 장애 격리, 규정 준수, 팀·테넌트별 격리가 가능하다."],
+    ["단점", "Control Plane 또는 리전 장애 시 클러스터 전체에 영향. 스케일·지역 확장에 한계.", "배포·모니터링·정책·네트워킹이 복잡해지고, 운영 부담과 비용이 늘어난다."],
+    ["적합한 경우", "단일 리전·중소 규모, 팀 하나가 관리하는 환경.", "다중 리전·DR, 규정상 데이터 현지화, 여러 팀·환경을 강하게 격리해야 할 때."],
+  ]}
+/>
+
+<MermaidDiagram
+  code={`flowchart TB
+  subgraph single [단일 클러스터]
+    subgraph cp1 [Control Plane]
+      api1["API Server"]
+      sched1["Scheduler"]
+    end
+    subgraph workers1 [워커 노드]
+      n1["Node 1"]
+      n2["Node 2"]
+      n3["Node 3"]
+    end
+    cp1 --> workers1
+  end`}
+/>
+
+<MermaidDiagram
+  code={`flowchart TB
+  subgraph multi [멀티 클러스터]
+    subgraph clusterA [클러스터 A]
+      cpA["Control Plane A"]
+      nodesA["Node들"]
+      cpA --> nodesA
+    end
+    subgraph clusterB [클러스터 B]
+      cpB["Control Plane B"]
+      nodesB["Node들"]
+      cpB --> nodesB
+    end
+    fleet["배포 및 정책 연동"] --> clusterA
+    fleet --> clusterB
+  end`}
+/>
+
+### 멀티 클러스터에서 다루는 것
+
+<KeyTable
+  columns={["항목", "의미", "예시"]}
+  rows={[
+    ["배포·GitOps", "여러 클러스터에 동일·선택 배포를 일관되게 수행.", "Argo CD Multi-Cluster, Fleet, Flagger. Git 레포 기준으로 클러스터별 적용."],
+    ["서비스 디스커버리·트래픽", "클러스터 간 서비스 호출, 지역 기반 라우팅, 장애 시 다른 클러스터로 전환.", "서비스 메시, 글로벌 LB, Failover 정책."],
+    ["정책·보안 일관성", "여러 클러스터에 동일한 네트워크 정책, RBAC, 규정 정책을 적용.", "OPA, Kyverno, 정책 as Code."],
+  ]}
+/>
+
+## 설계 시 유의점
+
+<KeyTable
+  columns={["항목", "권장 사항"]}
+  rows={[
+    ["런타임 선택", "Kubernetes 노드에서는 CRI를 지원하는 containerd 또는 CRI-O를 쓰는 것이 일반적이다. Docker Engine은 dockershim 제거 이후 CRI 구현을 통해 간접 사용한다."],
+    ["리소스 요청·제한", "Pod의 requests/limits를 적절히 설정해 오버커밋·스로틀링을 방지하고, 롤링 업데이트 시 동시 업데이트 수를 조정해 인스턴스 급감을 막는다."],
+    ["이미지 풀·헬스체크", "ImagePullPolicy와 레지스트리 인증을 설정하고, Liveness/Readiness Probe 임계값을 장애 패턴에 맞게 조정한다."],
+    ["스케일·상태", "Stateless는 자유롭게 스케일 인/아웃하되, 세션·상태는 외부 스토리지 또는 별도 상태 저장 계층에 둔다."],
+  ]}
+/>
+
+## 실제 예시
+
+<KeyTable
+  columns={["상황", "활용 예시"]}
+  rows={[
+    ["웹 API 서비스", "Deployment + Service로 여러 Pod를 띄우고, HPA로 요청 수·CPU 기반 자동 스케일링을 적용한다."],
+    ["배치 작업", "CronJob 또는 스케줄된 ECS Task로 특정 시간마다 Task를 실행하고, 실패 시 재시도 정책을 설정한다."],
+  ]}
+/>

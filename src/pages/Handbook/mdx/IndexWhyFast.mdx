@@ -1,0 +1,42 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="인덱스는 전체 테이블을 스캔하지 않고, 정렬·구조화된 보조 자료구조에서 조건에 맞는 위치를 빠르게 찾게 해 줍니다."
+  bullets={[
+    "정렬된 구조(B-tree 등)를 사용해 키 기준 검색 복잡도를 O(log N) 수준으로 줄인다.",
+    "Full scan은 N만큼 보지만, 인덱스는 필요한 위치만 찾아간다.",
+  ]}
+/>
+
+## Full scan vs Index
+
+<MermaidDiagram
+  code={`flowchart LR
+  Q["조건 조회"] --> A["Full scan 전체 행 순회"]
+  Q --> B["Index 키로 위치 찾기"]
+  A --> Slow["느림 (N)"]
+  B --> Fast["빠름 (log N)"]`}
+/>
+
+## 인덱스의 효과와 비용
+
+<KeyTable
+  columns={["구분", "효과"]}
+  rows={[
+    [
+      "읽기",
+      "조건 검색·정렬 구간 조회가 빨라진다.",
+    ],
+    [
+      "쓰기",
+      "인덱스도 함께 갱신해야 해서 쓰기 부담이 늘어난다.",
+    ],
+    [
+      "저장 공간",
+      "인덱스만큼 추가 디스크 공간이 필요하다.",
+    ],
+  ]}
+/>
+

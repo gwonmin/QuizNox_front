@@ -1,0 +1,77 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="Throttling / Rate limiting / Backpressure는 과부하를 막고 서비스를 안정적으로 유지하기 위한 트래픽 제어 방식입니다."
+  bullets={[
+    "Throttling: 처리량·동시성 상한을 두어 초과 트래픽을 지연하거나 거부한다.",
+    "Rate limiting: 단위 시간당 요청 수 상한을 두어 DDoS 완화·공정한 자원 분배를 한다.",
+    "Backpressure: 다운스트림이 바쁠 때 업스트림이 보내는 속도를 늦추는 흐름 제어다.",
+  ]}
+/>
+
+## Throttling / Rate limiting / Backpressure 한눈에 보기
+
+<KeyTable
+  columns={["구분", "의미", "누가 제어하는가"]}
+  rows={[
+    [
+      "Throttling",
+      "처리량·동시성 상한을 두고, 초과 시 요청을 지연시키거나 거부한다.",
+      "서버·게이트웨이가 동시 처리 수나 처리 속도를 제한한다.",
+    ],
+    [
+      "Rate limiting",
+      "단위 시간당 요청 수에 상한을 두는 방식이다(예: 초당 10건, 분당 1000건).",
+      "서버 또는 API Gateway가 '초당 N건' 등을 기준으로 제한한다.",
+    ],
+    [
+      "Backpressure",
+      "다운스트림이 바쁠 때 업스트림이 전송 속도를 늦추거나 멈추게 하는 흐름 제어다.",
+      "수신 쪽이 '더 보내지 마' 신호를 주거나, 큐가 가득 차면 생산자를 막는다.",
+    ],
+  ]}
+/>
+
+## Throttling / Rate limiting
+
+<KeyTable
+  columns={["항목", "Throttling", "Rate limiting"]}
+  rows={[
+    [
+      "제어 대상",
+      "동시 처리량, 처리 속도",
+      "단위 시간당 요청 수",
+    ],
+    [
+      "예시",
+      "API 동시 호출 수, DB 연결 수, Lambda 동시 실행 수 제한",
+      "분당 1000건, 초당 10건 요청 제한",
+    ],
+    [
+      "초과 시 동작",
+      "지연(큐잉) 또는 즉시 거부",
+      "429 Too Many Requests 응답, 토큰 버킷 소진 시 거부",
+    ],
+  ]}
+/>
+
+## Backpressure 개념
+
+<MermaidDiagram
+  code={`flowchart LR
+  P["Producer"] --> Q["Queue"]
+  Q --> C["Consumer"]
+  Q -.->|"가득 참"| P`}
+/>
+
+## 요청 흐름 도식
+
+<MermaidDiagram
+  code={`flowchart LR
+  R["요청"] --> T{"Throttle / Rate limit"}
+  T -->|"허용"| S["처리"]
+  T -->|"초과"| X["지연 또는 거부"]`}
+/>
+

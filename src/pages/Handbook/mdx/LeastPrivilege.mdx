@@ -1,0 +1,52 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="최소 권한 원칙은 사용자·프로세스·서비스에 업무에 필요한 최소한의 권한만 부여하는 보안 설계 원칙입니다."
+  bullets={[
+    "“할 수 있는 모든 것”이 아니라 “해야 하는 것만” 허용한다.",
+    "권한 남용·오류·침해 시 피해 범위를 줄이고, 감사·규정 준수에 유리하다.",
+  ]}
+/>
+
+## 정의와 목적 한눈에 보기
+
+<KeyTable
+  columns={["항목", "내용"]}
+  rows={[
+    [
+      "정의",
+      "사용자·프로세스·서비스에 업무에 필요한 권한만 부여하는 것.",
+    ],
+    [
+      "목적",
+      "권한 남용·오류·침해 시 피해 범위를 축소하고, 감사·규정 준수에 유리하게 만든다.",
+    ],
+  ]}
+/>
+
+## 적용 방법
+
+<KeyTable
+  columns={["방법", "설명"]}
+  rows={[
+    [
+      "역할·정책 세분화",
+      "역할(Role)과 정책(Policy)을 세분화하고, 기본은 거부 후 필요한 것만 명시적으로 허용한다.",
+    ],
+    [
+      "정기 권한 검토·회수",
+      "정기적으로 권한을 검토하고 불필요한 권한은 회수한다.",
+    ],
+  ]}
+/>
+
+## 개념 도식
+
+<MermaidDiagram
+  code={`flowchart LR
+  N["필요 권한"] --> M["최소 권한 부여"]
+  M --> R["리스크 감소"]`}
+/>
+

@@ -77,6 +77,9 @@ flowchart LR
     Q([Queue])
     P([Pub/Sub])
   end
+  subgraph event [이벤트 기반]
+    EDA([Event-driven Architecture])
+  end
   subgraph safe [일관성·재시도·분산]
     ID([Idempotency])
     CON([Consistency Model])
@@ -86,8 +89,9 @@ flowchart LR
   SU --> ST
   SO --> S
   S --> Q
-  Q --> ID
-  P --> CON
+  Q --> EDA
+  P --> EDA
+  EDA --> ID
   ID --> CON
   CAP --> CON
   CON --> DT
@@ -151,6 +155,26 @@ flowchart TB
   RPO --> RTO
   RTO --> HA
   HA --> SLO
+```
+
+---
+
+## 6. Containers & Orchestration
+
+
+```mermaid
+flowchart TB
+
+  ctHw["물리 서버"]
+  ctHost["Host OS"]
+  ctReg["이미지 레지스트리"]
+  ctImg["컨테이너 이미지"]
+  ctSvc["서비스 엔드포인트(LB 등)"]
+  ctOrcNode["Container Orchestration"]
+
+  ctHw --> ctHost --> ctOrcNode
+  ctReg --> ctImg --> ctOrcNode
+  ctSvc --> ctOrcNode
 ```
 
 ---

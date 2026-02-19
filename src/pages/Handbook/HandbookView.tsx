@@ -4,41 +4,49 @@ import { MarkdownViewer } from "../../components/MarkdownViewer";
 import { LoadingSpinner } from "../../components/LoadingSpinner";
 import { getHandbookDoc } from "../../constants/handbookManifest";
 import { getDiagramConfig } from "../../constants/handbookLayerDiagramConfig";
+import { HandbookLayout } from "../../components/handbook/HandbookLayout";
+import QueueVsPubsubMdx from "./mdx/QueueVsPubsub.mdx";
+import SoaOverviewMdx from "./mdx/SoaOverview.mdx";
+import DvaOverviewMdx from "./mdx/DvaOverview.mdx";
+import AwsCommonOverviewMdx from "./mdx/AwsCommonOverview.mdx";
+import AcidTransactionLockMdx from "./mdx/AcidTransactionLock.mdx";
+import AuthnVsAuthzMdx from "./mdx/AuthnVsAuthz.mdx";
+import IpCidrSubnettingMdx from "./mdx/IpCidrSubnetting.mdx";
+import RoutingTableMdx from "./mdx/RoutingTable.mdx";
+import NatMdx from "./mdx/Nat.mdx";
+import DnsResolverVsAuthoritativeMdx from "./mdx/DnsResolverVsAuthoritative.mdx";
+import TcpVsUdpMdx from "./mdx/TcpVsUdp.mdx";
+import HttpHttpsTlsMdx from "./mdx/HttpHttpsTls.mdx";
+import L4VsL7LbMdx from "./mdx/L4VsL7Lb.mdx";
+import BlockFileObjectMdx from "./mdx/BlockFileObject.mdx";
+import LatencyThroughputIopsMdx from "./mdx/LatencyThroughputIops.mdx";
+import IndexWhyFastMdx from "./mdx/IndexWhyFast.mdx";
+import CachingMdx from "./mdx/Caching.mdx";
+import ScaleUpScaleOutMdx from "./mdx/ScaleUpScaleOut.mdx";
+import StatelessStatefulMdx from "./mdx/StatelessStateful.mdx";
+import IdempotencyMdx from "./mdx/Idempotency.mdx";
+import CapTheoremMdx from "./mdx/CapTheorem.mdx";
+import ConsistencyModelMdx from "./mdx/ConsistencyModel.mdx";
+import DistributedTransactionLockMdx from "./mdx/DistributedTransactionLock.mdx";
+import EventDrivenArchMdx from "./mdx/EventDrivenArch.mdx";
+import HashVsEncryptionMdx from "./mdx/HashVsEncryption.mdx";
+import LeastPrivilegeMdx from "./mdx/LeastPrivilege.mdx";
+import FirewallMdx from "./mdx/Firewall.mdx";
+import ObservabilityMdx from "./mdx/Observability.mdx";
+import RetryBackoffMdx from "./mdx/RetryBackoff.mdx";
+import ThrottlingRateLimitingMdx from "./mdx/ThrottlingRateLimiting.mdx";
+import RtoRpoMdx from "./mdx/RtoRpo.mdx";
+import HaDesignMdx from "./mdx/HaDesign.mdx";
+import SliSloMdx from "./mdx/SliSlo.mdx";
+import ContainerImageMdx from "./mdx/ContainerImage.mdx";
+import ContainerRegistryMdx from "./mdx/ContainerRegistry.mdx";
+import ContainerRuntimeMdx from "./mdx/ContainerRuntime.mdx";
+import ContainerServiceEndpointMdx from "./mdx/ContainerServiceEndpoint.mdx";
 
 const DOC_URL_PREFIX = "/handbook";
 const LAYERS_WITH_DIAGRAM = ["core-cs", "aws-common", "saa", "dva", "soa"];
+const SCROLL_BACK_KEY = "handbookScrollBackHash";
 const MAIN_CLASS = "max-w-4xl mx-auto px-4 py-8";
-
-function DocHeader({
-  layerId,
-  layerTitle,
-  sectionTitle,
-  scrollBackHash,
-}: {
-  layerId: string;
-  layerTitle: string;
-  sectionTitle: string;
-  scrollBackHash?: string;
-}) {
-  const hasDiagram = layerId && LAYERS_WITH_DIAGRAM.includes(layerId) && getDiagramConfig(layerId);
-  const diagramHref =
-    hasDiagram && layerId
-      ? `/handbook/${layerId}${scrollBackHash ?? ""}`
-      : `/handbook/${layerId}`;
-  return (
-    <header className="mb-6">
-      <nav aria-label="breadcrumb" className="text-sm text-muted-foreground">
-        <Link to="/handbook" className="hover:text-foreground">
-          핸드북
-        </Link>
-        <span className="mx-1.5 text-muted-foreground/70">/</span>
-        <Link to={diagramHref} className="hover:text-foreground">
-          {hasDiagram ? "← 이전 (다이어그램)" : `${layerTitle} · ${sectionTitle}`}
-        </Link>
-      </nav>
-    </header>
-  );
-}
 
 function RelatedInSection({
   layerId,
@@ -94,6 +102,49 @@ const HandbookView = memo(function HandbookView() {
 
   const meta = useHandbookDoc(layerId, slug);
 
+  const isMdxDoc = (() => {
+    if (!layerId || !slug) return false;
+    if (layerId === "core-cs" && slug === "observability") return true;
+    if (layerId === "core-cs" && slug === "retry-backoff") return true;
+    if (layerId === "core-cs" && slug === "throttling-rate-limiting") return true;
+    if (layerId === "core-cs" && slug === "rto-rpo") return true;
+    if (layerId === "core-cs" && slug === "ha-design") return true;
+    if (layerId === "core-cs" && slug === "sli-slo") return true;
+    if (layerId === "core-cs" && slug === "ip-cidr-subnetting") return true;
+    if (layerId === "core-cs" && slug === "routing-table") return true;
+    if (layerId === "core-cs" && slug === "nat") return true;
+    if (layerId === "core-cs" && slug === "dns-resolver-vs-authoritative") return true;
+    if (layerId === "core-cs" && slug === "tcp-vs-udp") return true;
+    if (layerId === "core-cs" && slug === "http-https-tls") return true;
+    if (layerId === "core-cs" && slug === "l4-vs-l7-lb") return true;
+    if (layerId === "core-cs" && slug === "block-file-object") return true;
+    if (layerId === "core-cs" && slug === "latency-throughput-iops") return true;
+    if (layerId === "core-cs" && slug === "index-why-fast") return true;
+    if (layerId === "core-cs" && slug === "caching") return true;
+    if (layerId === "core-cs" && slug === "scale-up-scale-out") return true;
+    if (layerId === "core-cs" && slug === "stateless-stateful") return true;
+    if (layerId === "core-cs" && slug === "idempotency") return true;
+    if (layerId === "core-cs" && slug === "cap-theorem") return true;
+    if (layerId === "core-cs" && slug === "consistency-model") return true;
+    if (layerId === "core-cs" && slug === "event-driven-arch") return true;
+    if (layerId === "core-cs" && slug === "container-image") return true;
+    if (layerId === "core-cs" && slug === "container-registry") return true;
+    if (layerId === "core-cs" && slug === "container-runtime") return true;
+    if (layerId === "core-cs" && slug === "container-service-endpoint") return true;
+    if (layerId === "core-cs" && slug === "container-orchestration") return true;
+    if (layerId === "core-cs" && slug === "distributed-transaction-lock") return true;
+    if (layerId === "core-cs" && slug === "hash-vs-encryption") return true;
+    if (layerId === "core-cs" && slug === "least-privilege") return true;
+    if (layerId === "core-cs" && slug === "firewall") return true;
+    if (layerId === "core-cs" && slug === "queue-vs-pubsub") return true;
+    if (layerId === "core-cs" && slug === "acid-transaction-lock") return true;
+    if (layerId === "core-cs" && slug === "authn-vs-authz") return true;
+    if (layerId === "soa" && slug === "overview") return true;
+    if (layerId === "dva" && slug === "overview") return true;
+    if (layerId === "aws-common" && slug === "overview") return true;
+    return false;
+  })();
+
   useEffect(() => {
     if (layerId === "core-cs" && slug === "real-system-diagrams") {
       navigate("/handbook/core-cs", { replace: true });
@@ -109,6 +160,7 @@ const HandbookView = memo(function HandbookView() {
 
   useEffect(() => {
     if (!layerId || !slug) return;
+    if (isMdxDoc) return;
     if (layerId === "core-cs" && slug === "real-system-diagrams") return;
     const resolved = getHandbookDoc(layerId, slug);
     if (!resolved) {
@@ -183,7 +235,7 @@ const HandbookView = memo(function HandbookView() {
     );
   }
 
-  if (content === null) {
+  if (!isMdxDoc && content === null) {
     return (
       <main
         className={`${MAIN_CLASS} flex justify-center items-center min-h-[200px]`}
@@ -193,26 +245,91 @@ const HandbookView = memo(function HandbookView() {
     );
   }
 
+  const backScrollHash =
+    (location.state as { scrollBackHash?: string } | null)?.scrollBackHash ??
+    (typeof window !== "undefined" ? sessionStorage.getItem(SCROLL_BACK_KEY) : null);
+  const backToDiagramHref =
+    meta.layer.id && LAYERS_WITH_DIAGRAM.includes(meta.layer.id) && getDiagramConfig(meta.layer.id)
+      ? `/handbook/${meta.layer.id}${backScrollHash ?? ""}`
+      : undefined;
+
+  const mdxComponent = (() => {
+    if (!isMdxDoc) return null;
+    if (layerId === "core-cs" && slug === "observability") return <ObservabilityMdx />;
+    if (layerId === "core-cs" && slug === "retry-backoff") return <RetryBackoffMdx />;
+    if (layerId === "core-cs" && slug === "throttling-rate-limiting") {
+      return <ThrottlingRateLimitingMdx />;
+    }
+    if (layerId === "core-cs" && slug === "rto-rpo") return <RtoRpoMdx />;
+    if (layerId === "core-cs" && slug === "ha-design") return <HaDesignMdx />;
+    if (layerId === "core-cs" && slug === "sli-slo") return <SliSloMdx />;
+    if (layerId === "core-cs" && slug === "ip-cidr-subnetting") return <IpCidrSubnettingMdx />;
+    if (layerId === "core-cs" && slug === "routing-table") return <RoutingTableMdx />;
+    if (layerId === "core-cs" && slug === "nat") return <NatMdx />;
+    if (layerId === "core-cs" && slug === "dns-resolver-vs-authoritative") {
+      return <DnsResolverVsAuthoritativeMdx />;
+    }
+    if (layerId === "core-cs" && slug === "tcp-vs-udp") return <TcpVsUdpMdx />;
+    if (layerId === "core-cs" && slug === "http-https-tls") return <HttpHttpsTlsMdx />;
+    if (layerId === "core-cs" && slug === "l4-vs-l7-lb") return <L4VsL7LbMdx />;
+    if (layerId === "core-cs" && slug === "block-file-object") return <BlockFileObjectMdx />;
+    if (layerId === "core-cs" && slug === "latency-throughput-iops") {
+      return <LatencyThroughputIopsMdx />;
+    }
+    if (layerId === "core-cs" && slug === "index-why-fast") return <IndexWhyFastMdx />;
+    if (layerId === "core-cs" && slug === "caching") return <CachingMdx />;
+    if (layerId === "core-cs" && slug === "scale-up-scale-out") return <ScaleUpScaleOutMdx />;
+    if (layerId === "core-cs" && slug === "stateless-stateful") return <StatelessStatefulMdx />;
+    if (layerId === "core-cs" && slug === "idempotency") return <IdempotencyMdx />;
+    if (layerId === "core-cs" && slug === "cap-theorem") return <CapTheoremMdx />;
+    if (layerId === "core-cs" && slug === "consistency-model") return <ConsistencyModelMdx />;
+    if (layerId === "core-cs" && slug === "event-driven-arch") return <EventDrivenArchMdx />;
+    if (layerId === "core-cs" && slug === "container-image") return <ContainerImageMdx />;
+    if (layerId === "core-cs" && slug === "container-registry") return <ContainerRegistryMdx />;
+    if (layerId === "core-cs" && slug === "container-runtime") return <ContainerRuntimeMdx />;
+    if (layerId === "core-cs" && slug === "container-service-endpoint") {
+      return <ContainerServiceEndpointMdx />;
+    }
+    if (layerId === "core-cs" && slug === "container-orchestration") {
+      return <ContainerRuntimeMdx />;
+    }
+    if (layerId === "core-cs" && slug === "distributed-transaction-lock") {
+      return <DistributedTransactionLockMdx />;
+    }
+    if (layerId === "core-cs" && slug === "hash-vs-encryption") return <HashVsEncryptionMdx />;
+    if (layerId === "core-cs" && slug === "least-privilege") return <LeastPrivilegeMdx />;
+    if (layerId === "core-cs" && slug === "firewall") return <FirewallMdx />;
+    if (layerId === "core-cs" && slug === "queue-vs-pubsub") return <QueueVsPubsubMdx />;
+    if (layerId === "core-cs" && slug === "acid-transaction-lock") return <AcidTransactionLockMdx />;
+    if (layerId === "core-cs" && slug === "authn-vs-authz") return <AuthnVsAuthzMdx />;
+    if (layerId === "soa" && slug === "overview") return <SoaOverviewMdx />;
+    if (layerId === "dva" && slug === "overview") return <DvaOverviewMdx />;
+    if (layerId === "aws-common" && slug === "overview") return <AwsCommonOverviewMdx />;
+    return null;
+  })();
+
   return (
-    <main className={MAIN_CLASS}>
-      <DocHeader
-        layerId={meta.layer.id}
-        layerTitle={meta.layer.title}
-        sectionTitle={meta.section.title}
-        scrollBackHash={(location.state as { scrollBackHash?: string } | null)?.scrollBackHash}
-      />
-      <MarkdownViewer
-        key={`${layerId}-${slug}`}
-        content={content}
-        className="max-w-4xl"
-      />
+    <HandbookLayout
+      layerTitle={meta.layer.title}
+      sectionTitle={meta.section.title}
+      docTitle={meta.doc.title}
+      backToDiagramHref={backToDiagramHref}
+    >
+      {isMdxDoc && mdxComponent}
+      {!isMdxDoc && content !== null && (
+        <MarkdownViewer
+          key={`${layerId}-${slug}`}
+          content={content}
+          className="max-w-4xl"
+        />
+      )}
       <RelatedInSection
         layerId={meta.layer.id}
         sectionTitle={meta.section.title}
         docs={meta.section.docs}
         currentSlug={meta.doc.slug}
       />
-    </main>
+    </HandbookLayout>
   );
 });
 

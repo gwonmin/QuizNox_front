@@ -1,0 +1,67 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="TCP는 연결 지향 + 신뢰성 제공, UDP는 비연결 + 저오버헤드로 단순한 전송에 사용됩니다."
+  bullets={[
+    "TCP: 3-way handshake로 연결을 맺고, 순서 보장·재전송·흐름 제어를 제공한다.",
+    "UDP: 연결 설정 없이 보내며, 순서·재전송 보장 없이 오버헤드가 작다.",
+  ]}
+/>
+
+## TCP vs UDP 한눈에 비교
+
+<KeyTable
+  columns={["구분", "TCP", "UDP"]}
+  rows={[
+    [
+      "연결 방식",
+      "연결 지향(3-way handshake로 연결 설정 후 데이터 전송)",
+      "비연결(연결 설정 없이 바로 패킷 전송)",
+    ],
+    [
+      "신뢰성",
+      "순서 보장, 재전송, 흐름 제어 등으로 신뢰성 높은 전송",
+      "순서·재전송 보장 없음, 일부 패킷 손실 허용",
+    ],
+    [
+      "오버헤드",
+      "크다(연결 설정·상태 관리 필요)",
+      "작다(상태 저장 거의 없음)",
+    ],
+    [
+      "주요 용도",
+      "HTTP, HTTPS, SSH 등 빠뜨리면 안 되는 트래픽",
+      "DNS 쿼리, 실시간 스트리밍, VoIP 등",
+    ],
+  ]}
+/>
+
+## TCP 3-way handshake
+
+<MermaidDiagram
+  code={`sequenceDiagram
+  participant C as Client
+  participant S as Server
+  C->>S: SYN (연결 요청)
+  S->>C: SYN-ACK (수락 + 요청)
+  C->>S: ACK (확인)
+  %% 연결 수립 후 데이터 전송 가능`}
+/>
+
+## TCP/UDP 특징 요약 도식
+
+<MermaidDiagram
+  code={`flowchart LR
+  subgraph tcp [TCP]
+    T1["연결 설정"]
+    T2["순서 보장"]
+    T3["재전송"]
+  end
+  subgraph udp [UDP]
+    U1["비연결"]
+    U2["저지연"]
+  end`}
+/>
+

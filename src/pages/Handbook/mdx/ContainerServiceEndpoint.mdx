@@ -1,0 +1,81 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="Service Endpoint는 클라이언트 트래픽이 들어오는 LB·Service 등의 엔드포인트로, 여러 Pod/Task 뒤에 위치합니다. 트래픽을 분산·헬스체크·라우팅하고, 오케스트레이션과 연동해 무중단 배포·스케일링을 지원한다."
+  bullets={[
+    "외부·내부 클라이언트는 Service Endpoint를 통해 Pod/Task 집합에 접근한다. 단일 DNS·IP·포트로 여러 인스턴스에 도달한다.",
+    "로드밸런싱, 헬스체크, 세션 유지, 포트 매핑 등을 통해 트래픽을 분산·필터링한다.",
+    "L4/L7 LB, Kubernetes Service, Ingress 등 구현체는 다양하나, 트래픽 진입점·백엔드 그룹 관리라는 역할은 유사하다.",
+  ]}
+/>
+
+## Endpoint 핵심 개념
+
+**한 줄 흐름:** 클라이언트 요청 → Service Endpoint( LB 또는 Service ) → 헬스체크 통과한 백엔드 Pod/Task로 분산 → 애플리케이션 처리. 오케스트레이터가 Pod 수·상태를 바꾸면 엔드포인트 목록이 갱신된다.
+
+<KeyTable
+  columns={["유형", "역할", "예시"]}
+  rows={[
+    ["외부 엔드포인트", "인터넷 또는 외부 클라이언트가 접근하는 공개 엔드포인트. TLS 종료·라우팅·DDoS 완화를 함께 두는 경우가 많다.", "ALB, NLB, Ingress(Controller), NodePort, LoadBalancer Service."],
+    ["내부 엔드포인트", "VPC 또는 클러스터 내부 서비스 간 통신용. 외부에 노출하지 않고 내부 DNS·IP로만 접근.", "Kubernetes ClusterIP Service, 내부 NLB, 서비스 메시 Sidecar."],
+  ]}
+/>
+
+## 트래픽 흐름 도식
+
+<MermaidDiagram
+  code={`flowchart TB
+  client["클라이언트"] --> ep["Service Endpoint"]
+  ep --> p1["Pod 1"]
+  ep --> p2["Pod 2"]
+  ep --> p3["Pod 3"]
+  p1 --> app["애플리케이션"]
+  p2 --> app
+  p3 --> app`}
+/>
+
+## Kubernetes Service 유형
+
+<KeyTable
+  columns={["Service 유형", "특징", "사용 사례"]}
+  rows={[
+    ["ClusterIP", "클러스터 내부에서만 접근 가능한 가상 IP. 기본값.", "마이크로서비스 간 내부 통신, DB·캐시 엔드포인트."],
+    ["NodePort", "모든 노드의 동일 포트로 접근. 노드 IP:포트로 외부 접근 가능.", "개발·테스트, 레거시 클라이언트."],
+    ["LoadBalancer", "클라우드 LB를 프로비저닝해 외부에 단일 진입점 제공. 보통 Ingress보다 저수준.", "고정 IP·특정 LB 기능이 필요할 때."],
+    ["Ingress", "L7 라우팅·호스트·경로 기반 라우팅·TLS. Ingress Controller가 실제 LB와 연동.", "HTTP·HTTPS 트래픽 단일 진입점, 여러 서비스 라우팅."],
+  ]}
+/>
+
+## 오케스트레이션과의 연동
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    ["Endpoints/EndpointSlice", "Service가 가리키는 Pod IP 목록. Pod가 Ready가 되면 추가되고, 제거·실패 시 제외되어 트래픽이 정상 인스턴스로만 간다."],
+    ["Readiness Probe", "Pod가 트래픽을 받을 준비가 됐는지 검사. 통과한 Pod만 Service 백엔드에 포함된다."],
+    ["Rolling Update", "새 Pod가 Ready되면 Service가 새 Pod로 트래픽을 보내고, 구 Pod는 단계적으로 제거되어 무중단에 가깝게 배포된다."],
+  ]}
+/>
+
+## 설계 시 유의점
+
+<KeyTable
+  columns={["항목", "권장 사항"]}
+  rows={[
+    ["헬스체크", "Readiness·Liveness Probe 임계값을 적절히 설정해, 준비되지 않은 Pod에 트래픽이 가지 않도록 하고, 장애 Pod는 빠르게 제외한다."],
+    ["세션·스티키니스", "상태를 메모리에 두는 경우 스티키 세션 또는 세션 저장소(Redis 등)를 고려해, 인스턴스 장애 시에도 세션을 유지할 수 있게 한다."],
+    ["L4 vs L7", "단순 부하 분산은 L4, 호스트·경로·헤더 기반 라우팅·TLS 종료는 L7(Ingress·ALB)을 선택한다."],
+  ]}
+/>
+
+## 실제 예시
+
+<KeyTable
+  columns={["상황", "활용 예시"]}
+  rows={[
+    ["웹 API", "Ingress로 /api를 API Deployment의 Service로 라우팅하고, HPA로 Pod 수가 늘어나면 Service가 새 Pod를 자동으로 백엔드에 포함시킨다."],
+    ["내부 마이크로서비스", "Order 서비스가 Payment 서비스를 호출할 때 ClusterIP Service 이름(payment)으로 DNS 조회 후 통신하고, Pod IP 변경에 신경 쓰지 않는다."],
+  ]}
+/>

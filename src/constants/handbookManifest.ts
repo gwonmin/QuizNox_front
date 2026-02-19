@@ -66,6 +66,19 @@ export const HANDBOOK_LAYERS: HandbookLayer[] = [
         ],
       },
       {
+        id: "containers-orchestration",
+        title: "6. Containers & Orchestration",
+        docs: [
+          { slug: "container-image", title: "Container Image (레이어 · 태그 · 불변성)" },
+          { slug: "container-registry", title: "Container Registry (이미지 저장·배포)" },
+          { slug: "container-runtime", title: "Container Runtime 및 Orchestration (노드 · CRI · 스케줄링 · 단일/멀티 클러스터)" },
+          {
+            slug: "container-service-endpoint",
+            title: "Service Endpoint (LB · Service)",
+          },
+        ],
+      },
+      {
         id: "security-basics",
         title: "4. Security Basics",
         docs: [

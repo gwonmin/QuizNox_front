@@ -1,0 +1,119 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="DVA는 서버리스 아키텍처와 개발자 도구를 중심으로, 실제 코드 수준에서 AWS 서비스를 어떻게 설계·구현하는지를 평가합니다."
+  bullets={[
+    "Lambda / API Gateway / DynamoDB / Event-driven 패턴",
+    "Cognito / IAM / KMS 기반 보안",
+    "SAM / CodePipeline 기반 배포, X-Ray·CloudWatch 기반 문제 해결",
+  ]}
+/>
+
+## DVA-C02 시험 구조 (4개 도메인)
+
+<KeyTable
+  columns={["도메인", "비중", "핵심 주제"]}
+  rows={[
+    [
+      "개발",
+      "32%",
+      "Lambda(기능·Function URL·런타임), DynamoDB(TTL·Streams·RCU/WCU), API Gateway(REST/HTTP API·통합 유형), AppSync",
+    ],
+    [
+      "보안",
+      "26%",
+      "IAM 역할·정책, Cognito(User/Identity Pools·SAML), KMS/암호화(S3·Lambda)",
+    ],
+    ["배포", "24%", "SAM, CI/CD(CodeCommit·CodePipeline·CodeDeploy·블루/그린), CloudFormation"],
+    ["문제 해결 및 최적화", "18%", "X-Ray(추적·샘플링), CloudWatch, DynamoDB 성능 튜닝, S3 최적화"],
+  ]}
+/>
+
+## 가장 많이 나오는 서비스 (Top Services)
+
+- **Lambda & API Gateway** — 서버리스 핵심 (통합 유형, Authorizer, 캐싱, 스테이지·별칭)
+- **DynamoDB** — 테이블 설계, RCU/WCU, TTL, Streams, GSI/LSI, 조건부 업데이트
+- **Cognito** — User Pool / Identity Pool, 인증·인가, SAML 연동
+- **SAM & CloudFormation** — 서버리스/인프라 코드, 파라미터·DeletionPolicy
+- **CodePipeline / CodeDeploy** — 파이프라인 구성, 블루/그린·롤링 배포, 훅 순서
+
+## 도메인별 흐름 도식
+
+### 1. 개발 (32%)
+
+Lambda, API Gateway, DynamoDB, 이벤트 드리븐 패턴까지 개발 관점에서 한눈에 볼 수 있습니다.
+
+<MermaidDiagram
+  code={`flowchart TB
+  subgraph lambda [Lambda]
+    LC["Lambda Concurrency"]
+    CS["Cold Start"]
+    DL["DLQ / Destinations"]
+  end
+  subgraph api [API_Gateway]
+    RH["REST vs HTTP API"]
+    AZ["Authorizer"]
+    TH["Throttling"]
+  end
+  subgraph ddb [DynamoDB]
+    PK["Partition Key 설계"]
+    GI["GSI / LSI"]
+    CU["Conditional Update"]
+    ST["Streams"]
+  end
+  subgraph evt [Event_Driven]
+    SQ["SQS Visibility Timeout"]
+    SN["SNS Fan-out"]
+    EB["EventBridge"]
+  end
+  LC --> CS
+  RH --> AZ --> TH
+  PK --> GI
+  CU --> ST
+  SQ --> SN --> EB`}
+/>
+
+### 2. 보안 (26%)
+
+API 인가, Cognito, KMS/암호화까지 시험에 자주 나오는 보안 주제입니다.
+
+<MermaidDiagram
+  code={`flowchart TB
+  subgraph security [보안]
+    AZ["Authorizer"]
+  end
+  AZ`}
+/>
+
+### 3. 배포 (24%)
+
+SAM, CodePipeline, CodeBuild 등 CI/CD와 인프라 코드 배포 흐름입니다.
+
+<MermaidDiagram
+  code={`flowchart TB
+  subgraph cicd [CI_CD_배포]
+    CP["CodePipeline"]
+    CB["CodeBuild"]
+    SAM["SAM"]
+  end
+  CP --> CB
+  SAM`}
+/>
+
+### 4. 문제 해결 및 최적화 (18%)
+
+X-Ray(추적·샘플링), CloudWatch(로그·메트릭·알람), DynamoDB·S3 성능 관련 주제입니다.
+
+<MermaidDiagram
+  code={`flowchart TB
+  subgraph troubleshoot [문제_해결_최적화]
+    CS["Cold Start"]
+    ST["Streams"]
+    GI["GSI / LSI"]
+  end
+  CS
+  ST --> GI`}
+/>
+

@@ -1,0 +1,62 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="Resolver는 클라이언트 대신 이름을 물어보는 쪽이고, Authoritative 서버는 그 도메인에 대한 정답을 갖고 답하는 쪽입니다."
+  bullets={[
+    "Resolver: 여러 네임서버를 재귀적으로 조회해 최종 IP를 가져온다.",
+    "Authoritative: 특정 도메인의 레코드를 보관하고 직접 응답한다.",
+  ]}
+/>
+
+## Resolver vs Authoritative 한눈에 비교
+
+<KeyTable
+  columns={["구분", "Resolver", "Authoritative"]}
+  rows={[
+    [
+      "역할",
+      "클라이언트 대신 도메인 이름을 조회하고 결과를 수집한다.",
+      "해당 도메인에 대한 레코드를 직접 보관하고 정답을 응답한다.",
+    ],
+    [
+      "질문/답변",
+      "“www.example.com → IP가 뭐야?”라고 여러 네임서버에 질문한다.",
+      "Resolver가 물어보면 A/AAAA/CNAME 등 레코드를 기반으로 IP를 답한다.",
+    ],
+    [
+      "캐싱",
+      "TTL 동안 응답을 캐시해 같은 요청에 대해 다시 조회하지 않을 수 있다.",
+      "TTL 값을 설정해 응답이 얼마나 오래 캐시될지 결정한다.",
+    ],
+  ]}
+/>
+
+## Records · TTL
+
+<KeyTable
+  columns={["용어", "의미"]}
+  rows={[
+    [
+      "Record",
+      "도메인에 대한 한 줄 정보. A(IP), AAAA(IPv6), CNAME(별칭), MX(메일) 등.",
+    ],
+    [
+      "TTL",
+      "이 응답을 몇 초 동안 캐시해도 되는지를 나타내며, Resolver가 TTL 동안 재사용 후 만료 시 다시 조회한다.",
+    ],
+  ]}
+/>
+
+## 조회 흐름 도식
+
+<MermaidDiagram
+  code={`flowchart LR
+  C["클라이언트"] --> R["Resolver"]
+  R --> A["Authoritative"]
+  A --> R
+  R --> C
+  R -.->|"TTL 동안 캐시"| R`}
+/>
+

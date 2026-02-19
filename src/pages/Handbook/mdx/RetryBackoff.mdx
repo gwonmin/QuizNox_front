@@ -1,0 +1,99 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="Retry / Backoff 전략은 실패한 요청을 언제·어떻게 다시 시도할지(재시도 + 대기)를 정의하는 패턴입니다."
+  bullets={[
+    "Retry: 재시도 가능한 오류(타임아웃, 5xx 등)만 제한된 횟수로 다시 보낸다.",
+    "Backoff: 재시도 전에 대기 시간을 두어 서버·네트워크 부하를 완화한다.",
+    "Exponential + Jitter로 재시도 시점을 흩어 Thundering herd를 줄인다.",
+  ]}
+/>
+
+## Retry vs Backoff 한눈에 보기
+
+<KeyTable
+  columns={["구분", "의미", "주의점"]}
+  rows={[
+    [
+      "Retry",
+      "일시적 오류(타임아웃, 5xx, 일시적 네트워크 끊김) 시 같은 요청을 다시 시도한다.",
+      "재시도 가능한 오류만 대상으로 하고, 최대 횟수를 두어 무한 재시도를 막는다.",
+    ],
+    [
+      "Backoff",
+      "재시도 직전에 기다리는 시간을 두어 동시에 실패한 클라이언트의 재시도 시점을 분산한다.",
+      "대기 전략(Fixed, Exponential, Jitter)을 적절히 선택하고, 서비스 특성에 맞춘다.",
+    ],
+  ]}
+/>
+
+## Backoff 방식 비교
+
+<KeyTable
+  columns={["방식", "설명", "예시 대기"]}
+  rows={[
+    ["Fixed", "매번 같은 간격으로 대기한다.", "1s, 1s, 1s …"],
+    [
+      "Exponential",
+      "실패할수록 대기 시간을 기하급수적으로 늘린다.",
+      "1s → 2s → 4s → 8s …",
+    ],
+    [
+      "Jitter",
+      "Exponential에 랜덤을 섞어 동시 재시도 타이밍을 더 흩어지게 한다.",
+      "1s±0.2 → 2s±0.4 …",
+    ],
+  ]}
+/>
+
+## 흐름 도식
+
+<MermaidDiagram
+  code={`flowchart LR
+  R["요청"] --> F{"실패 여부"}
+  F -->|"Yes"| W["Backoff 대기"]
+  W --> R
+  F -->|"No"| O["완료"]`}
+/>
+
+<MermaidDiagram
+  code={`sequenceDiagram
+  participant C as Client
+  participant S as Server
+  C->>S: 요청 1
+  S-->>C: 5xx 또는 타임아웃
+  C->>C: Backoff 대기
+  C->>S: 요청 2 재시도
+  S-->>C: 200 OK`}
+/>
+
+## 주의 사항
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    [
+      "멱등성",
+      "재시도 시 같은 요청이 여러 번 처리될 수 있으므로, 멱등한 연산이거나 멱등 키로 한 번만 반영되게 설계해야 한다.",
+    ],
+    [
+      "최대 횟수",
+      "최대 재시도 횟수를 넘으면 포기하고 실패로 처리해 무한 재시도를 막는다.",
+    ],
+  ]}
+/>
+
+## 요약 표
+
+<KeyTable
+  columns={["구분", "의미"]}
+  rows={[
+    ["Retry", "실패 시 다시 시도(재시도 가능 오류만, 횟수 제한 필수)."],
+    ["Backoff", "재시도 전 대기로 서버·네트워크 부하를 완화한다."],
+    ["Exponential", "대기 시간을 점점 늘려 재시도 시점을 분산한다."],
+    ["Jitter", "대기 시간에 랜덤을 섞어 동시 재시도를 줄인다."],
+  ]}
+/>
+

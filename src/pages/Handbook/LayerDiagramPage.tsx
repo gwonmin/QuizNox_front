@@ -1,17 +1,19 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate, useLocation } from "react-router-dom";
 import { MarkdownViewer } from "../../components/MarkdownViewer";
 import { LoadingSpinner } from "../../components/LoadingSpinner";
 import { getHandbookLayer } from "../../constants/handbookManifest";
 import { getDiagramConfig } from "../../constants/handbookLayerDiagramConfig";
 
 const MAIN_CLASS = "max-w-4xl mx-auto px-4 py-8";
+const SCROLL_BACK_KEY = "handbookScrollBackHash";
 
 const diagramContentCache: Record<string, string> = {};
 
 export function LayerDiagramPage() {
   const { layerId } = useParams<{ layerId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const [content, setContent] = useState<string | null>(() =>
     layerId ? diagramContentCache[layerId] ?? null : null
   );
@@ -23,7 +25,27 @@ export function LayerDiagramPage() {
 
   useEffect(() => {
     if (!content || !layer) return;
+    const fromStorage = sessionStorage.getItem(SCROLL_BACK_KEY);
     const hash = window.location.hash?.slice(1);
+    const scrollToId = (fromStorage?.startsWith("#") ? fromStorage.slice(1) : fromStorage) || (hash?.startsWith("doc-") ? hash : null);
+
+    if (scrollToId?.startsWith("doc-")) {
+      const POLL_MS = 80;
+      const MAX_WAIT_MS = 6000;
+      const started = Date.now();
+      const interval = setInterval(() => {
+        const el = document.getElementById(scrollToId);
+        if (el) {
+          clearInterval(interval);
+          sessionStorage.removeItem(SCROLL_BACK_KEY);
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+        } else if (Date.now() - started > MAX_WAIT_MS) {
+          clearInterval(interval);
+        }
+      }, POLL_MS);
+      return () => clearInterval(interval);
+    }
+
     if (hash === "diagram" || !hash) {
       const t = setTimeout(
         () => diagramRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
@@ -31,21 +53,7 @@ export function LayerDiagramPage() {
       );
       return () => clearTimeout(t);
     }
-    if (!hash.startsWith("doc-")) return;
-    const POLL_MS = 80;
-    const MAX_WAIT_MS = 6000;
-    const started = Date.now();
-    const interval = setInterval(() => {
-      const el = document.getElementById(hash);
-      if (el) {
-        clearInterval(interval);
-        el.scrollIntoView({ behavior: "smooth", block: "center" });
-      } else if (Date.now() - started > MAX_WAIT_MS) {
-        clearInterval(interval);
-      }
-    }, POLL_MS);
-    return () => clearInterval(interval);
-  }, [content, layer]);
+  }, [content, layer, location.hash]);
 
   useEffect(() => {
     if (!layerId || !config) return;
@@ -115,9 +123,10 @@ export function LayerDiagramPage() {
           content={content}
           className="max-w-4xl"
           diagramLinks={config.diagramLinks}
-          onDiagramLinkClick={(path, scrollHash) =>
-          navigate(path, { state: scrollHash ? { scrollBackHash: scrollHash } : undefined })
-        }
+          onDiagramLinkClick={(path, scrollHash) => {
+          if (scrollHash) sessionStorage.setItem(SCROLL_BACK_KEY, scrollHash);
+          navigate(path);
+        }}
         />
       </div>
     </main>

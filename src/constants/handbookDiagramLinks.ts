@@ -108,4 +108,14 @@ export const REAL_SYSTEM_DIAGRAM_LINKS: Record<string, string> = {
   Alarm: "/handbook/core-cs/sli-slo",
   "알람": "/handbook/core-cs/sli-slo",
   "백업": "/handbook/core-cs/rto-rpo",
+
+  // ---- 6. Containers & Orchestration (구체적 노드 우선: 이미지/런타임이 Container·컨테이너보다 먼저 매칭되도록) ----
+  "컨테이너 이미지": "/handbook/core-cs/container-image",
+  "Container Image": "/handbook/core-cs/container-image",
+  "Container Runtime": "/handbook/core-cs/container-runtime",
+  "이미지 레지스트리": "/handbook/core-cs/container-registry",
+  "서비스 엔드포인트": "/handbook/core-cs/container-service-endpoint",
+  "Service Endpoint": "/handbook/core-cs/container-service-endpoint",
+  오케스트레이터: "/handbook/core-cs/container-runtime",
+  "Container Orchestration": "/handbook/core-cs/container-runtime",
 };

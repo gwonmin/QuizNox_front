@@ -1,0 +1,96 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="HA(High Availability) 설계는 한 구성요소가 죽어도 전체 서비스가 멈추지 않도록 SPOF 제거·다중화·헬스체크·복구를 설계하는 것이다."
+  bullets={[
+    "단일 장애점(SPOF)을 제거하고 모든 계층(서버, 네트워크, 스토리지, DB)을 중복·다중화한다.",
+    "여러 AZ/노드에 분산 배치하고 로드밸런싱으로 트래픽을 분산·장애 인스턴스를 자동 제외한다.",
+    "헬스체크·모니터링으로 장애를 빠르게 감지하고 자동/수동 복구 절차를 RTO에 맞게 준비한다.",
+  ]}
+/>
+
+## HA 설계 원칙 한눈에 보기
+
+<KeyTable
+  columns={["원칙", "설명"]}
+  rows={[
+    [
+      "SPOF 제거",
+      "한 구성요소가 죽어도 전체 서비스가 멈추지 않도록 서버·네트워크·스토리지·DB를 중복·다중화한다.",
+    ],
+    [
+      "다중 AZ/노드",
+      "여러 가용 영역·노드에 인스턴스를 분산 배치해 한 구역 장애 시 다른 구역으로 트래픽을 전환한다.",
+    ],
+    [
+      "로드밸런싱",
+      "트래픽을 여러 인스턴스로 분산하고, 헬스체크로 장애 인스턴스를 자동으로 대상에서 제외한다.",
+    ],
+    [
+      "장애 감지·복구",
+      "헬스체크·모니터링으로 장애를 빨리 감지하고, 자동 재시작·교체 또는 수동 절차로 복구한다.",
+    ],
+  ]}
+/>
+
+## 구성 요소별 예시
+
+<KeyTable
+  columns={["계층", "SPOF 제거 예시"]}
+  rows={[
+    ["웹 서버", "웹 서버 1대 → 여러 대로 확장, 로드밸런서 뒤에 배치."],
+    [
+      "DB",
+      "단일 DB 인스턴스 → Primary + Standby(또는 Read Replica) 구성으로 장애 시 Failover.",
+    ],
+    [
+      "네트워크",
+      "단일 인터넷 게이트웨이/라우터 → 다중 경로 또는 이중화된 장비 구성.",
+    ],
+    [
+      "스토리지",
+      "단일 디스크 → 다중 AZ에 복제되는 관리형 스토리지 사용.",
+    ],
+  ]}
+/>
+
+## 개념 도식
+
+<MermaidDiagram
+  code={`flowchart TB
+  C["클라이언트"]
+  C --> LB["로드밸런서"]
+  LB --> AZ1["AZ1 웹 인스턴스 여러 대"]
+  LB --> AZ2["AZ2 웹 인스턴스 여러 대"]
+  AZ1 --> DBP["DB Primary"]
+  AZ2 --> DBP
+  DBP --> DBS["DB Standby"]`}
+/>
+
+<MermaidDiagram
+  code={`flowchart LR
+  F["구성요소 장애 발생"]
+  F --> H["헬스체크로 장애 감지"]
+  H --> R["트래픽에서 제외"]
+  R --> G["자동 교체 또는 수동 복구"]`}
+/>
+
+## 실제 예시
+
+<KeyTable
+  columns={["원칙", "예시"]}
+  rows={[
+    [
+      "SPOF 제거",
+      "DB 단일 인스턴스 → Primary + Standby, 웹 서버 1대 → 여러 대로 확장.",
+    ],
+    ["다중화", "여러 가용 영역에 인스턴스를 분산 배치."],
+    [
+      "장애 감지·복구",
+      "ALB 헬스체크 실패 시 해당 인스턴스로 트래픽을 중단하고, ASG가 새 인스턴스로 교체.",
+    ],
+  ]}
+/>
+

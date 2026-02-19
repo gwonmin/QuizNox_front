@@ -1,0 +1,64 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="NAT는 Private 주소를 쓰는 내부 호스트가 외부(인터넷)로 나갈 때 하나의 공인 IP로 보이게 만드는 개념입니다."
+  bullets={[
+    "Source NAT: 내부 → 외부로 나갈 때 출구에서 IP를 공인 주소로 치환",
+    "응답 패킷은 같은 NAT 장비가 다시 내부 IP로 되돌린다.",
+  ]}
+/>
+
+## NAT 역할 한눈에 보기
+
+<KeyTable
+  columns={["항목", "내용"]}
+  rows={[
+    [
+      "기본 개념",
+      "Private 주소를 사용하는 내부 호스트가 외부와 통신할 때, 출구에서 공인 IP로 변환해 내보낸다.",
+    ],
+    [
+      "Source NAT",
+      "내부 → 외부 방향에서 패킷의 출발지 IP를 공인 IP로 치환한다.",
+    ],
+    [
+      "응답 처리",
+      "외부에서 돌아온 응답은 NAT 장비가 다시 내부 Private IP로 변환해 전달한다.",
+    ],
+  ]}
+/>
+
+## Outbound 전용 NAT
+
+<KeyTable
+  columns={["방향", "설명"]}
+  rows={[
+    [
+      "내부 → 외부 (Outbound)",
+      "여기서 다루는 NAT는 내부에서 외부로 나가는 트래픽에만 적용된다.",
+    ],
+    [
+      "외부 → 내부 (Inbound)",
+      "포트 포워딩 등 별도의 Inbound NAT 개념으로 다루며, 이 문서 범위 밖이다.",
+    ],
+  ]}
+/>
+
+## NAT 흐름 도식
+
+<MermaidDiagram
+  code={`flowchart LR
+  subgraph private [내부]
+    A["Private IP"]
+  end
+  subgraph nat [NAT 장비]
+    N["Source NAT 변환"]
+  end
+  subgraph public [외부]
+    B["공인 IP로 보임"]
+  end
+  A --> N --> B`}
+/>
+

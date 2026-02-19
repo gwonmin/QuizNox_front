@@ -1,0 +1,53 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="L4 로드밸런서는 IP·포트 같은 전송 계층 정보만 보고 분산하고, L7 로드밸런서는 URL·헤더 같은 애플리케이션 계층 정보를 보고 분산합니다."
+  bullets={[
+    "L4: IP + 포트 기준 단순 분산, 빠르고 애플리케이션에 비침투적이다.",
+    "L7: URL·호스트·헤더로 경로별/호스트별 라우팅, 스티키 세션, SSL 종료에 적합하다.",
+  ]}
+/>
+
+## L4 vs L7 한눈에 비교
+
+<KeyTable
+  columns={["구분", "L4 Load Balancer", "L7 Load Balancer"]}
+  rows={[
+    [
+      "보는 정보",
+      "IP, 포트 (전송 계층)",
+      "URL, 호스트, 헤더, 쿠키 등 (애플리케이션 계층)",
+    ],
+    [
+      "payload 참조",
+      "하지 않음(헤더까지만 사용)",
+      "요청 내용을 보고 분기 가능",
+    ],
+    [
+      "장점",
+      "구조가 단순하고 빠르며 애플리케이션에 비침투적이다.",
+      "경로별/호스트별 라우팅, 스티키 세션, SSL 종료 등 풍부한 기능 제공",
+    ],
+    [
+      "주요 용도",
+      "단순 트래픽 분산",
+      "경로·세션·SSL 종료 등 애플리케이션 레벨 트래픽 제어",
+    ],
+  ]}
+/>
+
+## 개념 도식
+
+<MermaidDiagram
+  code={`flowchart LR
+  subgraph lb4 [L4 LB]
+    A1["IP:포트만 봄"] --> B1["서버1"]
+    A1 --> B2["서버2"]
+  end
+  subgraph lb7 [L7 LB]
+    A2["URL·헤더 봄"] --> B3["경로별 서버"]
+  end`}
+/>
+

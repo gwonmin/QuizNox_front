@@ -1,0 +1,74 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="ACID는 트랜잭션이 가져야 할 네 가지 성질이고, 트랜잭션과 락은 데이터를 일관되게 유지하면서 동시에 쓰는 요청을 안전하게 다루기 위한 기본 단위입니다."
+  bullets={[
+    "ACID: 전부/전무, 제약 조건 유지, 동시성 제어, 커밋 후 유지",
+    "트랜잭션: 여러 연산을 하나의 단위로 묶는 것",
+  ]}
+/>
+
+## ACID 한눈에 보기
+
+<KeyTable
+  columns={["속성", "의미", "예시"]}
+  rows={[
+    [
+      "Atomicity",
+      "전부 성공 또는 전부 롤백",
+      "A → B 이체에서 A 차감과 B 증가가 둘 다 되거나 둘 다 취소된다.",
+    ],
+    [
+      "Consistency",
+      "제약 조건을 만족하는 상태만 허용",
+      "커밋 후에는 항상 잔액 ≥ 0, 외래키 존재 같은 제약을 만족한다.",
+    ],
+    [
+      "Isolation",
+      "동시 트랜잭션 간 간섭 제어",
+      "읽는 동안 다른 트랜잭션이 같은 행을 덮어쓰지 못하게 하거나, 읽기 수준을 나눠 더러운 읽기를 막는다.",
+    ],
+    [
+      "Durability",
+      "커밋된 결과는 장애 후에도 유지",
+      "커밋 직후 전원이 나가도, 재시작 후 커밋한 잔액·주문이 그대로 남아 있다.",
+    ],
+  ]}
+/>
+
+## 트랜잭션과 락
+
+<KeyTable
+  columns={["개념", "역할", "포인트"]}
+  rows={[
+    [
+      "트랜잭션",
+      "여러 연산을 하나의 단위로 묶어 모두 성공할 때만 반영한다.",
+      "RDBMS의 기본 실행 단위이며 ACID 성질을 만족하도록 설계된다.",
+    ],
+    [
+      "락(Lock)",
+      "동시에 같은 자원을 수정하지 못하게 직렬화한다.",
+      "행 락·테이블 락·낙관적 락 등이 있으며 데드락 가능성을 고려해야 한다.",
+    ],
+  ]}
+/>
+
+## 트랜잭션 흐름 도식
+
+<MermaidDiagram
+  code={`flowchart LR
+  subgraph tx [트랜잭션 흐름]
+    B["Begin"]
+    O["연산들"]
+    C{"성공?"}
+    Co["Commit"]
+    R["Rollback"]
+  end
+  B --> O --> C
+  C -->|Yes| Co
+  C -->|No| R`}
+/>
+

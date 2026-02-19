@@ -1,0 +1,59 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="캐시는 자주 쓰는 데이터를 더 빠른 저장소에 두어 응답 속도와 원본 부하를 줄이는 기법입니다."
+  bullets={[
+    "지연 감소: 원본(DB, API)보다 가까운·빠른 저장소에서 응답한다.",
+    "원본 부하 감소: 반복 요청을 캐시에서 처리해 DB·API 부하를 줄인다.",
+  ]}
+/>
+
+## 캐시 동작 한눈에 보기
+
+<KeyTable
+  columns={["구분", "동작"]}
+  rows={[
+    [
+      "캐시 히트(Hit)",
+      "요청한 데이터가 캐시에 있어 캐시에서 바로 반환한다.",
+    ],
+    [
+      "캐시 미스(Miss)",
+      "캐시에 없으면 원본에서 조회 후 캐시에 저장하고 응답한다.",
+    ],
+  ]}
+/>
+
+## 일관성과 전략
+
+<KeyTable
+  columns={["항목", "내용"]}
+  rows={[
+    [
+      "일관성",
+      "원본이 바뀌면 캐시도 갱신·무효화해야 한다(TTL, 이벤트 기반 무효화 등).",
+    ],
+    [
+      "Cache-aside",
+      "애플리케이션이 먼저 캐시를 조회하고, 미스 시 원본을 조회해 캐시에 넣는다.",
+    ],
+    [
+      "Write-through",
+      "쓰기 시 캐시와 원본을 동시에 갱신해 일관성을 유지한다.",
+    ],
+  ]}
+/>
+
+## 개념 도식
+
+<MermaidDiagram
+  code={`flowchart LR
+  R["요청"] --> C{"캐시에 있음?"}
+  C -->|Hit| Res["캐시에서 응답"]
+  C -->|Miss| O["원본 조회"]
+  O --> Save["캐시에 저장"]
+  Save --> Res`}
+/>
+

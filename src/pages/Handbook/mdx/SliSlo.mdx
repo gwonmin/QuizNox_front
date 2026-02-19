@@ -1,0 +1,121 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="SLI / SLO는 서비스 품질을 측정하고 목표를 세우는 지표이며, 미달 시 알람·대응과 SLA와의 연결까지 이어진다."
+  bullets={[
+    "SLI: 무엇을, 어떻게 측정할지 정의하는 서비스 수준 측정 지표다.",
+    "SLO: SLI에 대한 목표값으로, 내부적으로 달성해야 할 품질 수준이다.",
+    "SLA: 고객과의 계약·보장 수준으로, SLO를 기반으로 수치와 보상 조건을 정한다.",
+  ]}
+/>
+
+## SLI / SLO / SLA 한눈에 보기
+
+<KeyTable
+  columns={["구분", "의미", "예시"]}
+  rows={[
+    [
+      "SLI (Service Level Indicator)",
+      "서비스 수준을 나타내는 측정 지표(무엇을, 어떻게 측정할지).",
+      "가용성(정상 응답 비율), p99 지연 시간, 에러율 등.",
+    ],
+    [
+      "SLO (Service Level Objective)",
+      "SLI에 대한 목표값. 내부적으로 달성해야 할 품질 수준.",
+      "가용성 99.9%, p99 200ms 이하, 에러율 0.1% 이하.",
+    ],
+    [
+      "SLA (Service Level Agreement)",
+      "고객과의 계약·보장. 목표 미달 시 보상(크레딧 등)을 포함한다.",
+      "월 가용성 99.9% 미만이면 사용 요금 일부 크레딧 제공.",
+    ],
+  ]}
+/>
+
+## SLI (Service Level Indicator)
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    [
+      "정의",
+      "서비스 품질을 정량적으로 보기 위해 무엇을, 어떻게 측정할지 정의한 지표이다.",
+    ],
+    [
+      "예시",
+      "가용성(정상 응답 비율), 지연 시간(p50/p95/p99), 에러율, 성공 요청 비율 등.",
+    ],
+  ]}
+/>
+
+## SLO (Service Level Objective)
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    [
+      "정의",
+      "SLI에 대한 목표 값으로, 운영팀이 달성해야 하는 서비스 수준을 의미한다.",
+    ],
+    [
+      "예시",
+      "가용성 99.9%, p99 응답 지연 200ms 이하, 에러율 0.1% 이하.",
+    ],
+    [
+      "운영",
+      "SLO 미달 시 알람을 발생시키고, 원인 분석·개선 작업을 수행한다.",
+    ],
+  ]}
+/>
+
+## 관계 도식
+
+<MermaidDiagram
+  code={`flowchart LR
+  M["모니터링 데이터(로그·메트릭·트레이스)"]
+  M --> I["SLI 계산"]
+  I --> C["SLO 기준 충족 여부"]
+  C -->|"충족"| OK["정상, 모니터링 유지"]
+  C -->|"미달"| AL["알람 발송 및 개선 작업"]`}
+/>
+
+<MermaidDiagram
+  code={`flowchart LR
+  I["SLI"]
+  I --> O["SLO (내부 목표)"]
+  O --> L["SLA (고객과의 계약)"]`}
+/>
+
+## 실제 예시
+
+<KeyTable
+  columns={["SLI", "SLO 예시"]}
+  rows={[
+    ["가용성", "99.9% (월 약 43분 이하 다운 허용)."],
+    ["지연 시간", "p99 200ms 이하."],
+    ["에러율", "0.1% 이하."],
+  ]}
+/>
+
+## 요약 표
+
+<KeyTable
+  columns={["구분", "SLI", "SLO", "SLA"]}
+  rows={[
+    [
+      "의미",
+      "측정 지표",
+      "목표 수준(내부)",
+      "고객과의 보장·계약",
+    ],
+    [
+      "예시",
+      "에러율 측정, 가용성 측정",
+      "에러율 0.1% 이하, 가용성 99.9% 이상",
+      "미달 시 크레딧 제공 등 보상 조건",
+    ],
+  ]}
+/>
+

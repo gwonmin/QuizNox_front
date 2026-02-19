@@ -1,0 +1,54 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="Scale-up은 한 서버의 스펙을 키우는 수직 확장이고, Scale-out은 서버 대수를 늘리는 수평 확장입니다."
+  bullets={[
+    "Scale-up: 구조 단순, 코드 변경이 적지만 하드웨어 상한·단일 장애점(SPOF)이 있다.",
+    "Scale-out: 상한을 완화하고 장애 분산에 유리하지만, 상태·일관성·로드밸런싱 설계가 필요하다.",
+  ]}
+/>
+
+## Scale-up vs Scale-out 한눈에 비교
+
+<KeyTable
+  columns={["구분", "Scale-up (수직 확장)", "Scale-out (수평 확장)"]}
+  rows={[
+    [
+      "대상",
+      "한 노드의 CPU·메모리·디스크 스펙",
+      "노드 개수",
+    ],
+    [
+      "장점",
+      "구조가 단순하고 애플리케이션 변경이 거의 없다.",
+      "상한을 완화하고 장애 시 일부 노드만 영향받는다.",
+    ],
+    [
+      "단점",
+      "하드웨어 상한, 단일 장애점(SPOF), 스펙을 올릴수록 비용이 급격히 증가한다.",
+      "공유 상태·세션·데이터 일관성·로드밸런싱 설계가 필요하다.",
+    ],
+    [
+      "적합한 상황",
+      "단일 노드 성능만 올려도 충분한 경우(예: DB 서버 메모리·CPU 증설).",
+      "트래픽·장애 분산이 중요한 경우(예: 웹 서버·API 서버 여러 대).",
+    ],
+  ]}
+/>
+
+## 개념 도식
+
+<MermaidDiagram
+  code={`flowchart TB
+  subgraph up [Scale-up]
+    A["서버 1대"] --> B["동일 서버 스펙 업"]
+    B --> C["더 큰 1대"]
+  end
+  subgraph out [Scale-out]
+    D["서버 1대"] --> E["서버 2대"]
+    E --> F["서버 N대"]
+  end`}
+/>
+

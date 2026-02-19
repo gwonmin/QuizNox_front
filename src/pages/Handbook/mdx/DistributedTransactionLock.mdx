@@ -1,0 +1,131 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="분산 트랜잭션은 여러 서비스·DB에 걸친 전부 성공/전부 롤백을 맞추는 방법이고, 분산 락은 한 시점에 한 주체만 자원을 쓰게 만드는 메커니즘입니다."
+  bullets={[
+    "2PC: Prepare 단계에서 모두 가능 확인 → Commit 또는 Abort로 전부 반영/전부 롤백.",
+    "Saga: 각 서비스는 로컬 커밋, 실패 시 보상 트랜잭션을 역순으로 실행해 최종 정합성을 맞춘다.",
+  ]}
+/>
+
+## 분산 트랜잭션: 2PC vs Saga
+
+<KeyTable
+  columns={["항목", "2PC", "Saga"]}
+  rows={[
+    [
+      "흐름",
+      "Prepare → 모두 Yes → Commit / 하나라도 No → Abort",
+      "T1→T2→T3 / 실패 시 보상3→보상2→보상1",
+    ],
+    [
+      "일관성",
+      "한 시점에 전부 반영되거나 전부 안 된 상태 유지",
+      "중간에 T1만 반영, T1+T2만 반영 같은 불일치 구간이 잠깐 생길 수 있으나 결국 수렴",
+    ],
+    [
+      "블로킹",
+      "Prepare~Commit 대기 구간 동안 참여자가 자원을 점유(블로킹)",
+      "각 서비스가 로컬만 커밋하므로 블로킹이 거의 없다.",
+    ],
+    [
+      "장애 처리",
+      "코디네이터·참여자 복구가 필요하며, 코디네이터 장애 시 Commit/Abort 불명확",
+      "보상·재시도로 정합성을 맞추며, 보상 로직의 멱등성이 중요하다.",
+    ],
+  ]}
+/>
+
+## 2PC 개념 도식
+
+<MermaidDiagram
+  code={`sequenceDiagram
+  participant C as 코디네이터
+  participant P1 as 참여자1
+  participant P2 as 참여자2
+  C->>P1: Prepare
+  C->>P2: Prepare
+  P1-->>C: Yes
+  P2-->>C: Yes
+  C->>P1: Commit
+  C->>P2: Commit`}
+/>
+
+## Saga 개념 도식
+
+<MermaidDiagram
+  code={`sequenceDiagram
+  participant O as 오케스트레이터
+  participant A as 서비스 A
+  participant B as 서비스 B
+  participant C as 서비스 C
+  O->>A: T1 실행
+  A-->>O: T1 커밋
+  O->>B: T2 실행
+  B-->>O: T2 커밋
+  O->>C: T3 실행
+  C-->>O: T3 실패
+  O->>C: 보상3
+  O->>B: 보상2
+  O->>A: 보상1`}
+/>
+
+## 분산 락 (Distributed Lock)
+
+<SectionSummary
+  title="분산 락 개요"
+  lead="분산 락은 여러 서버가 동시에 같은 자원을 수정하지 않도록, 한 시점에 한 주체만 자원을 사용할 수 있게 하는 메커니즘입니다."
+  bullets={[
+    "한 시점에 한 주체만 특정 자원을 사용하게 한다.",
+    "보통 Redis SET NX + TTL, ZooKeeper 등으로 구현한다.",
+  ]}
+/>
+
+<KeyTable
+  columns={["구분", "내용"]}
+  rows={[
+    [
+      "목적",
+      "동시에 같은 자원을 수정하지 않도록 한 시점에 한 주체만 사용하게 한다.",
+    ],
+    [
+      "구현 예",
+      "Redis SET NX + TTL, ZooKeeper 기반 락 등.",
+    ],
+    [
+      "주의사항",
+      "락 해제 시 소유자 검증, 타임아웃·재시도 상한 설정 등으로 안전하게 다뤄야 한다.",
+    ],
+  ]}
+/>
+
+## 락 획득 흐름 도식
+
+<MermaidDiagram
+  code={`sequenceDiagram
+  participant A as 서버 A
+  participant R as Redis
+  participant B as 서버 B
+  A->>R: 락 획득 (SET NX + TTL)
+  R-->>A: 성공
+  B->>R: 락 획득 시도
+  R-->>B: 실패, 대기
+  A->>R: 작업 후 락 해제
+  R-->>A: OK
+  B->>R: 락 획득
+  R-->>B: 성공`}
+/>
+
+## 락 TTL(리스) 개념
+
+<MermaidDiagram
+  code={`flowchart LR
+  A["락 획득"] --> T["TTL 시작"]
+  T --> E{"만료 전 해제?"}
+  E -->|"Yes"| R["정상 해제"]
+  E -->|"No, 장애"| X["TTL 만료"]
+  X --> O["다른 서버 획득 가능"]`}
+/>
+

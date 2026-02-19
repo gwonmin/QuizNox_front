@@ -1,0 +1,54 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="Latency, Throughput, IOPS는 저장·네트워크 성능을 이야기할 때 가장 기본이 되는 세 가지 지표입니다."
+  bullets={[
+    "Latency: 요청 → 응답까지 걸리는 시간(ms)",
+    "Throughput: 단위 시간당 처리한 데이터량(MB/s, Gbps)",
+    "IOPS: 초당 I/O 연산 횟수(ops/s)",
+  ]}
+/>
+
+## 지표 정의 한눈에 보기
+
+<KeyTable
+  columns={["지표", "의미", "단위", "언제 중요한가"]}
+  rows={[
+    [
+      "Latency",
+      "요청에서 응답까지 걸리는 시간",
+      "ms",
+      "반응 속도(클릭~화면), DB 쿼리 응답 등",
+    ],
+    [
+      "Throughput",
+      "단위 시간당 처리한 데이터량",
+      "MB/s, Gbps",
+      "대용량 복사, 스트리밍, 순차 읽기/쓰기",
+    ],
+    [
+      "IOPS",
+      "초당 I/O 연산 횟수",
+      "ops/s",
+      "랜덤 읽기/쓰기, 트랜잭션, 작은 블록 다수 처리",
+    ],
+  ]}
+/>
+
+## 개념 도식
+
+<MermaidDiagram
+  code={`flowchart LR
+  subgraph lat [Latency]
+    L["요청 ----시간---- 응답"]
+  end
+  subgraph tp [Throughput]
+    T["시간당 데이터량 (MB/s)"]
+  end
+  subgraph iops [IOPS]
+    I["초당 연산 수"]
+  end`}
+/>
+

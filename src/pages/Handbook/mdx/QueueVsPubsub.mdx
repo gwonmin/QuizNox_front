@@ -1,0 +1,73 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="Queue는 한 메시지를 한 번만 처리하게 만드는 작업 분산 패턴이고, Pub/Sub는 같은 이벤트를 여러 소비자가 각각 처리하게 만드는 이벤트 배포 패턴입니다."
+  bullets={[
+    "Queue: 1메시지 → 1소비자",
+    "Pub/Sub: 1메시지 → 여러 소비자",
+  ]}
+/>
+
+## Queue vs Pub/Sub 한눈에 비교
+
+<KeyTable
+  columns={["구분", "Queue", "Pub/Sub"]}
+  rows={[
+    [
+      "1메시지 처리",
+      "한 소비자만 처리 (처리 후 큐에서 제거)",
+      "구독한 모든 소비자가 각각 처리",
+    ],
+    [
+      "주요 용도",
+      "주문 처리, 이메일 발송 등 “한 번만 처리”해야 하는 작업 분산",
+      "“주문 생성됨”과 같은 이벤트를 여러 서비스에 동시에 전달",
+    ],
+    [
+      "특징",
+      "FIFO·중복 처리 방지에 유리, 워커 수를 늘려 처리량 확장",
+      "팬아웃 구조, 발행자는 구독자 수나 종류를 몰라도 됨",
+    ],
+  ]}
+/>
+
+## 흐름 도식 (이미지로만 빠르게 보기)
+
+<MermaidDiagram
+  code={`flowchart LR
+  subgraph q [Queue]
+    A["메시지 A"] --> Q["큐"]
+    Q --> W1["워커1"]
+    Q --> W2["워커2"]
+  end`}
+/>
+
+<MermaidDiagram
+  code={`flowchart LR
+  subgraph ps [Pub_Sub]
+    E["이벤트 A"] --> S1["구독자1"]
+    E --> S2["구독자2"]
+    E --> S3["구독자3"]
+  end`}
+/>
+
+## 실제 예시 한눈에 보기
+
+<KeyTable
+  columns={["구분", "예시", "설명"]}
+  rows={[
+    [
+      "Queue",
+      "주문 처리 큐, 이메일 발송 큐",
+      "“주문 1건 = 1번만 처리”하는 작업을 워커 여러 대에 분산한다.",
+    ],
+    [
+      "Pub/Sub",
+      "“주문 생성됨” 이벤트",
+      "재고·결제·알림·로그 서비스가 각자 구독해 독립적으로 처리한다.",
+    ],
+  ]}
+/>
+

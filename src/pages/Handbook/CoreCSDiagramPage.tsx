@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { MarkdownViewer } from "../../components/MarkdownViewer";
 import { LoadingSpinner } from "../../components/LoadingSpinner";
 import { REAL_SYSTEM_DIAGRAM_LINKS } from "../../constants/handbookDiagramLinks";
 
 const CORE_CS_DIAGRAM_URL = "/handbook/core-cs/real-system-diagrams.md";
 const MAIN_CLASS = "max-w-4xl mx-auto px-4 py-8";
+const SCROLL_BACK_KEY = "handbookScrollBackHash";
 
 let coreCsDiagramCache: string | null = null;
 
@@ -13,6 +14,7 @@ export function CoreCSDiagramPage() {
   const [content, setContent] = useState<string | null>(() => coreCsDiagramCache);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const diagramRef = useRef<HTMLDivElement>(null);
 
   const H2_TO_SECTION_ID: Record<string, string> = {
@@ -34,7 +36,17 @@ export function CoreCSDiagramPage() {
     }
 
     const hash = window.location.hash?.slice(1);
+    const fromStorage = sessionStorage.getItem(SCROLL_BACK_KEY);
+    const scrollBackHash =
+      (fromStorage?.startsWith("#") ? fromStorage.slice(1) : fromStorage) ||
+      (hash?.startsWith("doc-") ? hash : undefined);
+
     const scrollToTarget = () => {
+      if (scrollBackHash?.startsWith("doc-")) {
+        const el = document.getElementById(scrollBackHash);
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
       if (hash?.startsWith("section-")) {
         const el = document.getElementById(hash);
         el?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -42,9 +54,27 @@ export function CoreCSDiagramPage() {
         diagramRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     };
+
+    if (scrollBackHash?.startsWith("doc-")) {
+      const POLL_MS = 80;
+      const MAX_WAIT_MS = 6000;
+      const started = Date.now();
+      const interval = setInterval(() => {
+        const el = document.getElementById(scrollBackHash);
+        if (el) {
+          clearInterval(interval);
+          sessionStorage.removeItem(SCROLL_BACK_KEY);
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+        } else if (Date.now() - started > MAX_WAIT_MS) {
+          clearInterval(interval);
+        }
+      }, POLL_MS);
+      return () => clearInterval(interval);
+    }
+
     const t = setTimeout(scrollToTarget, 600);
     return () => clearTimeout(t);
-  }, [content]);
+  }, [content, location.state, location.hash]);
 
   useEffect(() => {
     setError(null);
@@ -99,7 +129,10 @@ export function CoreCSDiagramPage() {
           content={content}
           className="max-w-4xl"
           diagramLinks={REAL_SYSTEM_DIAGRAM_LINKS}
-          onDiagramLinkClick={(path) => navigate(path)}
+          onDiagramLinkClick={(path, scrollHash) => {
+            if (scrollHash) sessionStorage.setItem(SCROLL_BACK_KEY, scrollHash);
+            navigate(path);
+          }}
         />
       </div>
     </main>
