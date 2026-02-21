@@ -1,40 +1,20 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { MarkdownViewer } from "../../components/MarkdownViewer";
-import { LoadingSpinner } from "../../components/LoadingSpinner";
+import { DiagramLinksContext } from "../../contexts/DiagramLinksContext";
 import { REAL_SYSTEM_DIAGRAM_LINKS } from "../../constants/handbookDiagramLinks";
+import RealSystemDiagramsMdx from "./mdx/RealSystemDiagrams.mdx";
+import "github-markdown-css/github-markdown.css";
+import "../../styles/markdown-theme.css";
 
-const CORE_CS_DIAGRAM_URL = "/handbook/core-cs/real-system-diagrams.md";
 const MAIN_CLASS = "max-w-4xl mx-auto px-4 py-8";
 const SCROLL_BACK_KEY = "handbookScrollBackHash";
 
-let coreCsDiagramCache: string | null = null;
-
 export function CoreCSDiagramPage() {
-  const [content, setContent] = useState<string | null>(() => coreCsDiagramCache);
-  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const diagramRef = useRef<HTMLDivElement>(null);
 
-  const H2_TO_SECTION_ID: Record<string, string> = {
-    "1. Networking Fundamentals": "section-networking",
-    "2. Data & Storage Fundamentals": "section-data-storage",
-    "3. Distributed Systems Essentials": "section-distributed",
-    "4. Security Basics": "section-security-basics",
-    "5. Reliability & Operations": "section-reliability-operations",
-  };
-
   useEffect(() => {
-    if (!content) return;
-    const wrapper = diagramRef.current;
-    if (wrapper) {
-      wrapper.querySelectorAll("h2").forEach((el) => {
-        const text = el.textContent?.trim();
-        if (text && H2_TO_SECTION_ID[text]) (el as HTMLElement).id = H2_TO_SECTION_ID[text];
-      });
-    }
-
     const hash = window.location.hash?.slice(1);
     const fromStorage = sessionStorage.getItem(SCROLL_BACK_KEY);
     const scrollBackHash =
@@ -72,43 +52,9 @@ export function CoreCSDiagramPage() {
       return () => clearInterval(interval);
     }
 
-    const t = setTimeout(scrollToTarget, 600);
+    const t = setTimeout(scrollToTarget, 100);
     return () => clearTimeout(t);
-  }, [content, location.state, location.hash]);
-
-  useEffect(() => {
-    setError(null);
-    if (!coreCsDiagramCache) setContent(null);
-    fetch(CORE_CS_DIAGRAM_URL)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to load");
-        return res.text();
-      })
-      .then((text) => {
-        coreCsDiagramCache = text;
-        setContent(text);
-      })
-      .catch(() => setError("콘텐츠를 불러올 수 없습니다."));
-  }, []);
-
-  if (error) {
-    return (
-      <main className={MAIN_CLASS}>
-        <p className="text-muted-foreground">{error}</p>
-        <Link to="/handbook" className="mt-4 inline-block text-primary hover:underline">
-          ← 핸드북 목록
-        </Link>
-      </main>
-    );
-  }
-
-  if (content === null) {
-    return (
-      <main className={`${MAIN_CLASS} flex justify-center items-center min-h-[200px]`}>
-        <LoadingSpinner />
-      </main>
-    );
-  }
+  }, [location.hash, location.state]);
 
   return (
     <main className={MAIN_CLASS}>
@@ -121,19 +67,21 @@ export function CoreCSDiagramPage() {
         </Link>
         <h1 className="text-xl font-bold mt-2 text-foreground">1. Core CS</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          노드 클릭 시 개념 문서로 이동
+          아래 다이어그램의 <strong className="font-semibold text-primary">각 박스(IP, DNS, RDB 등)를 클릭</strong>하면 해당 개념 문서로 이동합니다.
         </p>
       </div>
-      <div id="diagram" ref={diagramRef}>
-        <MarkdownViewer
-          content={content}
-          className="max-w-4xl"
-          diagramLinks={REAL_SYSTEM_DIAGRAM_LINKS}
-          onDiagramLinkClick={(path, scrollHash) => {
-            if (scrollHash) sessionStorage.setItem(SCROLL_BACK_KEY, scrollHash);
-            navigate(path);
+      <div id="diagram" ref={diagramRef} className="markdown-body">
+        <DiagramLinksContext.Provider
+          value={{
+            diagramLinks: REAL_SYSTEM_DIAGRAM_LINKS,
+            onDiagramLinkClick: (path, scrollHash) => {
+              if (scrollHash) sessionStorage.setItem(SCROLL_BACK_KEY, scrollHash);
+              navigate(path);
+            },
           }}
-        />
+        >
+          <RealSystemDiagramsMdx />
+        </DiagramLinksContext.Provider>
       </div>
     </main>
   );

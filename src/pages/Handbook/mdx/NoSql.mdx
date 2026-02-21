@@ -1,0 +1,95 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="NoSQL은 관계형 밖의 저장·조회 방식을 통칭하며, 스키마 유연성·수평 확장·특정 접근 패턴에 맞춥니다."
+  bullets={[
+    "Key-Value, 문서(Document), 와이드 컬럼 등 유형별로 단위·특징이 다르다.",
+    "스키마 유연·수평 확장에 강하고, 트랜잭션은 제품별로 제한적이다.",
+    "RDB와 요구사항(스키마·확장·일관성)으로 선택을 나눈다.",
+  ]}
+/>
+
+## 1. NoSQL을 고를 때
+
+<KeyTable
+  columns={["상황", "이유"]}
+  rows={[
+    ["스키마 유연·빈번한 변경", "컬럼 추가·중첩 구조를 스키마 마이그레이션 없이 다룰 때"],
+    ["수평 확장·대용량 쓰기", "파티션·샤딩으로 트래픽을 나누어 확장할 때"],
+    ["특정 접근 패턴", "키로 값 조회(Key-Value), 문서 단위 CRUD(문서 DB), 시계열·와이드 컬럼 등"],
+  ]}
+/>
+
+- 강한 ACID·복잡한 JOIN·정규화가 핵심이면 RDB 우선 검토.
+
+<KeyTable
+  columns={["대표 서비스"]}
+  rows={[["DynamoDB, MongoDB, Redis, Cassandra, Firestore"]]}
+/>
+
+## 2. 유형별 핵심
+
+<KeyTable
+  columns={["유형", "단위", "특징", "예시 용도"]}
+  rows={[
+    ["Key-Value", "키 → 값", "단순·저지연 조회", "세션, 캐시, 설정"],
+    ["문서(Document)", "문서(JSON 등)", "유연 스키마, 중첩 구조", "카탈로그, 사용자 프로필"],
+    ["와이드 컬럼", "행·컬럼 패밀리", "대용량 쓰기·시계열적 접근", "이벤트, 메트릭"],
+  ]}
+/>
+
+## 3. RDB vs NoSQL (선택 기준)
+
+<KeyTable
+  columns={["기준", "RDB", "NoSQL"]}
+  rows={[
+    ["스키마", "고정·정규화", "유연·스키마리스"],
+    ["트랜잭션", "강한 ACID", "제품별·제한적"],
+    ["확장", "주로 수직(Scale-up)", "수평 확장(샤딩)에 유리"],
+    ["조회", "JOIN·집계·복잡 쿼리", "키·패턴 기반 접근 위주"],
+  ]}
+/>
+
+## 4. 접근 흐름 도식
+
+- **Key-Value**: 앱 → 키로 조회 → 값 반환.
+- **문서 DB**: 앱 → 문서 ID·쿼리 → 문서(필드·중첩) 반환.
+
+<MermaidDiagram
+  code={`flowchart LR
+  subgraph kv [Key-Value]
+    K[key] --> V[value]
+  end
+  subgraph doc [Document]
+    Q[쿼리] --> D[문서]
+  end
+  App[앱] --> kv
+  App --> doc`}
+/>
+
+## 5. 예: 사용자 프로필(문서) + 세션(Key-Value)
+
+- 문서: 사용자 한 명 = JSON 한 개. Key-Value: 세션 ID → 값. 키로 조회·TTL 만료.
+
+<MermaidDiagram
+  code={`classDiagram
+  class UserProfile {
+    string name
+    object prefs
+    array tags
+  }
+  class Session {
+    string userId
+    number expiresAt
+  }`}
+/>
+
+<KeyTable
+  columns={["유형", "키/식별", "값/문서 예시"]}
+  rows={[
+    ["문서(Document)", "user_id", "{ \"name\": \"홍길동\", \"prefs\": { \"theme\": \"dark\" }, \"tags\": [\"vip\"] }"],
+    ["Key-Value", "session:abc123", "{ \"userId\": \"u1\", \"expiresAt\": 1730000000 }"],
+  ]}
+/>

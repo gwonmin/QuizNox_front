@@ -1,0 +1,88 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="시계열 DB는 시간 순 데이터(메트릭, 이벤트)를 저장·집계·조회하도록 설계된 저장소입니다."
+  bullets={[
+    "타임스탬프가 기본 차원. 시간 순 쓰기·압축·다운샘플링으로 용량·비용을 줄인다.",
+    "집계(avg, sum, rate)와 시간 범위 쿼리에 최적화.",
+    "모니터링·IoT·로그 메트릭 등 시계열 데이터에 사용.",
+  ]}
+/>
+
+## 1. 시계열 DB를 고를 때
+
+<KeyTable
+  columns={["상황", "이유"]}
+  rows={[
+    ["메트릭·이벤트 저장", "CPU, 요청 수, 센서 값 등 시간별 측정값을 쌓을 때"],
+    ["시간 범위·집계 조회", "최근 N분 평균, 구간 합계, rate 등 집계 쿼리가 주 사용처일 때"],
+    ["대량 쓰기·압축", "추가 위주 쓰기와 압축·다운샘플링으로 저장 비용을 줄이고 싶을 때"],
+  ]}
+/>
+
+- 일반 CRUD·복잡한 관계 조회가 주라면 RDB 우선 검토.
+
+<KeyTable
+  columns={["대표 서비스"]}
+  rows={[["Prometheus, InfluxDB, TimescaleDB, AWS Timestream, Grafana Mimir"]]}
+/>
+
+## 2. 핵심 구성
+
+<KeyTable
+  columns={["구분", "내용"]}
+  rows={[
+    ["데이터", "타임스탬프 + 측정값(메트릭/이벤트). 시계열별·태그별 구분."],
+    ["쓰기", "시간 순 추가 위주. 배치 삽입으로 처리량 확보."],
+    ["조회", "시간 범위·태그 필터·집계(avg, sum, rate, percentile 등)."],
+  ]}
+/>
+
+## 3. 최적화·트레이드오프
+
+<KeyTable
+  columns={["항목", "내용"]}
+  rows={[
+    ["압축", "시계열별 압축으로 저장 용량 감소. 조회 시 압축 해제 비용 있음."],
+    ["다운샘플링", "오래된 구간을 낮은 해상도로 저장해 장기 조회 비용·용량 절감."],
+    ["보존 기간", "TTL·보존 정책으로 오래된 데이터 자동 삭제해 비용 조절."],
+  ]}
+/>
+
+## 4. 흐름 도식
+
+- **쓰기**: 시간축 데이터 → 시계열 저장. **조회**: 시간 범위·집계 쿼리 → 결과.
+
+<MermaidDiagram
+  code={`flowchart LR
+  T[시간축 데이터] --> W[쓰기]
+  W --> S[시계열 저장]
+  S --> A[집계 쿼리]
+  A --> Res[결과]`}
+/>
+
+## 5. 예: CPU 메트릭 시계열
+
+- 서버별 CPU 사용률을 시간순 저장. 시간 범위·태그로 조회·집계(avg, max).
+
+<MermaidDiagram
+  code={`erDiagram
+  TIMESERIES {
+    datetime timestamp
+    string metric
+    string tags
+    float value
+  }`}
+/>
+
+<KeyTable
+  columns={["필드", "예시"]}
+  rows={[
+    ["timestamp", "2025-02-19T10:00:00Z"],
+    ["metric", "cpu_usage_percent"],
+    ["tags", "host=web-01, region=ap-northeast-2"],
+    ["value", "45.2"],
+  ]}
+/>

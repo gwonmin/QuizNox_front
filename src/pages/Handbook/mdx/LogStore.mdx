@@ -1,0 +1,92 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="로그 스토어는 앱·인프라 로그를 수집·저장·검색·분석하기 위한 저장·조회 용도입니다."
+  bullets={[
+    "추가 위주(append) 쓰기와 시간·키워드 기반 검색에 맞춘다.",
+    "보존 기간·샤딩·압축으로 비용과 성능을 조절한다.",
+    "디버깅·감사·모니터링·알람에 사용.",
+  ]}
+/>
+
+## 1. 로그 스토어를 고를 때
+
+<KeyTable
+  columns={["상황", "이유"]}
+  rows={[
+    ["로그 수집·저장", "앱·서버·네트워크 로그를 한곳에 모아 시간순·키워드로 찾을 때"],
+    ["디버깅·장애 분석", "에러·트레이스·요청 ID로 로그를 검색해 원인 추적할 때"],
+    ["감사·컴플라이언스", "접근·변경 이력을 보존 기간 동안 보관·검색할 때"],
+  ]}
+/>
+
+- 강한 트랜잭션·복잡한 관계 조회가 주라면 RDB. 의미 검색·벡터 검색은 검색 엔진·벡터 DB.
+
+<KeyTable
+  columns={["대표 서비스"]}
+  rows={[["CloudWatch Logs, Elasticsearch, OpenSearch, Loki, Datadog, Splunk"]]}
+/>
+
+## 2. 핵심 구성
+
+<KeyTable
+  columns={["구분", "내용"]}
+  rows={[
+    ["쓰기", "추가 위주(append). 순차·배치 삽입. 수집 파이프(에이전트·전달)로 유입."],
+    ["조회", "시간 범위·키워드·필드 필터 검색. 집계·통계(선택)."],
+    ["저장 구조", "인덱스(역인덱스 등)·샤딩·압축. 보존 기간(TTL)으로 비용 조절."],
+  ]}
+/>
+
+## 3. 운영·비용
+
+<KeyTable
+  columns={["항목", "내용"]}
+  rows={[
+    ["보존 기간", "TTL·정책으로 오래된 로그 삭제. 규제·감사 요구에 맞춰 설정."],
+    ["샤딩·인덱스", "시간·소스별 샤딩으로 쓰기·조회 부하 분산. 인덱스 필드 선택으로 용량·속도 조절."],
+    ["압축", "저장 용량·비용 감소. 조회 시 압축 해제 비용 있음."],
+  ]}
+/>
+
+## 4. 흐름 도식
+
+- **수집**: 앱·인프라 → 수집 파이프 → 로그 저장. **조회**: 시간·키워드 검색·집계 → 결과.
+
+<MermaidDiagram
+  code={`flowchart LR
+  App[앱 인프라] --> Ing[수집]
+  Ing --> Store[로그 저장]
+  Store --> Query[검색 집계]
+  Query --> Res[결과]`}
+/>
+
+## 5. 예: 앱 요청 로그
+
+- API 요청마다 로그 한 줄. 시간·request_id·level로 검색해 디버깅·트레이스.
+
+<MermaidDiagram
+  code={`erDiagram
+  LOG_ENTRY {
+    datetime timestamp
+    string level
+    string message
+    string request_id
+    string path
+    int status_code
+  }`}
+/>
+
+<KeyTable
+  columns={["필드", "예시"]}
+  rows={[
+    ["timestamp", "2025-02-19T10:00:01.123Z"],
+    ["level", "INFO"],
+    ["message", "Request completed"],
+    ["request_id", "req_abc123"],
+    ["path", "/api/orders"],
+    ["status_code", "200"],
+  ]}
+/>

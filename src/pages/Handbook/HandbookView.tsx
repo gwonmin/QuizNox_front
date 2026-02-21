@@ -19,6 +19,12 @@ import TcpVsUdpMdx from "./mdx/TcpVsUdp.mdx";
 import HttpHttpsTlsMdx from "./mdx/HttpHttpsTls.mdx";
 import L4VsL7LbMdx from "./mdx/L4VsL7Lb.mdx";
 import BlockFileObjectMdx from "./mdx/BlockFileObject.mdx";
+import RdbMdx from "./mdx/Rdb.mdx";
+import NoSqlMdx from "./mdx/NoSql.mdx";
+import VectorDbMdx from "./mdx/VectorDb.mdx";
+import TimeseriesDbMdx from "./mdx/TimeseriesDb.mdx";
+import SearchMdx from "./mdx/Search.mdx";
+import LogStoreMdx from "./mdx/LogStore.mdx";
 import LatencyThroughputIopsMdx from "./mdx/LatencyThroughputIops.mdx";
 import IndexWhyFastMdx from "./mdx/IndexWhyFast.mdx";
 import CachingMdx from "./mdx/Caching.mdx";
@@ -118,6 +124,12 @@ const HandbookView = memo(function HandbookView() {
     if (layerId === "core-cs" && slug === "http-https-tls") return true;
     if (layerId === "core-cs" && slug === "l4-vs-l7-lb") return true;
     if (layerId === "core-cs" && slug === "block-file-object") return true;
+    if (layerId === "core-cs" && slug === "rdb") return true;
+    if (layerId === "core-cs" && slug === "nosql") return true;
+    if (layerId === "core-cs" && slug === "vector-db") return true;
+    if (layerId === "core-cs" && slug === "timeseries-db") return true;
+    if (layerId === "core-cs" && slug === "search") return true;
+    if (layerId === "core-cs" && slug === "log-store") return true;
     if (layerId === "core-cs" && slug === "latency-throughput-iops") return true;
     if (layerId === "core-cs" && slug === "index-why-fast") return true;
     if (layerId === "core-cs" && slug === "caching") return true;
@@ -273,6 +285,12 @@ const HandbookView = memo(function HandbookView() {
     if (layerId === "core-cs" && slug === "http-https-tls") return <HttpHttpsTlsMdx />;
     if (layerId === "core-cs" && slug === "l4-vs-l7-lb") return <L4VsL7LbMdx />;
     if (layerId === "core-cs" && slug === "block-file-object") return <BlockFileObjectMdx />;
+    if (layerId === "core-cs" && slug === "rdb") return <RdbMdx />;
+    if (layerId === "core-cs" && slug === "nosql") return <NoSqlMdx />;
+    if (layerId === "core-cs" && slug === "vector-db") return <VectorDbMdx />;
+    if (layerId === "core-cs" && slug === "timeseries-db") return <TimeseriesDbMdx />;
+    if (layerId === "core-cs" && slug === "search") return <SearchMdx />;
+    if (layerId === "core-cs" && slug === "log-store") return <LogStoreMdx />;
     if (layerId === "core-cs" && slug === "latency-throughput-iops") {
       return <LatencyThroughputIopsMdx />;
     }

@@ -1,0 +1,90 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="벡터 DB는 임베딩(벡터)을 저장하고, 유사도 검색으로 의미 기반 검색·추천·RAG를 지원합니다."
+  bullets={[
+    "데이터·쿼리를 벡터로 임베딩해 저장·조회한다. 유사도(거리)로 Top-K를 뽑는다.",
+    "k-NN·ANN으로 빠른 유사도 검색. 코사인·L2 등 거리 메트릭 사용.",
+    "RAG·추천·이미지 검색 등 임베딩 기반 기능에 사용.",
+  ]}
+/>
+
+## 1. 벡터 DB를 고를 때
+
+<KeyTable
+  columns={["상황", "이유"]}
+  rows={[
+    ["의미·유사도 검색", "텍스트·이미지를 벡터로 바꿔 '비슷한 것'을 찾을 때"],
+    ["RAG·챗봇", "문서 임베딩 저장 후 질의와 유사한 청크를 검색해 맥락으로 쓸 때"],
+    ["추천·동시 구매", "아이템·사용자 임베딩으로 유사 아이템·개인화 추천"],
+  ]}
+/>
+
+- 정확한 키·키워드 매칭이 주 요구사항이면 일반 DB·검색 엔진 우선 검토.
+
+<KeyTable
+  columns={["대표 서비스"]}
+  rows={[["Pinecone, pgvector, OpenSearch Vector, Milvus, Weaviate, Chroma"]]}
+/>
+
+## 2. 핵심 구성
+
+<KeyTable
+  columns={["구분", "내용"]}
+  rows={[
+    ["저장 단위", "벡터(임베딩) + 메타데이터(ID, 필드 등)"],
+    ["조회", "유사도 검색(k-NN, ANN). 쿼리도 벡터로 변환 후 거리 계산."],
+    ["거리·유사도", "코사인 유사도, L2(유클리드), 내적 등. 메트릭에 따라 정렬."],
+  ]}
+/>
+
+## 3. 유사도 검색 흐름
+
+<KeyTable
+  columns={["단계", "내용"]}
+  rows={[
+    ["임베딩", "텍스트·이미지 등을 임베딩 모델로 벡터화해 저장"],
+    ["쿼리", "검색어도 동일 모델로 벡터화"],
+    ["검색", "저장된 벡터와 거리 계산 후 Top-K 반환"],
+  ]}
+/>
+
+## 4. 흐름 도식
+
+- **저장**: 원본 → 임베딩 → 벡터 저장소. **조회**: 쿼리 → 임베딩 → 유사도 Top-K → 결과.
+
+<MermaidDiagram
+  code={`flowchart LR
+  Q[쿼리] --> E[임베딩]
+  E --> V[벡터 저장소]
+  V --> K[유사도 Top-K]
+  K --> Res[결과]`}
+/>
+
+## 5. 예: RAG 문서 유사도 검색
+
+- 문서 청크·질의를 임베딩해 저장·조회. 유사 청크 Top-K를 맥락으로 사용.
+
+<MermaidDiagram
+  code={`flowchart LR
+  subgraph query [쿼리]
+    Q[질의 텍스트]
+    Q --> E[임베딩]
+    E --> VQ[쿼리 벡터]
+  end
+  subgraph search [유사도 검색]
+    VQ --> Dist[거리 계산]
+    VS[저장된 벡터들] --> Dist
+    Dist --> TopK[Top-K 결과]
+  end`}
+/>
+
+<KeyTable
+  columns={["단계", "입력", "출력"]}
+  rows={[
+    ["저장", "문서 청크 텍스트", "임베딩 벡터 + chunk_id, doc_id 메타데이터"],
+    ["검색", "질의 문장", "쿼리 벡터와 거리 기준 Top-K 청크 목록"],
+  ]}
+/>

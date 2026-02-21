@@ -45,6 +45,12 @@ export const HANDBOOK_LAYERS: HandbookLayer[] = [
         title: "2. Data & Storage Fundamentals",
         docs: [
           { slug: "block-file-object", title: "Block vs File vs Object" },
+          { slug: "rdb", title: "RDB" },
+          { slug: "nosql", title: "NoSQL" },
+          { slug: "vector-db", title: "벡터 DB" },
+          { slug: "timeseries-db", title: "시계열 DB" },
+          { slug: "search", title: "검색" },
+          { slug: "log-store", title: "로그 스토어" },
           { slug: "latency-throughput-iops", title: "Latency / Throughput / IOPS" },
           { slug: "acid-transaction-lock", title: "ACID · 트랜잭션 · 락" },
           { slug: "index-why-fast", title: "Index가 왜 빠른가" },
