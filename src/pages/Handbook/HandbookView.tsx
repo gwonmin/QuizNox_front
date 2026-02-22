@@ -655,13 +655,15 @@ const HandbookView = memo(function HandbookView() {
       docTitle={meta.doc.title}
       backToDiagramHref={backToDiagramHref}
     >
-      {isMdxDoc && mdxComponent}
+      {isMdxDoc && (
+        <div className="handbook-doc-content max-w-4xl">
+          <div className="markdown-body">{mdxComponent}</div>
+        </div>
+      )}
       {!isMdxDoc && content !== null && (
-        <MarkdownViewer
-          key={`${layerId}-${slug}`}
-          content={content}
-          className="max-w-4xl"
-        />
+        <div className="handbook-doc-content max-w-4xl">
+          <MarkdownViewer key={`${layerId}-${slug}`} content={content} />
+        </div>
       )}
       <RelatedInSection
         layerId={meta.layer.id}

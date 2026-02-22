@@ -70,18 +70,20 @@ export function CoreCSDiagramPage() {
           아래 다이어그램의 <strong className="font-semibold text-primary">각 박스(IP, DNS, RDB 등)를 클릭</strong>하면 해당 개념 문서로 이동합니다.
         </p>
       </div>
-      <div id="diagram" ref={diagramRef} className="markdown-body">
-        <DiagramLinksContext.Provider
-          value={{
-            diagramLinks: REAL_SYSTEM_DIAGRAM_LINKS,
-            onDiagramLinkClick: (path, scrollHash) => {
-              if (scrollHash) sessionStorage.setItem(SCROLL_BACK_KEY, scrollHash);
-              navigate(path);
-            },
-          }}
-        >
-          <RealSystemDiagramsMdx />
-        </DiagramLinksContext.Provider>
+      <div id="diagram" ref={diagramRef} className="handbook-doc-content">
+        <div className="markdown-body">
+          <DiagramLinksContext.Provider
+            value={{
+              diagramLinks: REAL_SYSTEM_DIAGRAM_LINKS,
+              onDiagramLinkClick: (path, scrollHash) => {
+                if (scrollHash) sessionStorage.setItem(SCROLL_BACK_KEY, scrollHash);
+                navigate(path);
+              },
+            }}
+          >
+            <RealSystemDiagramsMdx />
+          </DiagramLinksContext.Provider>
+        </div>
       </div>
     </main>
   );

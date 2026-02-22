@@ -1,10 +1,9 @@
-import readmeContent from "../../README.md?raw";
-import { MarkdownViewer } from "../components/MarkdownViewer";
+import { HomeContent } from "./Home/HomeContent";
 
 export default function Home() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-10">
-      <MarkdownViewer content={readmeContent} />
-    </div>
+    <main className="mx-auto max-w-4xl px-4 py-8 sm:py-12 md:py-14">
+      <HomeContent />
+    </main>
   );
 }

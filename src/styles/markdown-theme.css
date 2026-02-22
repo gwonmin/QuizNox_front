@@ -112,4 +112,157 @@
   fill: #1d4ed8 !important;
 }
 
+/* ============================================
+   Handbook 토픽별 상세 페이지: MDX 스타일 가독성
+   ============================================ */
+.handbook-doc-content .markdown-body {
+  color: hsl(var(--foreground));
+  line-height: 1.75;
+}
+
+/* 문서 제목(h1)은 레이아웃에 이미 있으므로 작게 처리 */
+.handbook-doc-content .markdown-body h1 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: hsl(var(--muted-foreground));
+  border-bottom: none;
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0;
+}
+
+/* 섹션 제목(h2): MDX 스타일 – 여백·구분선 */
+.handbook-doc-content .markdown-body h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  margin-top: 2rem;
+  margin-bottom: 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.handbook-doc-content .markdown-body h2:first-child {
+  margin-top: 0;
+}
+
+.handbook-doc-content .markdown-body h3,
+.handbook-doc-content .markdown-body h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+/* 리드 문단: 제목 바로 다음 단락 */
+.handbook-doc-content .markdown-body h1 + p,
+.handbook-doc-content .markdown-body h2 + p {
+  color: hsl(var(--muted-foreground));
+  margin-top: 0;
+  margin-bottom: 1.25rem;
+  line-height: 1.7;
+}
+
+.handbook-doc-content .markdown-body p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.handbook-doc-content .markdown-body ul,
+.handbook-doc-content .markdown-body ol {
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+.handbook-doc-content .markdown-body li {
+  margin-bottom: 0.35rem;
+}
+
+.handbook-doc-content .markdown-body li::marker {
+  color: hsl(var(--muted-foreground));
+}
+
+/* 구분선(---): 섹션 간 간격 */
+.handbook-doc-content .markdown-body hr {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  border-color: hsl(var(--border));
+}
+
+/* 표: 여백·라운드·헤더 강조 */
+.handbook-doc-content .markdown-body table {
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+  width: 100%;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid hsl(var(--border));
+}
+
+.handbook-doc-content .markdown-body th,
+.handbook-doc-content .markdown-body td {
+  padding: 0.5rem 0.75rem;
+  border-color: hsl(var(--border));
+  background: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+}
+
+.handbook-doc-content .markdown-body td {
+  word-break: break-word;
+  min-width: 0;
+}
+
+.handbook-doc-content .markdown-body th {
+  background: hsl(var(--muted));
+  font-weight: 600;
+  color: hsl(var(--foreground));
+}
+
+.handbook-doc-content .markdown-body tr:hover td {
+  background: hsl(var(--accent) / 0.5);
+}
+
+.handbook-doc-content .markdown-body a {
+  color: hsl(var(--primary));
+}
+
+.handbook-doc-content .markdown-body a:hover {
+  text-decoration: underline;
+}
+
+.handbook-doc-content .markdown-body strong {
+  color: hsl(var(--foreground));
+  font-weight: 600;
+}
+
+.handbook-doc-content .markdown-body code,
+.handbook-doc-content .markdown-body pre {
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
+  border-color: hsl(var(--border));
+}
+
+.handbook-doc-content .markdown-body blockquote {
+  border-left-color: hsl(var(--primary) / 0.6);
+  background: hsl(var(--muted) / 0.5);
+}
+
+.handbook-doc-content .markdown-body details {
+  background: hsl(var(--muted) / 0.5);
+  border-color: hsl(var(--border));
+}
+
+.handbook-doc-content .markdown-body summary {
+  color: hsl(var(--foreground));
+}
+
+/* Mermaid 래퍼 여백 */
+.handbook-doc-content .mermaid-wrapper {
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+}
 

@@ -1,6 +1,7 @@
 /**
  * 레이어별 진입 다이어그램 URL 및 노드→문서 경로 맵.
- * Systems Fundamentals(core-cs)는 real-system-diagrams, 그 외는 overview.md 사용.
+ * Systems Fundamentals(core-cs)는 MDX(RealSystemDiagrams.mdx) 사용, diagramUrl 미사용.
+ * 그 외 레이어는 overview.md → MDX 컴포넌트로 렌더하며 diagramUrl은 레거시 참조용.
  */
 import { REAL_SYSTEM_DIAGRAM_LINKS } from "./handbookDiagramLinks";
 
@@ -12,7 +13,7 @@ export function getDiagramConfig(layerId: string): {
 } | null {
   if (layerId === "core-cs") {
     return {
-      diagramUrl: `${BASE}/core-cs/real-system-diagrams.md`,
+      diagramUrl: "",
       diagramLinks: REAL_SYSTEM_DIAGRAM_LINKS,
     };
   }

@@ -72,7 +72,7 @@ export default function Navbar() {
               핸드북
             </Link>
             <Link to="/quiz/topic" className="hover:text-primary-foreground/80 transition-colors">
-              문제풀기
+              기출문제
             </Link>
             <Link to="/mock-exam" className="hover:text-primary-foreground/80 transition-colors">
               모의고사
@@ -145,13 +145,13 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* 모바일 메뉴: 핸드북, 문제풀기만 노출 (모의고사는 데스크톱 전용) */}
+          {/* 모바일 메뉴: 핸드북, 기출문제만 노출 (모의고사는 데스크톱 전용) */}
           <div className="md:hidden flex items-center gap-2">
             <Link to="/handbook" className="text-primary-foreground hover:text-primary-foreground/80 transition-colors">
               핸드북
             </Link>
             <Link to="/quiz/topic" className="text-primary-foreground hover:text-primary-foreground/80 transition-colors">
-              문제풀기
+              기출문제
             </Link>
             {isAuthenticated ? (
               <div className="relative" ref={mobileDropdownRef}>

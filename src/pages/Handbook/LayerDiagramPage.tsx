@@ -1,33 +1,46 @@
-import { useEffect, useRef, useState } from "react";
+import type React from "react";
+import { useEffect, useRef } from "react";
 import { Link, useParams, useNavigate, useLocation } from "react-router-dom";
-import { MarkdownViewer } from "../../components/MarkdownViewer";
-import { LoadingSpinner } from "../../components/LoadingSpinner";
 import { getHandbookLayer } from "../../constants/handbookManifest";
 import { getDiagramConfig } from "../../constants/handbookLayerDiagramConfig";
+import { injectDiagramLinks } from "../../utils/injectDiagramLinks";
+
+import AwsCommonLayerDiagramMdx from "./mdx/aws-common/AwsCommonLayerDiagram.mdx";
+import SaaLayerDiagramMdx from "./mdx/saa/SaaLayerDiagram.mdx";
+import DvaLayerDiagramMdx from "./mdx/dva/DvaLayerDiagram.mdx";
+import SoaLayerDiagramMdx from "./mdx/soa/SoaLayerDiagram.mdx";
 
 const MAIN_CLASS = "max-w-4xl mx-auto px-4 py-8";
 const SCROLL_BACK_KEY = "handbookScrollBackHash";
+const DIAGRAM_LINKS_INJECT_DELAY_MS = 1500;
 
-const diagramContentCache: Record<string, string> = {};
+const LAYER_DIAGRAM_MDX: Record<
+  string,
+  React.ComponentType<Record<string, unknown>>
+> = {
+  "aws-common": AwsCommonLayerDiagramMdx,
+  saa: SaaLayerDiagramMdx,
+  dva: DvaLayerDiagramMdx,
+  soa: SoaLayerDiagramMdx,
+};
 
 export function LayerDiagramPage() {
   const { layerId } = useParams<{ layerId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const [content, setContent] = useState<string | null>(() =>
-    layerId ? diagramContentCache[layerId] ?? null : null
-  );
-  const [error, setError] = useState<string | null>(null);
   const diagramRef = useRef<HTMLDivElement>(null);
 
   const layer = layerId ? getHandbookLayer(layerId) : undefined;
   const config = layerId ? getDiagramConfig(layerId) : null;
+  const DiagramContent = layerId ? LAYER_DIAGRAM_MDX[layerId] : null;
 
   useEffect(() => {
-    if (!content || !layer) return;
+    if (!layer) return;
     const fromStorage = sessionStorage.getItem(SCROLL_BACK_KEY);
     const hash = window.location.hash?.slice(1);
-    const scrollToId = (fromStorage?.startsWith("#") ? fromStorage.slice(1) : fromStorage) || (hash?.startsWith("doc-") ? hash : null);
+    const scrollToId =
+      (fromStorage?.startsWith("#") ? fromStorage.slice(1) : fromStorage) ||
+      (hash?.startsWith("doc-") ? hash : null);
 
     if (scrollToId?.startsWith("doc-")) {
       const POLL_MS = 80;
@@ -53,53 +66,31 @@ export function LayerDiagramPage() {
       );
       return () => clearTimeout(t);
     }
-  }, [content, layer, location.hash]);
+  }, [layer, location.hash]);
 
   useEffect(() => {
-    if (!layerId || !config) return;
-    setError(null);
-    if (!diagramContentCache[layerId]) setContent(null);
-    fetch(config.diagramUrl)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to load");
-        return res.text();
-      })
-      .then((text) => {
-        diagramContentCache[layerId] = text;
-        setContent(text);
-      })
-      .catch(() => {
-        setError("콘텐츠를 불러올 수 없습니다.");
-      });
-  }, [layerId, config]);
+    if (!diagramRef.current || !config || !DiagramContent) return;
+    const timer = setTimeout(() => {
+      injectDiagramLinks(
+        diagramRef.current!,
+        config.diagramLinks,
+        (path, scrollHash) => {
+          if (scrollHash) sessionStorage.setItem(SCROLL_BACK_KEY, scrollHash);
+          navigate(path);
+        }
+      );
+    }, DIAGRAM_LINKS_INJECT_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [config, DiagramContent, navigate]);
 
   if (!layerId || !layer) return null;
-  if (!config) {
+  if (!config || !DiagramContent) {
     return (
       <main className={MAIN_CLASS}>
         <p className="text-muted-foreground">다이어그램을 사용할 수 없습니다.</p>
         <Link to="/handbook" className="mt-4 inline-block text-primary hover:underline">
           ← 핸드북 목록
         </Link>
-      </main>
-    );
-  }
-
-  if (error) {
-    return (
-      <main className={MAIN_CLASS}>
-        <p className="text-muted-foreground">{error}</p>
-        <Link to="/handbook" className="mt-4 inline-block text-primary hover:underline">
-          ← 핸드북 목록
-        </Link>
-      </main>
-    );
-  }
-
-  if (content === null) {
-    return (
-      <main className={`${MAIN_CLASS} flex justify-center items-center min-h-[280px]`}>
-        <LoadingSpinner />
       </main>
     );
   }
@@ -118,16 +109,10 @@ export function LayerDiagramPage() {
           아래 다이어그램의 <strong className="font-semibold text-primary">각 박스를 클릭</strong>하면 해당 개념 문서로 이동합니다.
         </p>
       </div>
-      <div id="diagram" ref={diagramRef}>
-        <MarkdownViewer
-          content={content}
-          className="max-w-4xl"
-          diagramLinks={config.diagramLinks}
-          onDiagramLinkClick={(path, scrollHash) => {
-          if (scrollHash) sessionStorage.setItem(SCROLL_BACK_KEY, scrollHash);
-          navigate(path);
-        }}
-        />
+      <div id="diagram" ref={diagramRef} className="handbook-doc-content">
+        <div className="markdown-body">
+          <DiagramContent />
+        </div>
       </div>
     </main>
   );
