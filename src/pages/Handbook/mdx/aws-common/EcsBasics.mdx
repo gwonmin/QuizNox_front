@@ -1,0 +1,33 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="ECS(Elastic Container Service)는 Docker 컨테이너를 오케스트레이션하는 AWS 관리형 서비스입니다. 태스크 정의(이미지·CPU·메모리)·서비스(원하는 대수 유지)·클러스터로 컨테이너를 실행·확장합니다."
+  bullets={[
+    "클러스터: 태스크를 담는 논리 단위. 태스크 정의: 컨테이너 이미지·CPU·메모리·환경 변수 등 한 번에 실행할 단위. 서비스: 태스크 정의 기준으로 원하는 개수 유지, 로드 밸런서 연동.",
+    "실행: EC2 런타임(EC2 위에 ECS 에이전트) 또는 Fargate(서버리스, 인스턴스 관리 없음).",
+    "용도: 마이크로서비스·컨테이너 워크로드, CI/CD 연동 배포.",
+  ]}
+/>
+
+## 개념 도식
+
+<MermaidDiagram
+  code={`flowchart LR
+  TD[태스크 정의] --> SVC[서비스]
+  SVC --> CL[클러스터]
+  CL --> T1[태스크 1]
+  CL --> T2[태스크 N]`}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    ["ECS", "AWS 관리형 컨테이너 오케스트레이션"],
+    ["단위", "클러스터 → 서비스 → 태스크(컨테이너)"],
+    ["실행", "EC2 런타임 또는 Fargate(서버리스)"],
+  ]}
+/>

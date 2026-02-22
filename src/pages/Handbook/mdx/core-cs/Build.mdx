@@ -1,0 +1,40 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+
+<SectionSummary
+  lead="빌드는 소스 관리에서 가져온 코드를 컴파일·패키징·이미지화해 실행 가능한 산출물로 만드는 단계입니다. 환경 의존성·재현성을 고정하고, 동일 입력에 동일 결과를 내는 것이 목표다."
+  bullets={[
+    "컴파일(언어별), 의존성 설치(npm, pip, Maven), 패키징(JAR, wheel), 컨테이너 이미지 빌드(Dockerfile) 등이 빌드 단계에 포함된다.",
+    "빌드 캐시·레이어 재사용으로 시간을 줄이고, 빌드 실패 시 테스트 이전에 파이프라인이 중단된다.",
+    "산출물은 아티팩트로 보관되고, 배포 단계에서 사용된다.",
+    "DevSecOps에서는 빌드 후 의존성 스캔·시크릿 검출을 파이프라인에 넣어, 보안 스캔 통과 분만 아티팩트로 넘긴다.",
+  ]}
+/>
+
+## 빌드에서 하는 일
+
+<KeyTable
+  columns={["유형", "설명", "예시"]}
+  rows={[
+    ["컴파일", "소스 코드를 바이너리·바이트코드로 변환.", "gcc, javac, go build, tsc."],
+    ["의존성 설치", "패키지 매니저로 라이브러리·런타임을 설치.", "npm install, pip install, Maven dependency."],
+    ["패키징", "실행에 필요한 파일을 하나의 배포 단위로 묶음.", "JAR, WAR, wheel, npm pack."],
+    ["이미지 빌드", "컨테이너 이미지를 만듦. Dockerfile 기준 레이어 빌드.", "docker build, kaniko, Buildpacks."],
+  ]}
+/>
+
+## 재현성·환경 고정
+
+<KeyTable
+  columns={["항목", "의미", "권장"]}
+  rows={[
+    ["의존성 고정", "버전을 lock 파일·고정 버전으로 명시해 빌드 결과가 환경마다 달라지지 않게 한다.", "package-lock.json, requirements.txt, go.sum 등 사용."],
+    ["환경 일치", "CI 환경과 로컬·프로덕션의 런타임·도구 버전을 맞춘다.", "Docker 기반 빌드, 동일 베이스 이미지 사용."],
+    ["캐시 활용", "의존성·레이어를 캐시해 재빌드 시간을 줄인다.", "Docker 레이어 캐시, npm/pip 캐시 디렉터리 재사용."],
+  ]}
+/>
+
+## 빌드 실패와 파이프라인
+
+- 빌드가 실패하면 **테스트·배포 단계로 진행하지 않는다.** 실패 시 알림·로그로 원인을 빠르게 파악하고, 수정 후 다시 푸시하면 파이프라인이 재실행된다.
+- 빌드만 통과하고 테스트가 실패한 경우에도 배포는 하지 않는 것이 일반적이다.

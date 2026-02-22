@@ -1,0 +1,47 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+
+<SectionSummary
+  lead="API Gateway의 두 가지 API 유형입니다. REST API는 기능·캐싱이 풍부하고, HTTP API는 비용·지연이 낮고 JWT·CORS에 유리합니다."
+  bullets={[
+    "REST API: 리소스·메서드 기반, API 키·IAM·Lambda Authorizer·Cognito Authorizer 지원. 캐싱, Mock 통합, 스테이지 변수, Canary 배포 지원",
+    "HTTP API: HTTP 기반 간소화. JWT Authorizer(Cognito 등), CORS 설정 용이. 비용·지연이 REST보다 낮음",
+    "공통: Lambda 동기/비동기 연동, VPC 내 백엔드, 사용량 기반 과금",
+  ]}
+/>
+
+## 시나리오
+
+<KeyTable
+  columns={["조건", "선택"]}
+  rows={[
+    ["기존 Cognito·Lambda Authorizer·캐싱·Mock", "REST API"],
+    ["비용·지연 최소화·JWT만 필요", "HTTP API"],
+    ["백엔드 없이 프론트엔드 팀에 엔드포인트 제공", "Mock 통합: integration request/response에서 HTTP 상태·JSON 지정"],
+    ["dev/prod 분리·소수 사용자만 새 버전 테스트", "스테이지 분리 또는 Canary 배포로 트래픽 비율 지정"],
+    ["새 API 키 생성 후 403", "createUsagePlanKey로 API 키를 Usage Plan에 연결"],
+  ]}
+/>
+
+## 기출빈출
+
+<KeyTable
+  columns={["시나리오", "접근"]}
+  rows={[
+    ["백엔드 없이 프론트엔드 팀에 엔드포인트 제공", "Mock 통합: integration request/response에서 HTTP 상태·JSON 지정."],
+    ["새 API 버전 테스트·기존 고객 무영향", "새 스테이지 배포 또는 Canary 배포로 트래픽 비율 지정."],
+    ["비용·지연 최소화·JWT만 필요", "HTTP API 사용."],
+    ["캐싱·API 키·Cognito Authorizer 필요", "REST API 사용."],
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["구분", "REST API", "HTTP API"]}
+  rows={[
+    ["비용·지연", "상대적으로 높음", "낮음"],
+    ["인증", "API 키, IAM, Lambda, Cognito", "JWT, OIDC, OAuth2"],
+    ["캐싱·Mock·Canary", "지원", "제한적"],
+  ]}
+/>

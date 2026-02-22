@@ -1,0 +1,45 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+
+<SectionSummary
+  lead="S3는 객체 스토리지 서비스로, 일관성·스토리지 클래스·버전·수명 주기·암호화·복제 등으로 비용·내구성·보안을 설정합니다."
+  bullets={[
+    "Strong Read-After-Write: PUT·덮어쓰기·삭제 직후 같은 키로 GET 시 최신 결과 보장.",
+    "스토리지 클래스: Standard(자주 접근), Intelligent-Tiering(패턴 변동), Standard-IA·Glacier(덜 접근·아카이브).",
+    "Versioning·Lifecycle·SSE(암호화)·CRR/SRR(복제)로 운영·비용·보안을 관리.",
+  ]}
+/>
+
+## 스토리지 클래스
+
+<KeyTable
+  columns={["클래스", "용도", "비용·특성"]}
+  rows={[
+    ["Standard", "자주 접근", "기본 가격"],
+    ["Intelligent-Tiering", "접근 패턴 변동", "자동 티어 이동"],
+    ["Standard-IA", "가끔 접근", "검색 비용 있음"],
+    ["Glacier 계열", "아카이브", "복구 시간·저장 비용 낮음"],
+  ]}
+/>
+
+## Versioning · Lifecycle · 복제
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    ["Versioning", "덮어쓰기·삭제해도 이전 버전 ID로 조회·복구 가능"],
+    ["Lifecycle Transition", "N일 후 스토리지 클래스 자동 전환"],
+    ["Lifecycle Expiration", "N일 후 객체·이전 버전 삭제"],
+    ["CRR / SRR", "다른 리전(DR)·같은 리전(로그 등) 복제, 버전링 필요"],
+  ]}
+/>
+
+## SSE (서버 측 암호화)
+
+<KeyTable
+  columns={["구분", "SSE-S3", "SSE-KMS"]}
+  rows={[
+    ["키 관리", "S3", "KMS"],
+    ["감사·제어", "제한적", "상세(CloudTrail 등)"],
+  ]}
+/>

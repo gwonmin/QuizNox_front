@@ -1,0 +1,48 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+
+<SectionSummary
+  lead="정적 웹 사이트를 S3 버킷에 호스팅하는 방식입니다. HTML, CSS, JS, 이미지 등 정적 파일만 서빙하며, 동적 처리는 Lambda·API 등과 조합합니다."
+  bullets={[
+    "설정: 버킷을 정적 웹 사이트 호스팅으로 설정, 인덱스·에러 문서 지정",
+    "접근: 퍼블릭 읽기 또는 CloudFront(OAC)로만 접근하도록 제한 권장",
+    "제한: 정적 파일만. 서버 사이드 로직은 Lambda@Edge·Lambda·API Gateway 등과 조합",
+  ]}
+/>
+
+## 시나리오
+
+<KeyTable
+  columns={["조건", "선택"]}
+  rows={[
+    ["정적 웹만·최소 비용", "S3 정적 호스팅"],
+    ["전역 지연 감소·HTTPS", "S3 + CloudFront"],
+    ["동적 API·인증 필요", "S3 + CloudFront + Lambda/API Gateway"],
+    ["전역에서 한 버킷으로 대량 업로드·최소 운영", "S3 Transfer Acceleration + 멀티파트 업로드"],
+    ["EC2가 인터넷 없이 S3 접근", "Gateway VPC Endpoint(S3)"],
+    ["실수 삭제 방지", "S3 버전 관리 + MFA Delete"],
+  ]}
+/>
+
+## 기출빈출
+
+<KeyTable
+  columns={["시나리오", "접근"]}
+  rows={[
+    ["전역에서 한 버킷으로 대량 업로드", "S3 Transfer Acceleration + 멀티파트 업로드."],
+    ["실수 삭제 방지·규정 대응", "버전 관리 + MFA Delete."],
+    ["프라이빗 서브넷 EC2의 S3 접근·NAT 제거", "VPC Gateway Endpoint(S3)."],
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    ["S3 정적 호스팅", "버킷에 정적 파일 올려 웹으로 서빙"],
+    ["Transfer Acceleration", "전역 업로드 가속; 전역 집계·최소 운영 시 고려"],
+    ["VPC Endpoint", "프라이빗 S3 접근·NAT 비용 제거"],
+    ["조건", "정적 웹, 저비용 → S3 정적 호스팅 / 전역 업로드 → Transfer Acceleration"],
+  ]}
+/>

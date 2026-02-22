@@ -1,0 +1,48 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+
+<SectionSummary
+  lead="동시에 실행되는 인스턴스 수를 제어하는 개념입니다. 예약 동시성·프로비저닝 동시성으로 트래픽 격리·콜드 스타트 완화·다운스트림 보호가 가능합니다."
+  bullets={[
+    "동시 실행: 요청마다 인스턴스 할당, 계정 기본 한도와 함수별 예약 동시성(Reserved Concurrency)으로 제한",
+    "예약 동시성: 해당 함수가 쓸 수 있는 동시 실행 상한. 다른 함수와 격리·다운스트림(DB·서드파티 API) 보호",
+    "프로비저닝 동시성: 미리 워밍된 인스턴스 유지 → Cold Start 감소",
+    "SQS 이벤트 소스: 이벤트 소스별 최대 동시성으로 rate limit에 맞춰 호출 수 제한",
+  ]}
+/>
+
+## 시나리오
+
+<KeyTable
+  columns={["조건", "선택"]}
+  rows={[
+    ["서드파티 API 호출 수 제한 준수", "예약 동시성 또는 SQS 이벤트 소스 최대 동시성"],
+    ["Cold Start 제거·예측 가능 지연", "프로비저닝 동시성 설정"],
+    ["특정 함수만 격리·상한 두기", "해당 함수에 예약 동시성 설정"],
+    ["함수 비활성화", "예약 동시성 0"],
+    ["스로틀(Throttled) 증가 시", "예약 동시성 상향 또는 서비스 할당량 증가 요청"],
+  ]}
+/>
+
+## 기출빈출
+
+<KeyTable
+  columns={["시나리오", "접근"]}
+  rows={[
+    ["RDS too many connections", "RDS Proxy로 연결 풀링; Lambda는 Proxy 경유로 접속."],
+    ["Lambda 스로틀·실패", "예약 동시성 상향 또는 DLQ로 실패 이벤트 수집·재처리."],
+    ["서드파티 API rate limit 준수", "SQS 이벤트 소스 최대 동시성 또는 함수 예약 동시성으로 호출 수 제한."],
+    ["Lambda 스로틀 완화(운영 효율)", "예약 동시성 증가 또는 서비스 할당량 증가 요청."],
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    ["동시 실행", "요청당 인스턴스 할당, 계정·함수별 한도 존재"],
+    ["예약 동시성", "함수별 상한·격리·다운스트림 보호"],
+    ["프로비저닝 동시성", "워밍 유지 → Cold Start·지연 완화"],
+  ]}
+/>

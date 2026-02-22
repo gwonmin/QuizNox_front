@@ -1,0 +1,37 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="CloudWatch Metrics / Logs는 AWS 리소스와 애플리케이션의 지표(Metrics)와 로그(Logs)를 수집·저장·조회하는 서비스입니다. 알람·대시보드·검색의 기반이 됩니다."
+  bullets={[
+    "Metrics: 숫자 지표 시계열(CPU, 디스크, 커스텀 지표). 네임스페이스·차원으로 구분, 알람·대시보드에 사용.",
+    "Logs: 로그 이벤트 수집·저장·검색. 로그 그룹·스트림 단위, 만료 정책·메트릭 필터 설정 가능.",
+    "둘 다 리소스·앱에서 발생한 데이터를 한 곳에서 모아 알람·대시보드·검색에 활용.",
+  ]}
+/>
+
+## Metrics vs Logs
+
+<KeyTable
+  columns={["구분", "Metrics", "Logs"]}
+  rows={[
+    ["형태", "수치 시계열", "로그 이벤트"],
+    ["용도", "알람·대시보드", "검색·분석·보관"],
+  ]}
+/>
+
+## 개념 도식
+
+<MermaidDiagram
+  code={`flowchart LR
+  subgraph m [Metrics]
+    R[리소스] --> NUM[수치 시계열]
+    NUM --> ALARM[알람]
+    NUM --> DASH[대시보드]
+  end
+  subgraph l [Logs]
+    R --> EVT[로그 이벤트]
+    EVT --> SEARCH[검색 및 분석]
+  end`}
+/>

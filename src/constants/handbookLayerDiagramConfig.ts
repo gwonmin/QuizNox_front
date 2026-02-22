@@ -1,6 +1,6 @@
 /**
  * 레이어별 진입 다이어그램 URL 및 노드→문서 경로 맵.
- * Core CS는 real-system-diagrams, 그 외는 overview.md 사용.
+ * Systems Fundamentals(core-cs)는 real-system-diagrams, 그 외는 overview.md 사용.
  */
 import { REAL_SYSTEM_DIAGRAM_LINKS } from "./handbookDiagramLinks";
 

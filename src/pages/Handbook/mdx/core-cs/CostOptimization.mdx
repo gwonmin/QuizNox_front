@@ -1,0 +1,22 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+
+<SectionSummary
+  lead="비용 최적화는 비용 발생(컴퓨트·스토리지·트래픽)을 가시화한 뒤, 구매 옵션·리소스 크기·수명 주기·미사용 자원 정리 등을 통해 불필요한 비용을 줄이는 활동입니다. FinOps는 비용을 운영·설계 결정에 포함시키는 관점입니다."
+  bullets={[
+    "컴퓨트: 예약·스팟 활용, 적정 사이징, 오토 스케일.",
+    "스토리지: 저장 클래스·수명 주기, 미사용 데이터·스냅샷 정리.",
+    "트래픽: 같은 리전 통신, 캐시·CDN, 불필요한 전송 최소화.",
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["영역", "최적화 포인트"]}
+  rows={[
+    ["컴퓨트", "예약·스팟, 적정 사이징, 오토 스케일"],
+    ["스토리지", "클래스·수명 주기, 미사용 정리"],
+    ["트래픽", "리전 내 통신, 캐시·CDN"],
+  ]}
+/>

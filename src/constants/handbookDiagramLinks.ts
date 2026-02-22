@@ -113,7 +113,9 @@ export const REAL_SYSTEM_DIAGRAM_LINKS: Record<string, string> = {
   "SLI / SLO 개념": "/handbook/core-cs/sli-slo",
   Alarm: "/handbook/core-cs/sli-slo",
   "알람": "/handbook/core-cs/sli-slo",
-  "백업": "/handbook/core-cs/rto-rpo",
+  "백업": "/handbook/core-cs/backup",
+  복제: "/handbook/core-cs/replication",
+  "DR 전략": "/handbook/core-cs/dr-strategy",
 
   // ---- 6. Containers & Orchestration (구체적 노드 우선: 이미지/런타임이 Container·컨테이너보다 먼저 매칭되도록) ----
   "컨테이너 이미지": "/handbook/core-cs/container-image",
@@ -122,6 +124,27 @@ export const REAL_SYSTEM_DIAGRAM_LINKS: Record<string, string> = {
   "이미지 레지스트리": "/handbook/core-cs/container-registry",
   "서비스 엔드포인트": "/handbook/core-cs/container-service-endpoint",
   "Service Endpoint": "/handbook/core-cs/container-service-endpoint",
-  오케스트레이터: "/handbook/core-cs/container-runtime",
-  "Container Orchestration": "/handbook/core-cs/container-runtime",
+  오케스트레이터: "/handbook/core-cs/container-orchestration",
+  "Container Orchestration": "/handbook/core-cs/container-orchestration",
+
+  // ---- 7. CI/CD ----
+  "소스 관리": "/handbook/core-cs/source-control",
+  빌드: "/handbook/core-cs/build",
+  테스트: "/handbook/core-cs/test",
+  "보안 스캔": "/handbook/core-cs/devsecops",
+  아티팩트: "/handbook/core-cs/artifact",
+  "배포 자동화": "/handbook/core-cs/deploy",
+  GitOps: "/handbook/core-cs/gitops",
+  배포: "/handbook/core-cs/deploy",
+
+  // ---- 8. Cost & FinOps ----
+  "컴퓨트 비용": "/handbook/core-cs/cost-compute",
+  "스토리지 비용": "/handbook/core-cs/cost-storage",
+  "트래픽 비용": "/handbook/core-cs/cost-traffic",
+  온디맨드: "/handbook/core-cs/cost-on-demand",
+  예약: "/handbook/core-cs/cost-reserved",
+  스팟: "/handbook/core-cs/cost-spot",
+  "Cost Explorer": "/handbook/core-cs/cost-visibility",
+  Budgets: "/handbook/core-cs/cost-budgets",
+  "비용 최적화": "/handbook/core-cs/cost-optimization",
 };

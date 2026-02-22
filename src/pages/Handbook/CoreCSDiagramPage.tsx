@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { DiagramLinksContext } from "../../contexts/DiagramLinksContext";
 import { REAL_SYSTEM_DIAGRAM_LINKS } from "../../constants/handbookDiagramLinks";
-import RealSystemDiagramsMdx from "./mdx/RealSystemDiagrams.mdx";
+import RealSystemDiagramsMdx from "./mdx/core-cs/RealSystemDiagrams.mdx";
 import "github-markdown-css/github-markdown.css";
 import "../../styles/markdown-theme.css";
 
@@ -65,7 +65,7 @@ export function CoreCSDiagramPage() {
         >
           ← 핸드북 목록
         </Link>
-        <h1 className="text-xl font-bold mt-2 text-foreground">1. Core CS</h1>
+        <h1 className="text-xl font-bold mt-2 text-foreground">1. Systems Fundamentals</h1>
         <p className="text-sm text-muted-foreground mt-1">
           아래 다이어그램의 <strong className="font-semibold text-primary">각 박스(IP, DNS, RDB 등)를 클릭</strong>하면 해당 개념 문서로 이동합니다.
         </p>

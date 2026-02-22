@@ -1,0 +1,21 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+
+<SectionSummary
+  lead="스토리지 비용은 저장 용량(GB)·요청 수(GET/PUT)·데이터 전송 등에 따라 발생합니다. 저장 유형(블록·파일·객체)·접근 빈도·보관 기간에 따라 단가가 달라지므로, 수명 주기·클래스 전환·미사용 데이터 정리로 비용을 최적화합니다."
+  bullets={[
+    "과금 요소: 저장 용량, 요청 수, 아웃바운드 전송 등.",
+    "저장 클래스·수명 주기: 자주 접근하는 데이터는 고성능, 드물게 접근하는 데이터는 저비용 티어로 전환.",
+    "미사용 볼륨·스냅샷·오래된 로그 정리로 불필요한 비용을 줄인다.",
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    ["발생 요인", "저장 용량, 요청 수, 전송량"],
+    ["관리 포인트", "저장 클래스·수명 주기, 미사용 데이터 정리"],
+  ]}
+/>

@@ -1,0 +1,35 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="CloudTrail은 누가 어떤 API를 호출했는지 이벤트 로그를, Config는 리소스 설정이 어떻게 바뀌었는지 스냅샷·변경 이력을 담당하는 AWS 서비스입니다."
+  bullets={[
+    "CloudTrail: 누가, 언제, 어떤 API를 호출했는지 이벤트 로그. 감사·규정 준수·보안 분석. 리전·글로벌 서비스 트레일 지원.",
+    "Config: 리소스 설정 스냅샷·변경 이력. 리소스가 어떻게 바뀌었는지, 규칙 기반 평가(Compliance). 원하는 리소스 타입만 기록 가능.",
+  ]}
+/>
+
+## CloudTrail vs Config
+
+<KeyTable
+  columns={["구분", "CloudTrail", "Config"]}
+  rows={[
+    ["기록 대상", "API 호출 이벤트", "리소스 설정·변경"],
+    ["질문", "무슨 API가 호출됐나?", "리소스가 어떻게 바뀌었나?"],
+  ]}
+/>
+
+## 개념 도식
+
+<MermaidDiagram
+  code={`flowchart LR
+  subgraph ct [CloudTrail]
+    API[API 호출] --> EVT[이벤트 로그]
+    EVT --> Q1[누가 언제 어떤 API]
+  end
+  subgraph cfg [Config]
+    RES[리소스] --> SNAP[스냅샷 및 변경 이력]
+    SNAP --> Q2[설정이 어떻게 바뀌었나]
+  end`}
+/>

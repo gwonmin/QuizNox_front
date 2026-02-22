@@ -1,0 +1,45 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+
+<SectionSummary
+  lead="데이터 백업 기반 복구 패턴입니다. 정기 스냅샷·백업으로 RPO를 확보하고, 복구 시 백업에서 복원하므로 RTO는 상대적으로 깁니다."
+  bullets={[
+    "구성: 정기 스냅샷·백업(RDS, EBS, S3 등)으로 RPO 확보",
+    "복구: 장애 시 백업에서 복원하므로 RTO는 김",
+    "비용: 상시 대기 리소스 없어 DR 패턴 중 비용 가장 낮음",
+  ]}
+/>
+
+## 시나리오
+
+<KeyTable
+  columns={["조건", "선택"]}
+  rows={[
+    ["RPO 허용·RTO 길어도 됨·비용 최소", "Backup"],
+    ["RTO 줄이되 비용은 낮게", "Pilot Light"],
+    ["RTO 더 줄이고 대기 환경 상시", "Warm Standby"],
+    ["최소 RTO·RPO·고가용성", "Active-Active"],
+    ["DynamoDB 등 장기 보존·스케줄·보존 기간 정책", "AWS Backup으로 스케줄·리텐션 설정"],
+  ]}
+/>
+
+## 기출빈출
+
+<KeyTable
+  columns={["시나리오", "접근"]}
+  rows={[
+    ["비용 최소·RTO 길어도 됨", "Backup(스냅샷·백업 후 복원)."],
+    ["장기 보존·스케줄·보존 기간", "AWS Backup으로 스케줄·리텐션."],
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    ["Backup", "백업 보관 후 복원, 가장 단순한 DR"],
+    ["RTO", "상대적으로 큼"],
+    ["조건", "비용 최소, RTO 길어도 됨 → Backup"],
+  ]}
+/>

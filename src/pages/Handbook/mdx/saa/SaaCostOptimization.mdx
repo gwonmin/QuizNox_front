@@ -1,0 +1,50 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+
+<SectionSummary
+  lead="최저 비용 요구 시 인스턴스 타입·구매 옵션·스토리지 수명 주기를 조합해 비용을 줄이는 설계입니다. Reserved Instance·Spot·적정 사이징·스토리지 클래스·라이프사이클을 시나리오에 맞게 선택합니다."
+  bullets={[
+    "컴퓨트: RI·Savings Plans(안정 워크로드), Spot(중단 가능·배치), 적정 사이징",
+    "스토리지: S3 라이프사이클·클래스(Standard→IA→Glacier), S3 Intelligent-Tiering(접근 패턴 예측 어려울 때), EBS 적정 타입",
+    "네트워크: VPC Gateway Endpoint(S3)로 NAT 비용·데이터 전송 절감",
+  ]}
+/>
+
+## 시나리오
+
+<KeyTable
+  columns={["조건", "선택"]}
+  rows={[
+    ["안정·예측 가능 워크로드", "Reserved Instance 또는 Savings Plans"],
+    ["중단 가능·배치", "Spot"],
+    ["최저 비용 + 스토리지", "S3 라이프사이클·스토리지 클래스"],
+    ["접근 패턴 예측 어려움 + AZ 복원력", "S3 Intelligent-Tiering"],
+    ["장기 보관·거의 미접근", "S3 Lifecycle → Glacier(Deep Archive)"],
+    ["프라이빗 EC2의 S3 접근 비용 절감", "VPC Gateway Endpoint(S3)"],
+  ]}
+/>
+
+## 기출빈출
+
+<KeyTable
+  columns={["시나리오", "접근"]}
+  rows={[
+    ["안정 워크로드·비용 절감", "Reserved Instance·Savings Plans."],
+    ["중단 가능·배치", "Spot."],
+    ["접근 패턴 예측 어려움 + AZ 복원력", "S3 Intelligent-Tiering."],
+    ["장기 보존·거의 미접근", "S3 Lifecycle → Glacier(Deep Archive)."],
+    ["프라이빗 EC2의 S3 접근 비용 절감", "VPC Gateway Endpoint(S3)."],
+    ["비용 원인 분석", "Cost Explorer 세부 필터."],
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["영역", "비용 최적화 수단"]}
+  rows={[
+    ["컴퓨트", "RI, Savings Plans, Spot, 적정 사이징"],
+    ["스토리지", "S3 라이프사이클·클래스, EBS 타입·정리"],
+    ["조건", "최저 비용 → RI·Spot·라이프사이클 조합"],
+  ]}
+/>

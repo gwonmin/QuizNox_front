@@ -1,0 +1,42 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+
+<SectionSummary
+  lead="여러 리전이 동시에 트래픽을 처리하는 패턴입니다. 두 개 이상 리전이 동시에 서비스하고, Route 53 등으로 분산하며, 한 리전 장애 시 나머지로 트래픽 전환합니다."
+  bullets={[
+    "구성: 두 개 이상 리전이 동시에 서비스, 라우팅(예: Route 53)으로 분산",
+    "장애 대응: 한 리전 장애 시 나머지로 트래픽 전환",
+    "비용·복잡도: RTO·RPO 최소이지만 비용·설계 복잡도 가장 큼",
+  ]}
+/>
+
+## 시나리오
+
+<KeyTable
+  columns={["조건", "선택"]}
+  rows={[
+    ["RTO·RPO 최소·고가용성·글로벌 분산", "Active-Active"],
+    ["RTO 단축하되 비용 제한", "Warm Standby·Pilot Light"],
+    ["비용 최소·RTO 길어도 됨", "Backup"],
+  ]}
+/>
+
+## 기출빈출
+
+<KeyTable
+  columns={["시나리오", "접근"]}
+  rows={[
+    ["최소 RTO·RPO·글로벌 HA", "Active-Active: 다중 리전 동시 서비스, Route 53 등으로 분산."],
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    ["Active-Active", "다중 리전 동시 서비스, 최고 가용성"],
+    ["트레이드오프", "비용·설계 복잡도 큼"],
+    ["조건", "최소 RTO·RPO, 글로벌 HA → Active-Active"],
+  ]}
+/>

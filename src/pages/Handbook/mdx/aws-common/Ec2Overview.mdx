@@ -1,0 +1,34 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="EC2는 가상 서버를 프로비저닝하고 AMI로 템플릿부터 띄우는 AWS 컴퓨트 서비스입니다. 인스턴스 타입(vCPU·메모리)·상태(running, stopped 등)를 이해하면 비용·운영에 도움이 됩니다."
+  bullets={[
+    "인스턴스 타입: 패밀리(범용 t·m, 컴퓨트 c, 메모리 r 등)·vCPU·메모리·네트워크 성능이 타입별로 정해짐.",
+    "상태: running(과금), stopped(EBS만 과금), terminated, pending(부팅 중).",
+    "AMI: OS·소프트웨어가 포함된 이미지. 인스턴스에서 이미지 생성 후 다른 인스턴스·리전에서 재사용.",
+  ]}
+/>
+
+## 인스턴스 상태 · AMI
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    ["EC2", "가상 서버(인스턴스) 프로비저닝"],
+    ["타입", "vCPU·메모리·용도별 패밀리 선택"],
+    ["AMI", "인스턴스 템플릿(OS·앱 포함)"],
+    ["상태", "running(과금), stopped, terminated"],
+  ]}
+/>
+
+## 개념 도식
+
+<MermaidDiagram
+  code={`flowchart LR
+  AMI[AMI] --> EC2[인스턴스]
+  EC2 --> RUNNING[running]
+  EC2 --> STOPPED[stopped]
+  EC2 --> TERM[terminated]`}
+/>

@@ -1,0 +1,75 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+
+<SectionSummary
+  lead="배포는 아티팩트를 스테이징·프로덕션 등 목표 환경에 반영하는 단계입니다. CI 파이프라인에서 아티팩트를 받아 kubectl·API·배포 도구로 환경에 넣는 것이 배포 자동화의 기본 형태다."
+  bullets={[
+    "롤링·블루/그린·카나리·재배치 등 전략으로 다운타임과 위험을 줄이고, 환경별 분리·배포 순서·트리거를 정한다.",
+    "롤백은 헬스체크·에러율 임계치에 따른 자동 복구와, 이전 버전 재배포·트래픽 전환 같은 수동 복구로 나눌 수 있다.",
+    "배포 직후 헬스체크와 모니터링으로 정상 여부를 확인하고, Observability·SLI/SLO와 맞춘다.",
+  ]}
+/>
+
+## 배포 전략
+
+<KeyTable
+  columns={["전략", "설명", "장단점", "설정 요점"]}
+  rows={[
+    ["롤링(Rolling)", "기존 인스턴스를 하나씩 새 버전으로 교체하며 트래픽 유지.", "다운타임 없음. 구/신 버전이 잠시 공존할 수 있음.", "동시 교체 개수(maxSurge, maxUnavailable). 헬스체크 통과 후 다음 교체. K8s Deployment strategy. 한 번에 1개씩 조정 시 위험 감소."],
+    ["블루/그린(Blue/Green)", "새 환경(그린) 준비 후 트래픽을 한 번에 그린으로 전환.", "전환·롤백이 명확. 리소스 2배.", "블루·그린 두 세트 유지. LB·Service selector가 한쪽만 가리키게 하고 그린 준비 후 전환. 전환 후 블루 유지(롤백용) 여부·리소스 비용 고려."],
+    ["카나리(Canary)", "일부 트래픽만 새 버전으로 보내 검증한 뒤 비율을 점진적으로 높임.", "위험을 줄이면서 검증 가능. 비율·모니터링 정책 필요.", "트래픽 가중치로 구/신 비율 분배. LB 가중치, Istio·Argo Rollouts canary. 10%→50%→100% 단계와 대기·자동 롤백 조건 정의."],
+    ["재배치(Recreate)", "기존 버전을 모두 내린 뒤 새 버전을 올림.", "구조 단순. 배포 구간 다운타임 가능.", "기존 전부 종료 후 신 버전 기동. K8s Recreate strategy. 다운타임 허용 시에만 사용."],
+  ]}
+/>
+
+## 파이프라인 연동
+
+<KeyTable
+  columns={["요소", "역할", "예시"]}
+  rows={[
+    ["배포 단계", "테스트·보안 스캔 통과 후 실행. 아티팩트(이미지 태그·URI)를 입력으로 받아 대상 환경에 반영.", "GitHub Actions deploy job, GitLab CI deploy stage, Jenkins pipeline."],
+    ["트리거", "배포를 실행할 이벤트를 환경별로 정의.", "main 머지 시 스테이징 자동 배포, 태그 푸시 또는 수동 승인 후 프로덕션."],
+    ["인증·접근", "클러스터·API·호스트 접근에 필요한 자격 증명을 파이프라인에서 안전하게 사용.", "kubeconfig(시크릿), OIDC·AssumeRole, 배포 전용 서비스 계정."],
+  ]}
+/>
+
+## 도구·플랫폼별 구현
+
+<KeyTable
+  columns={["대상", "도구·방식", "전략 반영"]}
+  rows={[
+    ["Kubernetes", "kubectl apply, Helm upgrade, Kustomize. Deployment strategy(RollingUpdate/Recreate), maxSurge·maxUnavailable로 롤링 제어.", "롤링: Deployment 기본. 블루/그린·카나리: Service selector 전환 또는 Argo Rollouts."],
+    ["ECS", "ECS 서비스 배포 타입(롤링, 블루/그린, 카나리). CodeDeploy 연동으로 트래픽 전환·롤백 자동화.", "ALB 타깃 그룹 전환, min/max healthy 등 배포 구성."],
+    ["서버·Lambda", "CodeDeploy(in-place/블루그린), Lambda alias·가중치(카나리), Ansible 등 스크립트.", "트래픽 전환 시점·헬스체크 실패 시 자동 롤백 설정."],
+  ]}
+/>
+
+## 환경
+
+<KeyTable
+  columns={["항목", "의미", "권장"]}
+  rows={[
+    ["환경 분리", "스테이징·프로덕션 등 목적별로 환경을 나누고, 설정·시크릿을 환경마다 분리.", "동일 아티팩트에 환경별로 변수·시크릿만 다르게 주입해 재현성을 유지."],
+    ["배포 순서", "스테이징 검증 후 프로덕션 반영 등, 환경 간 순서와 승인 정책을 정함.", "수동 승인, 자동 승인, 태그 푸시, 브랜치 머지 등 트리거를 환경별로 정의."],
+  ]}
+/>
+
+## 롤백
+
+<KeyTable
+  columns={["구분", "의미", "예시"]}
+  rows={[
+    ["자동 롤백", "헬스체크·프로브 실패·에러율 임계치 초과 시 이전 버전으로 자동 복구.", "Readiness 실패 시 새 Pod 트래픽 제외, 롤링 중 실패 시 이전 리비전 유지."],
+    ["수동 롤백", "문제 감지 시 이전 아티팩트 버전을 재배포하거나 트래픽만 이전 환경으로 되돌림.", "이전 이미지 태그로 재배포, 블루/그린에서 트래픽을 블루로 전환."],
+  ]}
+/>
+
+## 배포 후 검증
+
+<KeyTable
+  columns={["항목", "의미", "실패 시"]}
+  rows={[
+    ["헬스체크", "Readiness Probe, LB 타깃 헬스로 트래픽 수신 준비 여부 확인.", "해당 인스턴스 제외 또는 정책에 따라 자동 롤백."],
+    ["모니터링 연동", "Observability·SLI/SLO로 배포 후 이상 감지.", "임계치 초과 시 알림·자동 롤백 실행."],
+  ]}
+/>

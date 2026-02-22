@@ -1,0 +1,37 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="RDS(Relational Database Service)는 관리형 관계형 DB 서비스입니다. 엔진(MySQL, PostgreSQL, MariaDB, Oracle, SQL Server)·사이즈를 선택하면 패치·백업·Multi-AZ 등 운영을 AWS가 맡아 줍니다."
+  bullets={[
+    "엔진: MySQL, PostgreSQL, MariaDB, Oracle, SQL Server. 인스턴스·EBS로 용량·성능 설정.",
+    "Multi-AZ: 대기 인스턴스를 다른 AZ에 두어 장애 시 자동 페일오버.",
+    "Read Replica: 읽기 부하 분산용 복제본(비동기). OLTP·웹 앱 DB를 관리형으로 운영.",
+  ]}
+/>
+
+## 개념 도식
+
+<MermaidDiagram
+  code={`flowchart LR
+  subgraph multiaz [Multi-AZ]
+    P[Primary] --> S["Standby 다른 AZ"]
+  end
+  subgraph repl [Read Replica]
+    P --> R["Read Replica"]
+    R --> APP[앱]
+  end`}
+/>
+
+## 엔진 · 요약
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    ["엔진", "MySQL, PostgreSQL, MariaDB, Oracle, SQL Server"],
+    ["RDS", "관리형 관계형 DB"],
+    ["Multi-AZ", "다른 AZ 대기 인스턴스, 장애 시 페일오버"],
+    ["Read Replica", "읽기 전용 복제본, 부하 분산"],
+  ]}
+/>

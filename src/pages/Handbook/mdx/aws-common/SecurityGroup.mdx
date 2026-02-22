@@ -1,0 +1,34 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="Security Group(SG)은 허용 규칙만 지정하면 해당 방향의 응답 트래픽은 자동 허용되는 인스턴스·ENI 단위 방화벽입니다. AWS에서 EC2 등에 붙이는 상태 유지(Stateful) 보안 단위입니다."
+  bullets={[
+    "Allow 규칙만 지정(거부 규칙 없음, 명시하지 않으면 거부).",
+    "Stateful: 아웃바운드 허용 시 해당 응답 트래픽은 자동 허용.",
+    "ENI(인스턴스)에 연결, 서브넷이 아닌 인스턴스 단위. NACL과 달리 Deny 규칙 없음.",
+  ]}
+/>
+
+## 특징·동작
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    ["단위", "ENI(인스턴스) 단위"],
+    ["규칙", "Allow만, 거부 규칙 없음(명시 안 하면 거부)"],
+    ["상태", "Stateful, 응답 트래픽 자동 허용"],
+    ["NACL과 차이", "NACL은 서브넷·Stateless·Deny 규칙 있음"],
+  ]}
+/>
+
+## 개념 도식
+
+<MermaidDiagram
+  code={`flowchart LR
+  EC2([EC2]) --> |아웃바운드 허용 규칙| OUT[요청 나감]
+  OUT --> EXT[외부]
+  EXT --> |응답| IN[응답 들어옴]
+  IN --> EC2`}
+/>

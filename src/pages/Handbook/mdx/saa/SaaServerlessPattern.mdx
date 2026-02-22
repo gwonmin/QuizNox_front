@@ -1,0 +1,47 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+
+<SectionSummary
+  lead="Lambda·API Gateway·S3·DynamoDB 등 관리형 서비스 조합으로 서버 프로비저닝 없이 동작하는 아키텍처입니다. 최소 운영 노력, 자동 확장, 사용한 만큼 과금 요구에 적합합니다."
+  bullets={[
+    "API 백엔드: API Gateway + Lambda (REST·HTTP API)",
+    "정적·동적 웹: S3 정적 호스팅 + CloudFront + Lambda(동적 처리)",
+    "순서 보장·주문 처리: API Gateway → SQS FIFO → Lambda",
+    "대용량 수집·변환: Kinesis Data Streams/Firehose + Lambda",
+  ]}
+/>
+
+## 시나리오
+
+<KeyTable
+  columns={["조건", "선택"]}
+  rows={[
+    ["최소 운영·API 백엔드", "API Gateway + Lambda"],
+    ["정적+동적 웹", "S3 + CloudFront + Lambda"],
+    ["순서 보장·주문 처리", "API Gateway → SQS FIFO → Lambda"],
+    ["대용량 수집·변환·저장", "Kinesis Data Streams/Firehose + Lambda"],
+    ["파일 변환·내구성", "S3 이벤트 → SQS → Lambda"],
+  ]}
+/>
+
+## 기출빈출
+
+<KeyTable
+  columns={["시나리오", "접근"]}
+  rows={[
+    ["최소 운영·자동 확장", "Lambda·API Gateway·관리형 서비스."],
+    ["순서 보장 필요", "SQS FIFO → Lambda."],
+    ["이벤트 기반·내구성", "S3 이벤트 → SQS → Lambda (SQS로 재시도)."],
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    ["서버리스", "Lambda·API Gateway·S3·DynamoDB·SQS·SNS 조합"],
+    ["장점", "최소 운영, 자동 확장, 사용량 과금"],
+    ["조건", "최소 운영, 서버리스 → Lambda·API Gateway·관리형 서비스"],
+  ]}
+/>

@@ -1,0 +1,21 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+
+<SectionSummary
+  lead="트래픽 비용은 데이터 전송(인바운드·아웃바운드, 리전 간·인터넷)에 따라 발생합니다. 아웃바운드·리전 간 전송이 과금되는 경우가 많고, 프라이빗 경로·엣지 캐시·같은 리전 통신으로 전송량을 줄여 비용을 관리합니다."
+  bullets={[
+    "인바운드: 대부분 무료. 아웃바운드(인터넷·다른 리전)가 과금 대상인 경우가 많음.",
+    "리전 간 전송: 같은 클라우드 내 리전 간에도 전송 비용이 발생할 수 있음.",
+    "절감: VPC 엔드포인트로 같은 리전 내 통신, CDN·캐시로 아웃바운드 감소.",
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    ["발생 요인", "아웃바운드·리전 간 전송량"],
+    ["관리 포인트", "같은 리전 통신, 캐시·CDN, 불필요한 전송 최소화"],
+  ]}
+/>

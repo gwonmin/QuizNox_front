@@ -1,0 +1,56 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+
+<SectionSummary
+  lead="고가용성·보안 요구 시 IAM 최소 권한·역할·KMS·방화벽·WAF를 조합해 설계합니다. EC2가 S3 접근, 암호화, 웹 공격 방어 등 시나리오별로 적절한 서비스를 선택합니다."
+  bullets={[
+    "IAM: 최소 권한, EC2·Lambda에 역할 부여(키 하드코드 금지), 조건부 정책",
+    "KMS: EBS·S3·RDS 등 CMK로 암호화, 키 정책·자동 로테이션",
+    "Config vs CloudTrail: 설정 변경 추적 vs API 호출 기록. Shield Standard/Advanced로 DDoS 대응",
+  ]}
+/>
+
+## 시나리오
+
+<KeyTable
+  columns={["요구", "선택"]}
+  rows={[
+    ["EC2·Lambda가 다른 서비스 접근", "IAM 역할 부여"],
+    ["데이터 암호화·키 관리", "KMS(SSE-KMS, EBS 암호화)"],
+    ["인스턴스·서브넷 트래픽 제어", "Security Group, NACL"],
+    ["웹 계층 공격 방어", "WAF"],
+    ["S3를 조직 내 계정만 접근", "버킷 정책에 aws:PrincipalOrgID"],
+    ["설정 변경·태그 위반 감지", "AWS Config"],
+    ["API 호출 감사", "CloudTrail"],
+    ["대규모 DDoS·ELB 보호", "AWS Shield Advanced"],
+    ["DB 비밀·자동 로테이션", "Secrets Manager"],
+    ["EC2 원격 관리·배스천 제거", "Session Manager"],
+  ]}
+/>
+
+## 기출빈출
+
+<KeyTable
+  columns={["시나리오", "접근"]}
+  rows={[
+    ["EC2/Lambda가 다른 서비스 접근", "IAM 역할 부여(키 하드코드 금지)."],
+    ["데이터 암호화·키 관리", "KMS(SSE-KMS, EBS 암호화)."],
+    ["S3 조직 내 계정만", "버킷 정책 aws:PrincipalOrgID."],
+    ["설정 변경·태그 위반 감지", "AWS Config; API 호출 감사 → CloudTrail."],
+    ["대규모 DDoS·비용 보호", "AWS Shield Advanced."],
+    ["DB 비밀·자동 로테이션", "Secrets Manager; 다중 리전 시 multi-Region secret."],
+    ["EC2 원격·배스천 제거", "Session Manager."],
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    ["IAM", "최소 권한·역할·조건부 정책"],
+    ["KMS", "데이터 암호화·키 관리·Multi-Region 키"],
+    ["Config vs CloudTrail", "설정 변경 vs API 호출"],
+    ["Shield", "Standard(기본) / Advanced(DDoS·비용 보호)"],
+  ]}
+/>

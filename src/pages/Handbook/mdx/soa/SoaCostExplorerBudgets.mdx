@@ -1,0 +1,48 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+
+<SectionSummary
+  lead="비용·사용량 분석(Cost Explorer)과 예산·알림(Budgets) 설정입니다."
+  bullets={[
+    "Cost Explorer: 비용·사용량 시각화. 서비스·리전·태그별 그룹, 일/월 단위. 비용 할당 태그를 활성화해야 태그별 비용 조회 가능",
+    "Budgets: 예산 금액·예상 비용(forecast) 임계값 설정. 초과·예상 초과 시 이메일·SNS 알림. Savings Plans 사용률 알림도 Budgets에서",
+    "Tag Editor: 리소스 검색·태그 일괄 수정",
+  ]}
+/>
+
+## 시나리오
+
+<KeyTable
+  columns={["시나리오", "접근"]}
+  rows={[
+    ["태그별 비용이 Cost Explorer에 안 나옴", "비용 할당 태그 활성화(관리 계정). 태그 적용 후 24시간~수일 후 반영"],
+    ["No Tagkey 비용이 많을 때", "Tag Editor로 태그 없는 리소스 검색 후 태그 부여"],
+    ["팀별로 예산 초과·예상 초과 알림", "Budgets를 팀(또는 서비스 필터)별로 생성. 예상 비용 임계값 + 이메일/SNS"],
+    ["Savings Plans 사용률 90% 미만 시 알림", "Budgets에서 Savings Plans 예산·사용률 임계값 설정"],
+    ["데이터 전송 비용 75% 도달 시 알림", "Budgets로 데이터 전송 비용 예산 생성, 75% 알림"],
+    ["프로젝트별 비용 보기", "비용 할당 태그 활성화 후 프로젝트 태그 부여. Cost Explorer에서 그룹 바이 태그"],
+  ]}
+/>
+
+## 기출빈출
+
+<KeyTable
+  columns={["시나리오", "접근"]}
+  rows={[
+    ["태그별 비용이 Cost Explorer에 안 나옴", "비용 할당 태그 활성화(관리 계정). 적용 후 24시간~수일 후 반영."],
+    ["No Tagkey 비용 많을 때", "Tag Editor로 미태그 리소스 검색 후 태그 부여."],
+    ["팀별 예산 초과·예상 초과 알림", "Budgets를 팀(서비스 필터)별로 생성. 예상 비용 임계값 + 이메일/SNS."],
+    ["Savings Plans 사용률 90% 미만 알림", "Budgets에서 Savings Plans 예산·사용률 임계값 설정."],
+    ["멤버 계정에서 예산 알림 설정 불가", "관리/페이어 계정에서 Billing alerts 활성화 필요."],
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["구분", "Cost Explorer", "Budgets"]}
+  rows={[
+    ["용도", "비용·사용량 분석·시각화", "예산 설정·초과/예상 초과 알림"],
+    ["태그", "비용 할당 태그 활성화 후 태그별 조회", "예산에 필터(태그 등) 적용 가능"],
+  ]}
+/>

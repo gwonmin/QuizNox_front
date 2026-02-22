@@ -1,0 +1,21 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+
+<SectionSummary
+  lead="온디맨드(On-Demand)는 사용한 만큼 표준 단가로 지불하는 구매 방식입니다. 약정 없이 유연하게 사용할 수 있으나 단가는 예약·스팟보다 높은 편이라, 사용 패턴이 안정적이면 예약으로 전환하는 것이 비용 절감에 유리합니다."
+  bullets={[
+    "특징: 약정 없음, 필요할 때만 사용, 표준 단가.",
+    "적합: 사용량이 변동적이거나 예측 어려울 때.",
+    "비교: 예약(할인·약정), 스팟(할인·중단 가능)보다 단가 높음.",
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    ["의미", "사용한 만큼 표준 단가로 지불, 약정 없음"],
+    ["장단점", "유연함 / 단가가 예약·스팟보다 높음"],
+  ]}
+/>

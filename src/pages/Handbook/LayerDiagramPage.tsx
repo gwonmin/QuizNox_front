@@ -114,8 +114,8 @@ export function LayerDiagramPage() {
         {layer.description && (
           <p className="text-sm text-muted-foreground mt-1">{layer.description}</p>
         )}
-        <p className="text-xs text-muted-foreground mt-1">
-          노드 클릭 시 해당 문서로 이동
+        <p className="text-sm text-muted-foreground mt-1">
+          아래 다이어그램의 <strong className="font-semibold text-primary">각 박스를 클릭</strong>하면 해당 개념 문서로 이동합니다.
         </p>
       </div>
       <div id="diagram" ref={diagramRef}>

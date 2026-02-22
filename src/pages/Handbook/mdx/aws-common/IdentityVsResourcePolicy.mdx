@@ -1,0 +1,37 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="IAM 정책은 주체(사용자·역할)에 붙는지, 리소스(버킷·큐 등)에 붙는지로 나뉩니다. 이 주체가 무엇을 할 수 있나?는 Identity-based, 누가 이 리소스를 쓸 수 있나?는 Resource-based로 정의합니다."
+  bullets={[
+    "Identity-based: 주체(사용자·역할·그룹)에 연결. 해당 주체가 어떤 리소스에 어떤 액션을 할 수 있는지 정의.",
+    "Resource-based: 리소스(S3 버킷, SQS 큐, Lambda 등)에 연결. 누가 이 리소스에 접근할 수 있는지 정의.",
+    "둘 다 적용되며, 어느 쪽에서든 Deny면 거부.",
+  ]}
+/>
+
+## Identity-based vs Resource-based
+
+<KeyTable
+  columns={["구분", "Identity-based", "Resource-based"]}
+  rows={[
+    ["연결 대상", "주체(역할·사용자)", "리소스(버킷·큐 등)"],
+    ["질문", "이 주체가 무엇을 할 수 있나?", "누가 이 리소스를 쓸 수 있나?"],
+    ["예", "IAM 역할 정책, 사용자 인라인 정책", "S3 버킷 정책, SQS 큐 정책"],
+  ]}
+/>
+
+## 개념 도식
+
+<MermaidDiagram
+  code={`flowchart LR
+  subgraph id [Identity-based]
+    U[사용자·역할] --> POL1[정책]
+    POL1 --> R1[리소스]
+  end
+  subgraph res [Resource-based]
+    R2[버킷·큐 등] --> POL2[정책]
+    POL2 --> U2[주체]
+  end`}
+/>

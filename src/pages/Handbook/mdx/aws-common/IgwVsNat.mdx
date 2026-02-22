@@ -1,0 +1,35 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="IGW와 NAT Gateway는 인터넷과 VPC를 잇는 두 가지 구성 요소입니다. 퍼블릭 서브넷은 IGW(양방향), 프라이빗 서브넷의 아웃바운드는 NAT Gateway로 나갑니다."
+  bullets={[
+    "IGW(Internet Gateway): VPC와 인터넷 간 1:1 연결. 퍼블릭 IP를 가진 인스턴스가 인터넷과 양방향 통신. 퍼블릭 서브넷 라우팅에 0.0.0.0/0 → igw-xxx.",
+    "NAT Gateway: 아웃바운드 전용. 프라이빗 서브넷에서 인터넷으로 나갈 때만 사용. 인터넷에서 프라이빗 인스턴스로 들어오는 경로는 제공하지 않음.",
+    "프라이빗 서브넷 라우팅에 0.0.0.0/0 → nat-xxx 설정.",
+  ]}
+/>
+
+## IGW vs NAT Gateway
+
+<KeyTable
+  columns={["구분", "IGW", "NAT Gateway"]}
+  rows={[
+    ["방향", "양방향(퍼블릭 IP)", "아웃바운드 주로"],
+    ["용도", "퍼블릭 서브넷", "프라이빗 서브넷의 아웃바운드"],
+  ]}
+/>
+
+## 개념 도식
+
+<MermaidDiagram
+  code={`flowchart LR
+  subgraph igw [IGW 양방향]
+    A[퍼블릭 인스턴스] <--> B[인터넷]
+  end
+  subgraph nat [NAT 아웃바운드]
+    C[프라이빗 인스턴스] --> D[NAT GW]
+    D --> E[인터넷]
+  end`}
+/>

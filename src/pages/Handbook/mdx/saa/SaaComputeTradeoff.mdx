@@ -1,0 +1,45 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+
+<SectionSummary
+  lead="Compute 선택 시 트레이드오프를 이해하는 프레임입니다. 최소 운영, 비용 최적화, 확장성 중 무엇을 우선할지에 따라 옵션이 달라집니다."
+  bullets={[
+    "운영 부담: EC2 > ECS/EKS > Lambda 순으로 관리할 것이 많음",
+    "확장성: Lambda·ECS/EKS는 자동 확장 용이. EC2는 ASG로 확장",
+    "비용: 항상 켜진 워크로드는 EC2·예약이 유리. 간헐적·피크는 Lambda·온디맨드 유리",
+  ]}
+/>
+
+## 시나리오
+
+<KeyTable
+  columns={["조건", "선택"]}
+  rows={[
+    ["운영 줄이기·관리 최소화", "Lambda·Fargate·관리형 서비스"],
+    ["안정 워크로드·비용 절감", "EC2 Reserved Instance·Savings Plans"],
+    ["트래픽 변동 큼·피크 대응", "Lambda·ASG·온디맨드"],
+    ["중단 가능·배치 작업", "Spot"],
+  ]}
+/>
+
+## 기출빈출
+
+<KeyTable
+  columns={["시나리오", "접근"]}
+  rows={[
+    ["운영 최소·관리 부담 감소", "Lambda·Fargate·관리형 서비스."],
+    ["안정 워크로드·비용 절감", "Reserved Instance·Savings Plans."],
+    ["중단 가능·배치", "Spot."],
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    ["운영 최소", "Lambda·관리형 서비스"],
+    ["비용 최적화", "워크로드 패턴에 따라 예약·스팟·Lambda 조합"],
+    ["조건", "최소 운영 → Lambda / 비용 → RI·Spot·적정 사이징"],
+  ]}
+/>

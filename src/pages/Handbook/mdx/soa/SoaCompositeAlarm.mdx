@@ -1,0 +1,44 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+
+<SectionSummary
+  lead="여러 메트릭 알람의 상태를 AND/OR로 조합해 하나의 상위 알람으로 만드는 기능입니다."
+  bullets={[
+    "AND 조건: 모든 자식 알람이 ALARM일 때만 Composite Alarm이 ALARM → 노이즈 감소",
+    "OR 조건: 자식 알람 중 하나라도 ALARM이면 Composite Alarm이 ALARM",
+    "알람 액션은 Composite Alarm에만 연결하면 되므로, 여러 지표를 한 번에 보고 조건 충족 시에만 SNS·EC2 복구 등 실행",
+  ]}
+/>
+
+## 시나리오
+
+<KeyTable
+  columns={["시나리오", "접근"]}
+  rows={[
+    ["디스크 사용량과 DiskReadOps가 둘 다 임계값 초과할 때만 알림", "디스크 메트릭 알람 + DiskReadOps 알람 각각 생성 후 Composite Alarm으로 AND 조합 → SNS에 알림"],
+    ["여러 AZ/인스턴스의 상태를 하나의 서비스 상태로 표현", "각 리소스별 알람을 만들고 Composite(OR)로 묶어, 하나라도 실패하면 상위 알람 발생"],
+    ["EC2 자동 복구 + 알림", "StatusCheckFailed_System 알람에 EC2 복구 액션 + SNS 구독. Composite는 여러 시스템을 묶을 때 활용"],
+  ]}
+/>
+
+## 기출빈출
+
+<KeyTable
+  columns={["시나리오", "접근"]}
+  rows={[
+    ["여러 조건을 동시에 만족할 때만 알림 설계", "Composite Alarm. 단일 메트릭 알람만으로는 둘 다 초과 표현 불가."],
+    ["디스크 사용량·DiskReadOps 둘 다 초과할 때만 SNS 알림", "메트릭 알람 2개 생성 후 Composite Alarm으로 AND 조합해 SNS 연결. 각 알람에 SNS 따로 달면 오답."],
+    ["only when both exceed, notification only when … and …", "Composite Alarm. either … or …이면 일반 알람 여러 개 또는 OR Composite."],
+    ["디스크 사용률·DiskReadOps를 함께 쓰는 지표", "CloudWatch 에이전트 설치 필요. 기본 EC2 메트릭만으로는 부족한 전제가 자주 나옴."],
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["항목", "내용"]}
+  rows={[
+    ["역할", "여러 알람을 AND/OR로 조합해 상위 알람 하나로 정리. 노이즈 감소"],
+    ["활용", "두 가지 이상 조건이 동시에 만족할 때만 알림(예: 디스크 + IOPS)"],
+  ]}
+/>

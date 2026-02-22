@@ -1,0 +1,33 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="CloudWatch 대시보드는 여러 지표(Metrics)를 한 화면에 위젯으로 모아 시각화하는 기능입니다. 지표 선택 → 위젯 타입(선 그래프, 숫자 등) 지정 → 대시보드에 배치해 한눈에 모니터링합니다."
+  bullets={[
+    "대시보드 생성 후 위젯 추가. 위젯마다 지표·기간·통계(Average, Sum 등) 설정.",
+    "여러 리전·여러 서비스 지표를 한 대시보드에 묶기 가능.",
+    "용도: EC2·RDS·ALB 등 주요 지표 한 화면 표시, 운영·온콜 시 상태 빠르게 확인, 맞춤 KPI 뷰.",
+  ]}
+/>
+
+## 개념 도식
+
+<MermaidDiagram
+  code={`flowchart LR
+  W1[위젯 1] --> DASH[대시보드]
+  W2[위젯 2] --> DASH
+  W3[위젯 N] --> DASH
+  DASH --> VIEW[한 화면 모니터링]`}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    ["대시보드", "지표 위젯을 모은 한 화면"],
+    ["위젯", "선 그래프·숫자·테이블 등"],
+    ["용도", "다중 지표·리전 통합 뷰"],
+  ]}
+/>

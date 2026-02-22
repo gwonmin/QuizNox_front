@@ -1,0 +1,32 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="Lambda는 코드를 업로드하면 이벤트 발생 시 함수 단위로 실행되는 서버리스 컴퓨트 서비스입니다. 서버 프로비저닝 없이 요청·이벤트에 따라 자동 확장되고, 실행한 만큼 과금됩니다."
+  bullets={[
+    "서버리스: 인스턴스 관리 없이 함수(코드)만 배포. 이벤트 기반: API Gateway, S3, SQS, SNS, EventBridge 등에서 트리거.",
+    "자동 확장: 동시 실행 수(동시성)까지 자동 조정. 런타임: Node.js, Python, Java, Go, Ruby 등. 메모리 128MB~10GB, 최대 15분.",
+    "용도: API 백엔드, S3 업로드 시 처리, SQS 메시지 처리, 스케줄·이벤트 기반 배치.",
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    ["정의", "이벤트 기반 서버리스 함수 실행"],
+    ["트리거", "API Gateway, S3, SQS, SNS, EventBridge 등"],
+    ["과금", "요청 수·실행 시간(GB-초) 기준"],
+  ]}
+/>
+
+## 개념 도식
+
+<MermaidDiagram
+  code={`flowchart LR
+  EVT[이벤트] --> L[Lambda]
+  L --> RUN[실행]
+  RUN --> BILL[실행 시간 과금]`}
+/>

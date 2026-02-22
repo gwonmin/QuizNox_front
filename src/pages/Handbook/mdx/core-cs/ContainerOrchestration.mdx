@@ -1,0 +1,135 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="Container Orchestration은 여러 노드·Pod를 대상으로 스케줄링·헬스체크·스케일링·롤링 업데이트를 자동화하는 계층입니다. 각 노드에서 컨테이너를 실제로 실행하는 것은 Container Runtime의 역할이고, 오케스트레이터는 어디에 띄울지·몇 개로 유지할지·트래픽을 어떻게 보낼지를 결정한다."
+  bullets={[
+    "Pod/Task, Service Endpoint, Scheduler, Health Check, Auto Scaling, Rolling Update로 배포·가용성을 관리한다.",
+    "단일 클러스터는 Control Plane 1개로 단순 운영, 멀티 클러스터는 지역·환경별 여러 클러스터를 연동해 격리·규정 대응을 확보한다.",
+    "Runtime(노드에서 이미지 풀·컨테이너 실행)은 Container Runtime 문서에서 다룬다.",
+  ]}
+/>
+
+**처음 보시면:** "Pod"는 컨테이너 하나 또는 여러 개를 묶은 **실행 단위**이고, 오케스트레이터가 "이 Pod를 어떤 서버에 띄울지, 몇 개 유지할지"를 결정합니다. Kubernetes에서는 Pod, ECS에서는 Task라고 부릅니다.
+
+## 컨테이너 오케스트레이션 핵심 개념
+
+<KeyTable
+  columns={["구분", "의미", "예시"]}
+  rows={[
+    ["Pod / Task", "컨테이너 하나 또는 여러 개를 하나의 배포 단위로 묶은 실행 단위.", "Kubernetes Pod, ECS Task."],
+    ["Service Endpoint", "애플리케이션에 들어오는 트래픽을 Pod/Task로 라우팅하는 엔드포인트.", "Kubernetes Service, ECS Service + Load Balancer."],
+    ["Scheduler", "Pod/Task를 어떤 노드에 배치할지 결정하는 컴포넌트.", "노드 리소스, taint/toleration, affinity 등을 고려해 스케줄링."],
+    ["Health Check", "실행 중인 Pod/Task가 정상 동작 중인지 주기적으로 검사해, 비정상 인스턴스를 교체 또는 트래픽 대상에서 제외한다.", "Liveness / Readiness Probe, Target Group Health Check."],
+    ["Auto Scaling", "메트릭 기반으로 Pod/Task 수를 늘리거나 줄여 부하에 대응한다.", "HPA, ECS Service Auto Scaling."],
+    ["Rolling Update", "구 버전 인스턴스를 점진적으로 새 버전으로 교체해 무중단에 가깝게 배포한다.", "Deployment RollingUpdate, 최소/최대 Surge 설정."],
+  ]}
+/>
+
+## 오케스트레이션 흐름 도식
+
+<MermaidDiagram
+  code={`flowchart TB
+  user["사용자 트래픽"] --> svc["Service Endpoint"]
+  svc --> pod1["Pod/Task 1"]
+  svc --> pod2["Pod/Task 2"]
+  svc --> pod3["Pod/Task 3"]
+  pod1 --> backend["공유 스토리지 또는 백엔드"]
+  pod2 --> backend
+  pod3 --> backend`}
+/>
+
+<MermaidDiagram
+  code={`flowchart LR
+  subgraph cp [Orchestrator Control Plane]
+    sch["Scheduler"]
+    hc["Health Check"]
+    sc["Auto Scaling"]
+    ru["Rolling Update"]
+  end
+  sch --> nodes["노드들"]
+  hc --> pods["Pod 집합"]
+  sc --> pods
+  ru --> pods`}
+/>
+
+## 단일 클러스터 vs 멀티 클러스터
+
+**한 줄 흐름:** 단일 클러스터는 하나의 Control Plane이 모든 노드를 관리한다. 멀티 클러스터는 지역·환경·테넌트별로 여러 클러스터를 두고, 배포·정책·트래픽 라우팅으로 연동해 가용성·격리·규정 대응을 만족시킨다.
+
+<KeyTable
+  columns={["구분", "단일 클러스터", "멀티 클러스터"]}
+  rows={[
+    ["구조", "Control Plane 1개가 여러 워커 노드를 관리. API Server, Scheduler, etcd가 한 세트.", "독립적인 클러스터를 여러 개 두고, 상위에서 배포·정책·네트워킹으로 연동."],
+    ["장점", "구성이 단순하고 운영·디버깅이 쉽다. 리소스 풀을 한 곳에서 스케줄링.", "지역·AZ 분산으로 장애 격리, 규정 준수, 팀·테넌트별 격리가 가능하다."],
+    ["단점", "Control Plane 또는 리전 장애 시 클러스터 전체에 영향. 스케일·지역 확장에 한계.", "배포·모니터링·정책·네트워킹이 복잡해지고, 운영 부담과 비용이 늘어난다."],
+    ["적합한 경우", "단일 리전·중소 규모, 팀 하나가 관리하는 환경.", "다중 리전·DR, 규정상 데이터 현지화, 여러 팀·환경을 강하게 격리해야 할 때."],
+  ]}
+/>
+
+<MermaidDiagram
+  code={`flowchart TB
+  subgraph single [단일 클러스터]
+    subgraph cp1 [Control Plane]
+      api1["API Server"]
+      sched1["Scheduler"]
+    end
+    subgraph workers1 [워커 노드]
+      n1["Node 1"]
+      n2["Node 2"]
+      n3["Node 3"]
+    end
+    cp1 --> workers1
+  end`}
+/>
+
+<MermaidDiagram
+  code={`flowchart TB
+  subgraph multi [멀티 클러스터]
+    subgraph clusterA [클러스터 A]
+      cpA["Control Plane A"]
+      nodesA["Node들"]
+      cpA --> nodesA
+    end
+    subgraph clusterB [클러스터 B]
+      cpB["Control Plane B"]
+      nodesB["Node들"]
+      cpB --> nodesB
+    end
+    fleet["배포 및 정책 연동"] --> clusterA
+    fleet --> clusterB
+  end`}
+/>
+
+### 멀티 클러스터에서 다루는 것
+
+<KeyTable
+  columns={["항목", "의미", "예시"]}
+  rows={[
+    ["배포·GitOps", "여러 클러스터에 동일·선택 배포를 일관되게 수행.", "Argo CD Multi-Cluster, Fleet, Flagger. Git 레포 기준으로 클러스터별 적용."],
+    ["서비스 디스커버리·트래픽", "클러스터 간 서비스 호출, 지역 기반 라우팅, 장애 시 다른 클러스터로 전환.", "서비스 메시, 글로벌 LB, Failover 정책."],
+    ["정책·보안 일관성", "여러 클러스터에 동일한 네트워크 정책, RBAC, 규정 정책을 적용.", "OPA, Kyverno, 정책 as Code."],
+  ]}
+/>
+
+## 설계 시 유의점
+
+<KeyTable
+  columns={["항목", "권장 사항"]}
+  rows={[
+    ["리소스 요청·제한", "Pod의 requests/limits를 적절히 설정해 오버커밋·스로틀링을 방지하고, 롤링 업데이트 시 동시 업데이트 수를 조정해 인스턴스 급감을 막는다."],
+    ["이미지 풀·헬스체크", "ImagePullPolicy와 레지스트리 인증을 설정하고, Liveness/Readiness Probe 임계값을 장애 패턴에 맞게 조정한다."],
+    ["스케일·상태", "Stateless는 자유롭게 스케일 인/아웃하되, 세션·상태는 외부 스토리지 또는 별도 상태 저장 계층에 둔다."],
+  ]}
+/>
+
+## 실제 예시
+
+<KeyTable
+  columns={["상황", "활용 예시"]}
+  rows={[
+    ["웹 API 서비스", "Deployment + Service로 여러 Pod를 띄우고, HPA로 요청 수·CPU 기반 자동 스케일링을 적용한다."],
+    ["배치 작업", "CronJob 또는 스케줄된 ECS Task로 특정 시간마다 Task를 실행하고, 실패 시 재시도 정책을 설정한다."],
+  ]}
+/>

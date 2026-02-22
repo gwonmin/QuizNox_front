@@ -1,0 +1,21 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+
+<SectionSummary
+  lead="스팟(Spot)은 남는 용량을 할인된 단가로 제공하는 구매 방식입니다. 공급에 따라 중단될 수 있어 중단을 허용할 수 있는 워크로드(배치·플렉시블 처리)에 적합하며, 온디맨드·예약 대비 큰 할인을 받을 수 있습니다."
+  bullets={[
+    "특징: 할인된 단가, 공급 상황에 따라 중단 가능.",
+    "적합: 배치 작업, 중단 후 재시작 가능한 워크로드.",
+    "주의: 장애 시 즉시 복구가 필요한 서비스에는 부적합.",
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    ["의미", "남는 용량 할인, 필요 시 인스턴스 회수(중단) 가능"],
+    ["적합", "중단 허용 워크로드(배치·플렉시블)"],
+  ]}
+/>

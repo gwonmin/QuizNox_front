@@ -1,0 +1,21 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+
+<SectionSummary
+  lead="예산(Budgets)은 비용·사용량에 대한 목표치를 정하고, 일정 비율 도달 시 알람을 받거나 동작을 제한하는 기능입니다. 예산 초과를 미리 막고, 팀·프로젝트 단위로 비용 한도를 두어 FinOps를 실천할 수 있습니다."
+  bullets={[
+    "예산 설정: 총 비용·사용량 목표, 기간(월·분기·연) 단위.",
+    "알람: 목표의 80%, 100% 등 도달 시 알림으로 사전 대응.",
+    "적용 범위: 전체·팀·프로젝트·태그별로 구분해 설정 가능.",
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    ["목적", "비용·사용량 목표 설정, 초과 전 알람"],
+    ["활용", "팀·프로젝트 단위 한도, 알람 임계치 설정"],
+  ]}
+/>

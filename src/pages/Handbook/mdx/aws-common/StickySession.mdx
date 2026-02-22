@@ -1,0 +1,32 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="Sticky Session은 같은 클라이언트의 요청을 항상 같은 타깃으로 보내도록 하는 ALB 기능입니다. 세션을 인스턴스 메모리에 두는 앱에서 사용합니다."
+  bullets={[
+    "쿠키(ALB 생성 또는 앱 생성)로 클라이언트를 식별. 동일 클라이언트의 다음 요청을 이전과 같은 타깃으로 라우팅.",
+    "용도: 세션을 메모리에 두는 앱에서 같은 인스턴스로 유지할 때. Stateful 동작이 필요할 때.",
+  ]}
+/>
+
+## 개념 도식
+
+<MermaidDiagram
+  code={`flowchart LR
+  C1[클라이언트 A] --> ALB[ALB]
+  ALB --> T1[타깃 1]
+  C1 -.->|다음 요청| ALB
+  ALB -.->|같은 타깃| T1`}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    ["동작", "같은 클라이언트 요청을 항상 같은 타깃으로 라우팅"],
+    ["방식", "쿠키(ALB 생성 또는 앱 생성)로 클라이언트 식별"],
+    ["용도", "세션을 인스턴스 메모리에 두는 앱"],
+  ]}
+/>

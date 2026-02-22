@@ -1,0 +1,47 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+
+<SectionSummary
+  lead="SQS는 비동기 메시지 큐로 컴포넌트 간 디커플링과 버퍼 역할을 하고, SNS는 Pub/Sub로 한 이벤트를 여러 구독자에게 알립니다."
+  bullets={[
+    "SQS: 생산자·소비자 분리, 표준(최소 1회) vs FIFO(정확히 1회·순서 보장). Visibility Timeout 적절 설정으로 중복 처리 방지",
+    "SNS: 토픽 발행 → 구독자(이메일·SQS·Lambda 등)에게 푸시",
+    "내구성: SNS만 쓰면 구독자 장애 시 유실 가능. SNS → SQS → Lambda로 큐가 보관·재시도·DLQ 처리",
+  ]}
+/>
+
+## 시나리오
+
+<KeyTable
+  columns={["요구", "선택"]}
+  rows={[
+    ["작업 큐·디커플링", "SQS"],
+    ["수신 순서대로 처리 필수(예: 주문)", "SQS FIFO (API Gateway → SQS FIFO → Lambda)"],
+    ["한 이벤트를 여러 대상에 전달", "SNS"],
+    ["이벤트 + 큐로 버퍼링·재시도", "SNS → SQS (→ Lambda)"],
+    ["큐 길이에 따라 워커 수 자동 조절", "ASG 스케일링 정책 = SQS 메시지 수"],
+  ]}
+/>
+
+## 기출빈출
+
+<KeyTable
+  columns={["시나리오", "접근"]}
+  rows={[
+    ["수신 순서대로 처리 필수(주문 등)", "SQS FIFO (API Gateway → SQS FIFO → Lambda)."],
+    ["이벤트 + 버퍼·재시도·내구성", "SNS → SQS → Lambda (SNS만 쓰면 구독자 장애 시 유실 가능)."],
+    ["큐 길이 기준 워커 자동 조절", "ASG 스케일링 정책 = ApproximateNumberOfMessagesVisible."],
+    ["Visibility Timeout 너무 짧음", "처리 중 메시지 재노출 → 중복 처리; 늘리거나 처리 완료 시 삭제."],
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    ["SQS", "메시지 큐, 디커플링·비동기 처리; FIFO = 순서 보장"],
+    ["SNS", "Pub/Sub, 알림·팬아웃; 내구성 필요 시 SNS→SQS→Lambda"],
+    ["Visibility Timeout", "짧으면 중복 처리 가능 → 조정 또는 처리 완료 후 삭제"],
+  ]}
+/>

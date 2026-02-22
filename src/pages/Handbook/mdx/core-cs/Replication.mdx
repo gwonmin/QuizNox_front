@@ -1,0 +1,52 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="복제는 원본 데이터를 다른 위치·노드에 지속적으로 동기화하는 방식입니다. 백업과 달리 실시간에 가깝게 복사본을 유지해 RPO를 줄이고, 장애 시 전환(Failover)으로 RTO를 단축할 수 있습니다."
+  bullets={[
+    "동기 복제: 쓰기 시 복제 완료까지 확인 후 응답 → 일관성 높음, 지연·가용성 영향.",
+    "비동기 복제: 쓰기 후 복제는 뒤따라 수행 → 지연 적음, 순간적 데이터 차이 가능.",
+    "복제 지연(리플리케이션 랙)만큼 RPO에 데이터 손실 가능. 동기 복제는 RPO 0에 가깝게 설계 가능.",
+  ]}
+/>
+
+## 정의
+
+<KeyTable
+  columns={["용어", "설명"]}
+  rows={[
+    ["복제", "주(Primary) 데이터의 변경을 대기(Replica) 쪽에 반영해 동일한 데이터를 여러 곳에 유지"],
+    ["동기 복제", "쓰기 시 복제 완료까지 확인 후 응답 → 일관성 높음, 지연·가용성 영향"],
+    ["비동기 복제", "쓰기 후 복제는 뒤따라 수행 → 지연 적음, 순간적 데이터 차이 가능"],
+  ]}
+/>
+
+## RPO·RTO와의 관계
+
+<KeyTable
+  columns={["지표", "설명"]}
+  rows={[
+    ["RPO", "복제 지연만큼 데이터 손실 가능. 동기 복제는 RPO 0에 가깝게 설계 가능"],
+    ["RTO", "이미 복제본이 있으므로 전환(Failover)만 하면 되어, 백업에서 복원하는 것보다 RTO를 짧게 가질 수 있음"],
+  ]}
+/>
+
+## 개념 도식
+
+<MermaidDiagram
+  code={`flowchart LR
+  P["Primary"] -->|동기 또는 비동기| R["Replica"]
+  R --> F["Failover 시 사용"]`}
+/>
+
+## 백업과의 차이
+
+<KeyTable
+  columns={["항목", "내용"]}
+  rows={[
+    ["목적", "실시간에 가까운 복사본 유지, RPO·RTO 단축"],
+    ["방식", "동기 복제(일관성 우선), 비동기 복제(지연·가용성 우선)"],
+    ["백업과 차이", "백업은 시점 복사·복원에 시간 소요. 복제는 지속 동기화·전환으로 빠른 복구"],
+  ]}
+/>

@@ -1,0 +1,48 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+
+<SectionSummary
+  lead="첫 호출·오래 비사용 후 런타임 초기화로 인한 지연입니다. 지연 민감 API·동기 호출에서 프로비저닝 동시성·패키지 최소화로 완화합니다."
+  bullets={[
+    "원인: 실행 환경이 없을 때 새 인스턴스 할당 + 런타임·전역 초기화 코드 실행",
+    "완화 1: Provisioned Concurrency로 미리 워밍된 인스턴스 유지",
+    "완화 2: 배포 패키지·레이어 크기 축소, SDK·DB 연결은 핸들러 밖(전역)에서 재사용",
+    "메모리 증가 시 CPU 비율도 증가 → CPU 바운드 작업 실행 시간 단축",
+  ]}
+/>
+
+## 시나리오
+
+<KeyTable
+  columns={["조건", "선택"]}
+  rows={[
+    ["API Gateway 동기 호출·지연 민감", "Provisioned Concurrency로 워밍 유지"],
+    ["배포 패키지 과대·초기화 느림", "Lambda Layer로 의존성 분리, 불필요 라이브러리 제거"],
+    ["DB 연결 매 호출 생성", "연결·Statement를 핸들러 밖 전역에서 생성·재사용; RDS는 RDS Proxy 권장"],
+    ["Lambda 임시 파일(10MB 이하·호출 내만)", "/tmp 사용(최대 512MB); EFS·S3는 공유·영구 저장 시"],
+  ]}
+/>
+
+## 기출빈출
+
+<KeyTable
+  columns={["시나리오", "접근"]}
+  rows={[
+    ["CPU 바운드·실행 시간 단축", "Lambda 메모리 증가(CPU 비율 동반 증가)."],
+    ["지연 민감·동기 API 콜드 스타트 완화", "Provisioned Concurrency로 워밍된 인스턴스 유지."],
+    ["초기화·지연 감소", "SDK·DB 연결을 핸들러 밖(전역)에서 초기화·재사용."],
+    ["RDS 연결 수 과다", "RDS Proxy 사용; 연결을 핸들러 밖에서 재사용."],
+    ["여러 Lambda가 공통 라이브러리·의존성 공유", "Lambda Layer로 공통 코드 분리 → 배포 패키지 축소·관리 용이."],
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    ["Cold Start", "첫 실행·장시간 미사용 후 초기화 지연"],
+    ["완화", "Provisioned Concurrency, 패키지·레이어 축소, 전역 초기화 재사용"],
+    ["조건", "지연 민감·동기 API → Provisioned Concurrency / 실행 시간 단축 → 메모리 증가"],
+  ]}
+/>

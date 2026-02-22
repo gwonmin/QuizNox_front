@@ -1,0 +1,21 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+
+<SectionSummary
+  lead="예약(Reserved)은 1년·3년 등 기간을 약정하고 사용량을 미리 확보하는 구매 방식입니다. 온디맨드 대비 할인을 받을 수 있어, 사용량이 안정적이고 예측 가능한 워크로드에 적합합니다. 유연한 사용량 기반 예약(Savings Plans 등)도 있어 부분 할인을 적용할 수 있습니다."
+  bullets={[
+    "특징: 기간 약정 시 온디맨드 대비 할인.",
+    "적합: 사용량이 안정적·예측 가능한 워크로드.",
+    "유연형: 특정 인스턴스가 아닌 사용량 기반 예약으로 부분 할인 가능.",
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    ["의미", "기간 약정으로 사용량 확보, 온디맨드 대비 할인"],
+    ["적합", "안정적·예측 가능한 워크로드"],
+  ]}
+/>

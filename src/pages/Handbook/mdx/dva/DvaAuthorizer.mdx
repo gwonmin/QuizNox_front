@@ -1,0 +1,47 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+
+<SectionSummary
+  lead="API 호출 전에 요청을 허용할지 결정하는 인증·인가 단계입니다. Cognito·JWT·Lambda 등으로 토큰·헤더 검증 후 백엔드 호출을 제어합니다."
+  bullets={[
+    "Lambda Authorizer: 커스텀 토큰(헤더 등) 또는 요청 파라미터 검증 후 IAM 정책(Allow/Deny) 반환. 캐싱 가능",
+    "Cognito User Pool Authorizer: JWT(Id/Access 토큰) 검증. 회원가입·로그인·MFA는 Cognito, API 인증은 Authorizer에서 토큰 검증",
+    "JWT Authorizer(HTTP API): JWT 검증만 필요할 때 코드 없이 사용",
+  ]}
+/>
+
+## 시나리오
+
+<KeyTable
+  columns={["조건", "선택"]}
+  rows={[
+    ["회원가입·로그인·MFA 후 API 접근", "Cognito User Pool + Cognito User Pool Authorizer; Authorization 헤더에 토큰"],
+    ["부서·역할별 API 접근 제한", "Lambda Authorizer에서 토큰 클레임(예: Department) 검사"],
+    ["JWT만 검증·간단한 구성", "HTTP API + JWT Authorizer"],
+    ["REST API에서 토큰·커스텀 로직", "Lambda Authorizer(Token 또는 Request)"],
+    ["권한 변경했는데 API는 이전 권한으로 동작", "Authorizer 캐시 비활성화 또는 TTL 짧게"],
+  ]}
+/>
+
+## 기출빈출
+
+<KeyTable
+  columns={["시나리오", "접근"]}
+  rows={[
+    ["등록 사용자만 API 접근", "Cognito User Pool + Cognito User Pool Authorizer; Authorization 헤더에 토큰."],
+    ["부서·역할별 접근(Sales만 등)", "Lambda Authorizer에서 토큰 클레임(예: Department) 검사."],
+    ["권한 변경했는데 API는 이전 권한으로 동작", "Authorizer 캐시 비활성화 또는 TTL 짧게 해서 즉시 반영."],
+    ["JWT만 검증·코드 없이", "HTTP API + JWT Authorizer."],
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    ["Authorizer", "API 호출 전 인증·인가; Allow 시 백엔드 호출"],
+    ["Cognito", "User Pool(가입·로그인) + Authorizer로 JWT 검증"],
+    ["Lambda Authorizer", "커스텀 토큰·요청 검증, 캐싱 가능"],
+  ]}
+/>

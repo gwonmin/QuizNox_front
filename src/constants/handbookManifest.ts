@@ -1,6 +1,6 @@
 /**
  * QUIZNOX Handbook — 5 Layer Architecture
- * Core CS → AWS 공통 → SAA → DVA → SOA
+ * Systems Fundamentals → AWS 공통 → SAA → DVA → SOA
  */
 
 export interface HandbookDoc {
@@ -24,8 +24,8 @@ export interface HandbookLayer {
 export const HANDBOOK_LAYERS: HandbookLayer[] = [
   {
     id: "core-cs",
-    title: "1. Core CS",
-    description: "순수 CS 기반 개념",
+    title: "1. Systems Fundamentals",
+    description: "시스템 기초 개념 (네트워크·스토리지·보안·분산·운영·배포·비용)",
     sections: [
       {
         id: "networking",
@@ -58,8 +58,18 @@ export const HANDBOOK_LAYERS: HandbookLayer[] = [
         ],
       },
       {
+        id: "security-basics",
+        title: "3. Security Basics",
+        docs: [
+          { slug: "authn-vs-authz", title: "Authn vs Authz" },
+          { slug: "hash-vs-encryption", title: "Encryption vs Hash, Symmetric vs Asymmetric" },
+          { slug: "least-privilege", title: "Least Privilege" },
+          { slug: "firewall", title: "Network security (인바운드/아웃바운드)" },
+        ],
+      },
+      {
         id: "distributed",
-        title: "3. Distributed Systems Essentials",
+        title: "4. Distributed Systems Essentials",
         docs: [
           { slug: "stateless-stateful", title: "Stateless vs Stateful" },
           { slug: "scale-up-scale-out", title: "Scale up / Scale out" },
@@ -77,21 +87,12 @@ export const HANDBOOK_LAYERS: HandbookLayer[] = [
         docs: [
           { slug: "container-image", title: "Container Image (레이어 · 태그 · 불변성)" },
           { slug: "container-registry", title: "Container Registry (이미지 저장·배포)" },
-          { slug: "container-runtime", title: "Container Runtime 및 Orchestration (노드 · CRI · 스케줄링 · 단일/멀티 클러스터)" },
+          { slug: "container-runtime", title: "Container Runtime (노드 · CRI · OCI)" },
+          { slug: "container-orchestration", title: "Container Orchestration (스케줄링 · Service · 단일/멀티 클러스터)" },
           {
             slug: "container-service-endpoint",
             title: "Service Endpoint (LB · Service)",
           },
-        ],
-      },
-      {
-        id: "security-basics",
-        title: "4. Security Basics",
-        docs: [
-          { slug: "authn-vs-authz", title: "Authn vs Authz" },
-          { slug: "hash-vs-encryption", title: "Encryption vs Hash, Symmetric vs Asymmetric" },
-          { slug: "least-privilege", title: "Least Privilege" },
-          { slug: "firewall", title: "Network security (인바운드/아웃바운드)" },
         ],
       },
       {
@@ -101,9 +102,40 @@ export const HANDBOOK_LAYERS: HandbookLayer[] = [
           { slug: "observability", title: "Observability (logs / metrics / traces)" },
           { slug: "retry-backoff", title: "Failure modes: timeout / retry / backoff / jitter" },
           { slug: "throttling-rate-limiting", title: "Throttling / Rate limiting / Backpressure" },
+          { slug: "backup", title: "백업 (유형 · 보존 · RPO 연계)" },
+          { slug: "replication", title: "복제 (동기/비동기 · RPO·RTO)" },
           { slug: "rto-rpo", title: "DR: RTO / RPO" },
           { slug: "ha-design", title: "HA · active-active 개념" },
+          { slug: "dr-strategy", title: "DR 전략 (Backup · Pilot Light · Warm Standby · Active-Active)" },
           { slug: "sli-slo", title: "SLI / SLO" },
+        ],
+      },
+      {
+        id: "cicd",
+        title: "7. CI/CD",
+        docs: [
+          { slug: "source-control", title: "소스 관리 (버전 관리 · 브랜치 · 트리거)" },
+          { slug: "build", title: "빌드 (컴파일 · 패키징 · 재현성)" },
+          { slug: "test", title: "테스트 (단위·통합·E2E · 피라미드)" },
+          { slug: "devsecops", title: "DevSecOps (보안 스캔 · SAST·의존성·이미지)" },
+          { slug: "artifact", title: "아티팩트 (산출물 · 버전 · 저장)" },
+          { slug: "deploy", title: "배포 자동화 (전략 · 롤백 · 환경)" },
+          { slug: "gitops", title: "GitOps (선언적 배포 · Git 동기화)" },
+        ],
+      },
+      {
+        id: "cost-finops",
+        title: "8. Cost & FinOps",
+        docs: [
+          { slug: "cost-compute", title: "컴퓨트 비용" },
+          { slug: "cost-storage", title: "스토리지 비용" },
+          { slug: "cost-traffic", title: "트래픽 비용" },
+          { slug: "cost-on-demand", title: "온디맨드" },
+          { slug: "cost-reserved", title: "예약" },
+          { slug: "cost-spot", title: "스팟" },
+          { slug: "cost-visibility", title: "비용 관측 (Cost visibility)" },
+          { slug: "cost-budgets", title: "예산 (Budgets)" },
+          { slug: "cost-optimization", title: "비용 최적화" },
         ],
       },
     ],

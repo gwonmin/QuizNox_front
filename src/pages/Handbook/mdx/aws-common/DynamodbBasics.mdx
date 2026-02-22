@@ -1,0 +1,44 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="DynamoDB는 키·값 기반 NoSQL 관리형 DB 서비스입니다. 파티션 키(필수)·정렬 키(선택)로 테이블을 설계하고, 프로비저닝 또는 온디맨드 용량으로 읽기·쓰기 처리량을 설정합니다."
+  bullets={[
+    "NoSQL: 스키마 유연, 파티션 키·정렬 키로 항목 접근. 관리형으로 서버·패치 없이 테이블 생성 후 읽기·쓰기만 사용.",
+    "파티션 키: 항목 구분 기본 키. 정렬 키: 파티션 내 정렬·범위 조회. RCU·WCU(프로비저닝) 또는 온디맨드.",
+    "다중 AZ 복제, 백업·포인트인타임 복구 옵션.",
+  ]}
+/>
+
+## RDS와 비교
+
+<KeyTable
+  columns={["구분", "RDS", "DynamoDB"]}
+  rows={[
+    ["모델", "관계형(SQL)", "NoSQL(키·값)"],
+    ["스키마", "고정 테이블·컬럼", "유연, 항목별 속성 가능"],
+    ["용도", "JOIN·트랜잭션·복잡 쿼리", "단순 키 조회·고처리량·저지연"],
+  ]}
+/>
+
+## 개념 도식
+
+<MermaidDiagram
+  code={`flowchart LR
+  APP[앱] --> DDB[DynamoDB]
+  DDB --> PK[파티션 키]
+  DDB --> SK[정렬 키]
+  PK --> ITEM[항목 조회]`}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    ["DynamoDB", "관리형 NoSQL(키·값) DB"],
+    ["키", "파티션 키(필수), 정렬 키(선택)"],
+    ["용량", "프로비저닝(RCU·WCU) 또는 온디맨드"],
+  ]}
+/>
