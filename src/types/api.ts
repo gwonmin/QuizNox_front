@@ -128,3 +128,12 @@ export interface AuthState {
   loading: boolean;
   error: string | null;
 }
+
+// 이용 후기
+export interface Review {
+  review_id: string;
+  user_id: string;
+  username?: string | null;
+  content: string;
+  created_at: string;
+}
