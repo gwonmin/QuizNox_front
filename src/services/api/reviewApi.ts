@@ -24,5 +24,7 @@ export const updateReview = async (
 };
 
 export const deleteReview = async (reviewId: string): Promise<void> => {
-  await quizApiClient.delete(`/reviews/${reviewId}`);
+  await quizApiClient.delete(`/reviews/${reviewId}`, {
+    headers: { "Content-Type": "application/json" },
+  });
 };
