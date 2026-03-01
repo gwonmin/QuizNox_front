@@ -77,7 +77,8 @@ export function MermaidDiagramWithLinks({
     <div
       ref={wrapperRef}
       className={className ?? "my-4 mermaid-wrapper"}
-      aria-hidden="true"
+      role="img"
+      aria-label="다이어그램"
     />
   );
 }
