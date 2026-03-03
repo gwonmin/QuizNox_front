@@ -1,0 +1,85 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="SSM Parameter Store는 애플리케이션 구성값과 시크릿을 계층적 Key-Value 형태로 저장하는 서비스입니다."
+  bullets={[
+    "String / StringList / SecureString 타입으로 환경별 설정과 간단한 시크릿 관리.",
+    "SecureString은 KMS로 암호화되어 저장되며, 구성값과 시크릿을 한 곳에서 관리 가능.",
+    "EC2·Lambda·컨테이너 등에서 부팅 시 Parameter Store를 읽어 환경을 구성하는 패턴에 자주 사용.",
+  ]}
+/>
+
+## 기본 개념
+
+<KeyTable
+  columns={["개념", "설명", "예시"]}
+  rows={[
+    ["계층 구조", "슬래시(`/`)로 구분된 경로 기반 Key", "/app/service-a/prod/DB_HOST"],
+    ["String", "일반 텍스트 구성값", "API Endpoint, Feature flag 등"],
+    ["StringList", "콤마 구분 리스트", "허용 IP 목록 등"],
+    ["SecureString", "KMS로 암호화된 값", "DB 비밀번호 등 민감도 중간 이상의 값"],
+  ]}
+/>
+
+## SecureString + KMS
+
+<MermaidDiagram
+  code={`flowchart LR
+  subgraph ps [Parameter Store]
+    STR["String / StringList"]
+    SEC["SecureString (KMS 암호화)"]
+  end
+
+  App["애플리케이션"] -->|GetParameter| ps
+
+  SEC -->|"kms:Decrypt"| App
+`}
+/>
+
+<KeyTable
+  columns={["동작", "설명"]}
+  rows={[
+    ["저장", "SecureString 타입으로 저장 시 지정한 KMS 키로 암호화되어 저장"],
+    ["조회", "`kms:Decrypt` 권한이 있는 IAM Role/User만 복호화된 값을 받을 수 있음"],
+  ]}
+/>
+
+## Secrets Manager와의 역할 분리
+
+<KeyTable
+  columns={["항목", "Parameter Store", "Secrets Manager"]}
+  rows={[
+    ["주 용도", "구성값 + 가벼운 시크릿", "고가치 시크릿(DB PW, API 키)"],
+    ["회전 기능", "없음(직접 구현)", "자동 회전(템플릿 제공)"],
+    ["가격", "대부분 무료/저렴", "호출당 과금(유료)"],
+  ]}
+/>
+
+**실무 패턴**
+
+- 환경별 구성값(Endpoint, Feature flag 등): Parameter Store(String)
+- 덜 민감하지만 암호화가 필요한 값: Parameter Store(SecureString + KMS)
+- 고가치 시크릿(회전 필요): Secrets Manager + KMS
+
+## 모범 사례
+
+<KeyTable
+  columns={["항목", "권장 사항"]}
+  rows={[
+    [
+      "경로 설계",
+      "환경·애플리케이션·도메인 기준으로 `/app/service-a/prod/*` 처럼 일관된 경로 설계",
+    ],
+    [
+      "권한 제어",
+      "IAM Role로 어떤 서비스가 어느 Path를 읽을 수 있는지 명확히 제한 (`/app/service-a/prod/*` 등)",
+    ],
+    [
+      "시크릿 분리",
+      "고가치 시크릿은 Secrets Manager에, 나머지는 Parameter Store(SecureString 포함)에 저장",
+    ],
+  ]}
+/>
+

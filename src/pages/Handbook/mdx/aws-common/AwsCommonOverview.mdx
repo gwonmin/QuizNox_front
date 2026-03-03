@@ -2,12 +2,13 @@ import { SectionSummary } from "@/components/handbook/SectionSummary";
 import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
 
 <SectionSummary
-  lead="AWS 공통 레이어는 네트워킹, IAM, 스토리지, 컴퓨트, 모니터링 등 대부분의 시험과 실무에서 반복해서 등장하는 기초 서비스를 한 번에 정리합니다."
+  lead="AWS 공통 레이어는 네트워킹, IAM, 스토리지, 컴퓨트, 모니터링, 보안/시크릿 관리 등 대부분의 시험과 실무에서 반복해서 등장하는 기초 서비스를 한 번에 정리합니다."
   bullets={[
     "VPC / 서브넷 / SG / NACL / VPC Endpoint 등 네트워킹 뼈대",
     "IAM User / Role / Policy, STS, Cross-account 접근",
     "S3, EBS, EFS, RDS, DynamoDB, ElastiCache 기초 개념",
     "EC2 / Lambda / ECS / EKS / ELB / ASG, CloudWatch / CloudTrail / Config",
+    "KMS · Secrets Manager · SSM Parameter Store를 통한 시크릿/구성값 관리",
   ]}
 />
 
@@ -82,6 +83,17 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
     DB["Dashboard"]
     AL["Alarm"]
     CT["CloudTrail vs Config"]
+  end`}
+/>
+
+## 6. Security & Secrets (KMS · Secrets Manager · Parameter Store)
+
+<MermaidDiagram
+  code={`flowchart TB
+  subgraph sec [Security_Secrets]
+    KMS["KMS"]
+    SM["Secrets Manager"]
+    PS["SSM Parameter Store"]
   end`}
 />
 

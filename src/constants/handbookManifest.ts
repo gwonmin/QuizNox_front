@@ -209,6 +209,15 @@ export const HANDBOOK_LAYERS: HandbookLayer[] = [
           { slug: "cloudtrail-vs-config", title: "CloudTrail vs Config 차이" },
         ],
       },
+      {
+        id: "security-secrets",
+        title: "6. Security & Secrets (KMS · Secrets Manager · Parameter Store)",
+        docs: [
+          { slug: "kms-basics", title: "KMS 기본 (키 관리 · Envelope Encryption)" },
+          { slug: "secrets-manager-basics", title: "Secrets Manager 기본 (시크릿 저장 · 회전)" },
+          { slug: "ssm-parameter-store", title: "SSM Parameter Store (구성값 · 시크릿)" },
+        ],
+      },
     ],
   },
   {

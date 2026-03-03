@@ -61,6 +61,10 @@ export const AWS_COMMON_DIAGRAM_LINKS: Record<string, string> = {
   Dashboard: `${aws}/cloudwatch-dashboard`,
   Alarm: `${aws}/alarm`,
   "CloudTrail vs Config": `${aws}/cloudtrail-vs-config`,
+  KMS: `${aws}/kms-basics`,
+  "Secrets Manager": `${aws}/secrets-manager-basics`,
+  "SSM Parameter Store": `${aws}/ssm-parameter-store`,
+  "Parameter Store": `${aws}/ssm-parameter-store`,
 };
 
 const saaPath = `${BASE}/saa`;

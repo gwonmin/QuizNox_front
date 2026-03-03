@@ -108,4 +108,23 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
 
 ---
 
+## 6. Security & Secrets (KMS · Secrets Manager · Parameter Store)
+
+**왜 배우나요?** 데이터 암호화(KMS)와 시크릿/구성값 관리(Secrets Manager · Parameter Store)를 이해해야, S3·RDS·DynamoDB·Lambda 등 전반에 일관된 보안 기준을 적용할 수 있습니다.
+
+KMS → 데이터 키(Envelope Encryption) → 저장소 암호화(S3·EBS·RDS·DynamoDB)  
+Secrets Manager → 고가치 시크릿 저장·회전(DB PW, JWT 시크릿 등)  
+Parameter Store → 환경별 구성값·가벼운 시크릿 관리(String / SecureString)
+
+<MermaidDiagram
+  code={`flowchart LR
+  subgraph sec [Security & Secrets]
+    KMS([KMS])
+    SM([Secrets Manager])
+    PS([SSM Parameter Store])
+  end`}
+/>
+
+---
+
 세부 설명은 각 노드를 클릭해 개념 문서에서 이어서 읽을 수 있습니다.

@@ -43,6 +43,9 @@ import CloudwatchMetricsLogsMdx from "./mdx/aws-common/CloudwatchMetricsLogs.mdx
 import CloudwatchDashboardMdx from "./mdx/aws-common/CloudwatchDashboard.mdx";
 import AlarmMdx from "./mdx/aws-common/Alarm.mdx";
 import CloudtrailVsConfigMdx from "./mdx/aws-common/CloudtrailVsConfig.mdx";
+import KmsBasicsMdx from "./mdx/aws-common/KmsBasics.mdx";
+import SecretsManagerBasicsMdx from "./mdx/aws-common/SecretsManagerBasics.mdx";
+import SsmParameterStoreMdx from "./mdx/aws-common/SsmParameterStore.mdx";
 import AcidTransactionLockMdx from "./mdx/core-cs/AcidTransactionLock.mdx";
 import AuthnVsAuthzMdx from "./mdx/core-cs/AuthnVsAuthz.mdx";
 import IpCidrSubnettingMdx from "./mdx/core-cs/IpCidrSubnetting.mdx";
@@ -315,6 +318,9 @@ const HandbookView = memo(function HandbookView() {
     if (layerId === "aws-common" && slug === "cloudwatch-dashboard") return true;
     if (layerId === "aws-common" && slug === "alarm") return true;
     if (layerId === "aws-common" && slug === "cloudtrail-vs-config") return true;
+    if (layerId === "aws-common" && slug === "kms-basics") return true;
+    if (layerId === "aws-common" && slug === "secrets-manager-basics") return true;
+    if (layerId === "aws-common" && slug === "ssm-parameter-store") return true;
     if (layerId === "saa" && slug === "vpc-peering") return true;
     if (layerId === "saa" && slug === "transit-gateway") return true;
     if (layerId === "saa" && slug === "direct-connect-vpn") return true;
@@ -587,10 +593,23 @@ const HandbookView = memo(function HandbookView() {
     if (layerId === "aws-common" && slug === "sticky-session") return <StickySessionMdx />;
     if (layerId === "aws-common" && slug === "asg-basics") return <AsgBasicsMdx />;
     if (layerId === "aws-common" && slug === "scaling-policy") return <ScalingPolicyMdx />;
-    if (layerId === "aws-common" && slug === "cloudwatch-metrics-logs") return <CloudwatchMetricsLogsMdx />;
-    if (layerId === "aws-common" && slug === "cloudwatch-dashboard") return <CloudwatchDashboardMdx />;
+    if (layerId === "aws-common" && slug === "cloudwatch-metrics-logs") {
+      return <CloudwatchMetricsLogsMdx />;
+    }
+    if (layerId === "aws-common" && slug === "cloudwatch-dashboard") {
+      return <CloudwatchDashboardMdx />;
+    }
     if (layerId === "aws-common" && slug === "alarm") return <AlarmMdx />;
-    if (layerId === "aws-common" && slug === "cloudtrail-vs-config") return <CloudtrailVsConfigMdx />;
+    if (layerId === "aws-common" && slug === "cloudtrail-vs-config") {
+      return <CloudtrailVsConfigMdx />;
+    }
+    if (layerId === "aws-common" && slug === "kms-basics") return <KmsBasicsMdx />;
+    if (layerId === "aws-common" && slug === "secrets-manager-basics") {
+      return <SecretsManagerBasicsMdx />;
+    }
+    if (layerId === "aws-common" && slug === "ssm-parameter-store") {
+      return <SsmParameterStoreMdx />;
+    }
     if (layerId === "saa" && slug === "vpc-peering") return <SaaVpcPeeringMdx />;
     if (layerId === "saa" && slug === "transit-gateway") return <SaaTransitGatewayMdx />;
     if (layerId === "saa" && slug === "direct-connect-vpn") return <SaaDirectConnectVpnMdx />;

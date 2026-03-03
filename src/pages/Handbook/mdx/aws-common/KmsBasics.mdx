@@ -1,0 +1,89 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="KMS는 데이터 자체가 아니라 암호화 키(CMK)를 안전하게 보관·사용·감사하는 서비스입니다."
+  bullets={[
+    "Envelope Encryption 패턴으로 S3·RDS·DynamoDB·Secrets Manager·SSM 등에서 공통 방식으로 암호화.",
+    "AWS 관리형 키 vs 고객 관리형 키(CMK)로 기본 암호화와 규제 요건 모두 대응.",
+    "Key policy + IAM policy 조합으로 누가 어떤 액션(Encrypt/Decrypt/DataKey)을 쓸 수 있는지 제어.",
+  ]}
+/>
+
+## Envelope Encryption 패턴
+
+<MermaidDiagram
+  code={`sequenceDiagram
+  participant App as 애플리케이션
+  participant KMS as KMS 키
+  participant Store as S3/RDS/DynamoDB
+
+  App->>KMS: GenerateDataKey(KMS 키)
+  KMS-->>App: Plaintext Data Key + Ciphertext Data Key
+  App->>Store: Plaintext Data Key로 데이터 암호화<br/>Ciphertext Data Key와 함께 저장
+  App->>KMS: Decrypt(Ciphertext Data Key)
+  KMS-->>App: Plaintext Data Key
+  App->>Store: Plaintext Data Key로 데이터 복호화
+`}
+/>
+
+<KeyTable
+  columns={["항목", "설명"]}
+  rows={[
+    ["Plaintext Data Key", "메모리에만 잠깐 존재, 실제 데이터 암·복호화에 사용 (디스크 저장 금지)"],
+    ["Ciphertext Data Key", "KMS 키로 암호화된 데이터 키, 데이터 옆에 같이 저장"],
+    ["KMS 키(CMK)", "데이터 키를 생성/복호화하는 마스터 키, 직접 데이터에 쓰이지 않음"],
+  ]}
+/>
+
+## 키 유형 (시험 포인트)
+
+<KeyTable
+  columns={["유형", "예시", "특징"]}
+  rows={[
+    ["AWS 관리형 키", "aws/s3, aws/rds 등", "기본 암호화에 사용, AWS가 생성·회전·운영 관리"],
+    [
+      "고객 관리형 키(CMK)",
+      "별도 Alias를 가진 키",
+      "Key policy + IAM policy로 세밀한 권한 제어, 규제/감사 요건에 유리",
+    ],
+  ]}
+/>
+
+## 권한 제어 (Key Policy + IAM Policy)
+
+<KeyTable
+  columns={["정책", "역할", "예시"]}
+  rows={[
+    [
+      "Key policy",
+      "이 KMS 키를 누가, 어떤 액션에 쓸 수 있는지 정의하는 리소스 정책",
+      "보안 관리자 Role, 애플리케이션 Role에 Encrypt/Decrypt/DataKey 권한 부여",
+    ],
+    [
+      "IAM policy",
+      "IAM User/Role이 어떤 KMS 액션을 호출할 수 있는지 정의",
+      "`kms:GenerateDataKey`, `kms:Decrypt` 등 허용/거부",
+    ],
+  ]}
+/>
+
+KMS 동작 여부는 **Key policy ∩ IAM policy ∩ 조건** 으로 결정됩니다.
+
+## 모범 사용 패턴
+
+<KeyTable
+  columns={["상황", "권장 패턴"]}
+  rows={[
+    [
+      "기본 암호화",
+      "S3/RDS 등에서 AWS 관리형 키로 암호화를 켜고, 특별한 규제 요건이 없다면 그대로 사용.",
+    ],
+    [
+      "규제/감사 요건",
+      "고객 관리형 CMK를 만들고, CloudTrail로 Encrypt/Decrypt/DataKey 호출을 감사.",
+    ],
+  ]}
+/>
+
