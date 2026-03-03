@@ -169,7 +169,7 @@ export default function QuizPlayPage() {
       <div className="min-h-screen bg-background">
         {/* 헤더 영역 */}
         <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border px-4 py-2">
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center gap-2">
             <Button
               onClick={handlePreviousQuestion}
               disabled={currentIndex === 0}
@@ -181,15 +181,26 @@ export default function QuizPlayPage() {
               ← 이전
             </Button>
 
-            <Button
-              onClick={() => navigate(`/quiz/list?topicId=${topicId}`)}
-              variant="ghost"
-              size="sm"
-              className="text-primary text-sm"
-              aria-label="문제 목록으로 돌아가기"
-            >
-              목록
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => navigate(`/quiz/list?topicId=${topicId}`)}
+                variant="ghost"
+                size="sm"
+                className="text-primary text-sm"
+                aria-label="문제 목록으로 돌아가기"
+              >
+                목록
+              </Button>
+              <Button
+                onClick={() => navigate("/quiz/topic")}
+                variant="outline"
+                size="sm"
+                className="text-xs md:text-sm"
+                aria-label="토픽 선택 화면으로 이동"
+              >
+                토픽 선택
+              </Button>
+            </div>
 
             <Button
               onClick={handleNextQuestion}

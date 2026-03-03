@@ -6,6 +6,7 @@ import { VariableSizeList as List } from "react-window";
 import { QuestionCard } from "../../components/QuestionCard";
 import { LoadingOverlay } from "../../components/LoadingOverlay";
 import { ErrorBoundary } from "../../components/ErrorBoundary";
+import { Button } from "../../components/ui/button";
 
 /**
  * 문제 목록 페이지 컴포넌트
@@ -211,9 +212,20 @@ export default function QuestionListPage() {
           overflow: 'hidden'
         }}
       >
-        <h2 className="text-lg md:text-xl font-bold mb-5 text-center text-foreground flex-shrink-0">
-          전체 문제 목록 ({questions.length}개)
-        </h2>
+        <div className="mb-4 flex items-center justify-between gap-3 flex-shrink-0">
+          <h2 className="text-lg md:text-xl font-bold text-foreground">
+            전체 문제 목록 ({questions.length}개)
+          </h2>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="text-xs md:text-sm text-primary"
+            onClick={() => navigate("/quiz/topic")}
+          >
+            문제 유형으로 돌아가기
+          </Button>
+        </div>
         <div 
           className="flex-1 overflow-hidden" 
           style={{ 
