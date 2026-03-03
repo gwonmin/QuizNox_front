@@ -8,18 +8,14 @@ import { Button } from "../../components/ui/button";
 import { GPTExplanationButton } from "../../components/GPTExplanationButton";
 import { QuestionDisplay } from "../../components/QuestionDisplay";
 
-/**
- * 퀴즈 플레이 페이지 컴포넌트
- * @returns {JSX.Element} 퀴즈 플레이 페이지 컴포넌트
- */
-export default function QuizPlayPage() {
+function useQuizPlay() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const q = Number(searchParams.get("q"));
   const topicId = searchParams.get("topicId");
 
   const { setScrollIndex } = useQuizStore();
-  
+
   // TanStack Query로 문제 데이터 가져오기
   const {
     data: questions = [],
@@ -62,7 +58,7 @@ export default function QuizPlayPage() {
       correctAnswers = currentQuestion.mostVotedAnswer;
     } else if (typeof currentQuestion.mostVotedAnswer === 'string') {
       // 'BD' 같은 문자열을 ['B', 'D']로 분리
-      correctAnswers = currentQuestion.mostVotedAnswer.split('');
+      correctAnswers = currentQuestion.mostVotedAnswer.split("");
     } else {
       // 예상치 못한 타입인 경우 빈 배열로 처리
       correctAnswers = [];
@@ -91,7 +87,7 @@ export default function QuizPlayPage() {
       if (answerCount === 1) {
         message = `❌ 틀렸습니다. 정답: ${correctAnswers[0]}`;
       } else {
-        message = `❌ 틀렸습니다. 정답: ${correctAnswers.join(', ')} (${answerCount}개 선택 필요)`;
+        message = `❌ 틀렸습니다. 정답: ${correctAnswers.join(", ")} (${answerCount}개 선택 필요)`;
       }
       
       setAnswerMessage(message);
@@ -119,7 +115,6 @@ export default function QuizPlayPage() {
     const newQuestionNumber = questions[newIndex]?.questionNumber;
     
     if (newQuestionNumber) {
-      // URL 업데이트 (화면 깜박임 없음)
       navigate(`/quiz/play?topicId=${topicId}&q=${newQuestionNumber}`, { replace: true });
       setCurrentIndex(newIndex);
       setScrollIndex(newIndex);
@@ -133,7 +128,6 @@ export default function QuizPlayPage() {
       const newQuestionNumber = questions[newIndex]?.questionNumber;
       
       if (newQuestionNumber) {
-        // URL 업데이트 (화면 깜박임 없음)
         navigate(`/quiz/play?topicId=${topicId}&q=${newQuestionNumber}`, { replace: true });
         setCurrentIndex(newIndex);
         setScrollIndex(newIndex);
@@ -142,6 +136,59 @@ export default function QuizPlayPage() {
       }
     }
   }, [currentIndex, questions, topicId, navigate, setScrollIndex, resetState]);
+
+  const goToList = useCallback(() => {
+    if (!topicId) return;
+    navigate(`/quiz/list?topicId=${topicId}`);
+  }, [navigate, topicId]);
+
+  return {
+    questions,
+    loading,
+    error,
+    currentQuestion,
+    currentIndex,
+    selectedAnswers,
+    isCorrect,
+    answerToast,
+    answerToastVisible,
+    answerMessage,
+    answerType,
+    handleAnswerToggle,
+    checkAnswer,
+    handlePreviousQuestion,
+    handleNextQuestion,
+    setAnswerToastVisible,
+    setAnswerToast,
+    goToList,
+  };
+}
+
+/**
+ * 퀴즈 플레이 페이지 컴포넌트
+ * @returns {JSX.Element} 퀴즈 플레이 페이지 컴포넌트
+ */
+export default function QuizPlayPage() {
+  const {
+    questions,
+    loading,
+    error,
+    currentQuestion,
+    currentIndex,
+    selectedAnswers,
+    isCorrect,
+    answerToast,
+    answerToastVisible,
+    answerMessage,
+    answerType,
+    handleAnswerToggle,
+    checkAnswer,
+    handlePreviousQuestion,
+    handleNextQuestion,
+    setAnswerToastVisible,
+    setAnswerToast,
+    goToList,
+  } = useQuizPlay();
 
 
   if (loading) {
@@ -183,22 +230,13 @@ export default function QuizPlayPage() {
 
             <div className="flex items-center gap-2">
               <Button
-                onClick={() => navigate(`/quiz/list?topicId=${topicId}`)}
+                onClick={goToList}
                 variant="ghost"
                 size="sm"
                 className="text-primary text-sm"
                 aria-label="문제 목록으로 돌아가기"
               >
                 목록
-              </Button>
-              <Button
-                onClick={() => navigate("/quiz/topic")}
-                variant="outline"
-                size="sm"
-                className="text-xs md:text-sm"
-                aria-label="토픽 선택 화면으로 이동"
-              >
-                토픽 선택
               </Button>
             </div>
 
@@ -258,7 +296,7 @@ export default function QuizPlayPage() {
                 question={{
                   questionNumber: currentQuestion.questionNumber,
                   questionText: currentQuestion.questionText,
-                  choices: currentQuestion.choices
+                  choices: currentQuestion.choices,
                 }}
                 correctAnswer={currentQuestion.mostVotedAnswer}
                 userAnswer={selectedAnswers.join("") || null}

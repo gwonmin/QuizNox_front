@@ -1,3 +1,4 @@
+import type React from "react";
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuizStore } from "../../store/quizStore";
@@ -8,42 +9,12 @@ import { LoadingOverlay } from "../../components/LoadingOverlay";
 import { ErrorBoundary } from "../../components/ErrorBoundary";
 import { Button } from "../../components/ui/button";
 
-/**
- * 문제 목록 페이지 컴포넌트
- * @returns {JSX.Element} 문제 목록 페이지 컴포넌트
- */
-export default function QuestionListPage() {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const topicId = searchParams.get("topicId");
-  const containerRef = useRef<HTMLDivElement>(null);
+function useVirtualListHeight(
+  containerRef: React.RefObject<HTMLDivElement | null>,
+  contentLength: number,
+) {
   const [listHeight, setListHeight] = useState(600);
 
-  const {
-    scrollIndex,
-    setScrollIndex,
-    setQuestions,
-  } = useQuizStore();
-
-  // TanStack Query로 문제 데이터 가져오기
-  const {
-    data: questions = [],
-    isLoading: loading,
-    error,
-  } = useQuestions(topicId || '');
-
-  // 문제 데이터가 로드되면 스토어에 저장
-  useEffect(() => {
-    if (questions.length > 0 && topicId) {
-      setQuestions(questions);
-    }
-  }, [questions, topicId, setQuestions]);
-
-
-
-
-
-  // 리스트 높이 업데이트 함수 - Navbar와 main 패딩 고려
   const updateListHeight = useCallback(() => {
     if (!containerRef.current) return;
     
@@ -55,27 +26,23 @@ export default function QuestionListPage() {
     const titleHeight = 60;
     
     // 사용 가능한 높이 계산
-    const availableHeight = window.innerHeight - navbarHeight - mainPadding - titleHeight;
+    const availableHeight =
+      window.innerHeight - navbarHeight - mainPadding - titleHeight;
     const newHeight = Math.max(300, availableHeight);
     
     setListHeight(newHeight);
   }, []);
 
-  // 창 크기 변경 시 리스트 높이 업데이트
   useEffect(() => {
-    // 초기 높이 설정 (약간의 지연을 두어 DOM이 완전히 렌더링된 후 실행)
     const timer = setTimeout(() => {
       updateListHeight();
     }, 100);
     
-    // 리사이즈 이벤트 리스너 추가
     const handleResize = () => {
       updateListHeight();
     };
     
-    // 모바일에서는 orientationchange 이벤트도 감지
     const handleOrientationChange = () => {
-      // 방향 전환 후 약간의 지연을 두고 높이 재계산
       setTimeout(() => {
         updateListHeight();
       }, 300);
@@ -84,7 +51,6 @@ export default function QuestionListPage() {
     window.addEventListener("resize", handleResize);
     window.addEventListener("orientationchange", handleOrientationChange);
     
-    // visualViewport API 이벤트 (모바일에서 주소창 숨김/표시 감지)
     if (window.visualViewport) {
       const handleViewportResize = () => {
         updateListHeight();
@@ -108,17 +74,45 @@ export default function QuestionListPage() {
     };
   }, [updateListHeight]);
 
-  // questions가 로드된 후 높이 재계산
+  // 데이터 양이 바뀌었을 때도 한 번 더 재계산
   useEffect(() => {
-    if (questions.length > 0) {
-      // DOM이 업데이트된 후 높이 재계산
-      const timer = setTimeout(() => {
-        updateListHeight();
-      }, 50);
-      
-      return () => clearTimeout(timer);
+    const timer = setTimeout(() => {
+      updateListHeight();
+    }, 50);
+
+    return () => clearTimeout(timer);
+  }, [contentLength, updateListHeight]);
+
+  return listHeight;
+}
+
+/**
+ * 문제 목록 페이지 컴포넌트
+ * @returns {JSX.Element} 문제 목록 페이지 컴포넌트
+ */
+export default function QuestionListPage() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const topicId = searchParams.get("topicId");
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const { scrollIndex, setScrollIndex, setQuestions } = useQuizStore();
+
+  // TanStack Query로 문제 데이터 가져오기
+  const {
+    data: questions = [],
+    isLoading: loading,
+    error,
+  } = useQuestions(topicId || "");
+
+  // 문제 데이터가 로드되면 스토어에 저장
+  useEffect(() => {
+    if (questions.length > 0 && topicId) {
+      setQuestions(questions);
     }
-  }, [questions.length, updateListHeight]);
+  }, [questions, topicId, setQuestions]);
+
+  const listHeight = useVirtualListHeight(containerRef, questions.length);
 
   const handleQuestionClick = (questionNumber: number) => {
     setScrollIndex(
@@ -128,17 +122,13 @@ export default function QuestionListPage() {
   };
 
   // 아이템 크기 설정
-  const itemSize = useMemo(() => {
-    // 터치하기 쉽도록 80px로 설정
-    return 80;
-  }, []);
+  const itemSize = useMemo(() => 80, []);
 
   // 동적 아이템 크기 계산 함수
   const getItemSize = useCallback((index: number) => {
     const question = questions[index];
     if (!question) return itemSize;
-    
-    // 문제 텍스트 길이에 따라 크기 조정
+
     const textLength = question.questionText?.length || 0;
     if (textLength > 100) return 95; // 긴 문제
     if (textLength > 60) return 90;  // 중간 문제
