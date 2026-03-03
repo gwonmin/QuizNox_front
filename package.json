@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm vite",
-    "dev:local": "pnpm vite --mode local",
+    "dev:local": "pnpm vite --mode localdev",
     "build": "pnpm tsc -b && pnpm vite build",
     "lint": "pnpm eslint .",
     "preview": "pnpm vite preview"

@@ -30,6 +30,8 @@
 }
 
 .markdown-body table {
+  display: table !important;
+  width: auto !important;
   border-color: #e5e7eb !important; /* gray-200 */
   border-collapse: separate;
   border-spacing: 0;
@@ -46,9 +48,6 @@
 }
 .markdown-body tr:nth-child(even) td {
   background: #f9fafb; /* zebra */
-}
-.markdown-body tr:hover td {
-  background: #eff6ff; /* blue-50 hover */
 }
 
 .markdown-body code,
@@ -195,9 +194,11 @@
 
 /* 표: 여백·라운드·헤더 강조 */
 .handbook-doc-content .markdown-body table {
+  display: table !important;
+  width: auto !important;
+  max-width: 100%;
   margin-top: 1rem;
   margin-bottom: 1.5rem;
-  width: 100%;
   border-radius: var(--radius);
   overflow: hidden;
   border: 1px solid hsl(var(--border));
@@ -222,9 +223,6 @@
   color: hsl(var(--foreground));
 }
 
-.handbook-doc-content .markdown-body tr:hover td {
-  background: hsl(var(--accent) / 0.5);
-}
 
 .handbook-doc-content .markdown-body a {
   color: hsl(var(--primary));

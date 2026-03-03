@@ -10,13 +10,13 @@ interface KeyTableProps {
 export function KeyTable({ columns, rows, className }: KeyTableProps) {
   return (
     <div className={cn("my-4 overflow-x-auto", className)}>
-      <table className="w-full min-w-0 text-xs border-collapse border border-border/60 rounded-md overflow-hidden">
+      <table className="max-w-full text-xs border-collapse border border-border/60 rounded-md overflow-hidden">
         <thead className="bg-muted">
           <tr>
             {columns.map((col) => (
               <th
                 key={col}
-                className="border border-border/60 px-2 py-1 text-left font-semibold text-foreground whitespace-nowrap"
+                className="border border-border/60 px-3 py-1.5 text-left font-semibold text-foreground whitespace-nowrap"
               >
                 {col}
               </th>
@@ -31,7 +31,7 @@ export function KeyTable({ columns, rows, className }: KeyTableProps) {
                 // eslint-disable-next-line react/no-array-index-key
                 <td
                   key={cellIndex}
-                  className="border border-border/60 px-2 py-1 align-top text-muted-foreground break-words min-w-0"
+                  className="border border-border/60 px-3 py-1.5 align-top text-muted-foreground"
                 >
                   {cell}
                 </td>
