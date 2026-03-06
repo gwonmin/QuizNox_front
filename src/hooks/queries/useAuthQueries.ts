@@ -8,8 +8,6 @@ import {
   updatePassword as updatePasswordApi,
 } from '../../services/api';
 import {
-  setAccessToken,
-  setRefreshToken,
   clearTokens,
   getAccessToken,
 } from '../../utils/tokenUtils';
@@ -21,6 +19,7 @@ import {
   UpdatePasswordRequest,
 } from '../../types/api';
 import { extractErrorMessage } from '../../utils/errorUtils';
+import { queryKeys } from '../../constants/queryKeys';
 
 /**
  * 현재 사용자 정보 조회
@@ -29,7 +28,7 @@ export const useCurrentUser = () => {
   const accessToken = getAccessToken();
   
   return useQuery({
-    queryKey: ['currentUser'],
+    queryKey: queryKeys.currentUser,
     queryFn: async () => {
       const response = await getCurrentUser();
       return response.data;
@@ -58,6 +57,7 @@ export const useCurrentUser = () => {
  */
 export const useLogin = () => {
   const queryClient = useQueryClient();
+  const { updateTokens } = useAuthStore.getState();
 
   return useMutation({
     mutationFn: async (credentials: LoginRequest) => {
@@ -76,15 +76,17 @@ export const useLogin = () => {
       }
     },
     onSuccess: (data) => {
-      // 토큰 저장
-      setAccessToken(data.tokens.accessToken);
-      setRefreshToken(data.tokens.refreshToken);
+      // 토큰 저장 (store 액션으로 단일화)
+      updateTokens({
+        accessToken: data.tokens.accessToken,
+        refreshToken: data.tokens.refreshToken,
+      });
       
       // 사용자 정보 캐시 업데이트
-      queryClient.setQueryData(['currentUser'], data.user);
+      queryClient.setQueryData(queryKeys.currentUser, data.user);
       
       // 쿼리 무효화하여 사용자 정보 다시 가져오기
-      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.currentUser });
     },
     onError: () => {
       // 로그인 실패 시 토큰 정리
@@ -98,6 +100,7 @@ export const useLogin = () => {
  */
 export const useRegister = () => {
   const queryClient = useQueryClient();
+  const { updateTokens } = useAuthStore.getState();
 
   return useMutation({
     mutationFn: async (userData: RegisterRequest) => {
@@ -116,15 +119,17 @@ export const useRegister = () => {
       }
     },
     onSuccess: (data) => {
-      // 토큰 저장
-      setAccessToken(data.tokens.accessToken);
-      setRefreshToken(data.tokens.refreshToken);
+      // 토큰 저장 (store 액션으로 단일화)
+      updateTokens({
+        accessToken: data.tokens.accessToken,
+        refreshToken: data.tokens.refreshToken,
+      });
       
       // 사용자 정보 캐시 업데이트
-      queryClient.setQueryData(['currentUser'], data.user);
+      queryClient.setQueryData(queryKeys.currentUser, data.user);
       
       // 쿼리 무효화하여 사용자 정보 다시 가져오기
-      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.currentUser });
     },
     onError: () => {
       // 회원가입 실패 시 토큰 정리
@@ -188,7 +193,7 @@ export const useUpdateUsername = () => {
     },
     onSuccess: (data) => {
       // 사용자 정보 캐시 업데이트
-      queryClient.setQueryData(['currentUser'], (oldData: unknown) => {
+      queryClient.setQueryData(queryKeys.currentUser, (oldData: unknown) => {
         if (oldData && typeof oldData === 'object') {
           return {
             ...oldData,

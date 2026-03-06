@@ -1,45 +1,26 @@
-import { useSearchParams, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
-import { useMockExamStore } from "../../store/mockExamStore";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
-import { getExamTypeInfo, createExamTypeData } from "../../constants/examTypes";
-import { getExamBasicInfo } from "../../utils/examUtils";
+import { useMockExamStart } from "../../hooks/mockExam/useMockExamStart";
 
 export default function MockExamStart() {
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const { resetMockExam, setExamType } = useMockExamStore();
-  const examType = searchParams.get("type") as string;
+  const {
+    examInfo,
+    examBasicInfo,
+    invalid,
+    goBack,
+    handleStartExam,
+  } = useMockExamStart();
 
-  // 페이지 진입 시 이전 시험 데이터 초기화
-  useEffect(() => {
-    resetMockExam();
-  }, [resetMockExam]);
-
-  const examInfo = getExamTypeInfo(examType);
-  const examBasicInfo = getExamBasicInfo(examType);
-  
-  if (!examType || !examInfo) {
+  if (invalid) {
     return (
       <div className="text-center p-4">
         <p className="text-destructive">잘못된 시험 유형입니다.</p>
-        <Button onClick={() => navigate("/mock-exam")} className="mt-4">
+        <Button onClick={goBack} className="mt-4">
           모의고사 선택으로 돌아가기
         </Button>
       </div>
     );
   }
-
-  const handleStartExam = () => {
-    // 시험 정보를 store에 저장
-    const examData = createExamTypeData(examType);
-    if (examData) {
-      setExamType(examData);
-    }
-    
-    navigate(`/mock-exam/play?type=${examType}`);
-  };
 
   return (
     <main className="flex flex-col items-center justify-center p-4 max-w-2xl mx-auto">
@@ -49,8 +30,10 @@ export default function MockExamStart() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="text-center">
-            <h2 className="text-lg font-semibold mb-2">{examInfo.name}</h2>
-            <p className="text-muted-foreground">실전과 동일한 환경에서 모의고사를 진행합니다</p>
+            <h2 className="text-lg font-semibold mb-2">{examInfo!.name}</h2>
+            <p className="text-muted-foreground">
+              실전과 동일한 환경에서 모의고사를 진행합니다
+            </p>
           </div>
 
           <div className="space-y-4">
@@ -76,14 +59,10 @@ export default function MockExamStart() {
           </div>
 
           <div className="flex gap-3">
-            <Button 
-              variant="outline" 
-              onClick={() => navigate("/mock-exam")}
-              className="flex-1"
-            >
+            <Button variant="outline" onClick={goBack} className="flex-1">
               돌아가기
             </Button>
-            <Button 
+            <Button
               onClick={handleStartExam}
               className="flex-1 bg-green-600 hover:bg-green-700"
             >

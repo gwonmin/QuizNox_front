@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { quizApi } from '../../services/api';
 import { Question, RawQuestion } from '../../types/quiz';
+import { queryKeys } from '../../constants/queryKeys';
+import { getExamBasicInfo } from '../../utils/examUtils';
 
 const mapQuestion = (rawQuestion: RawQuestion): Question => ({
   questionNumber: Number(rawQuestion.question_number),
@@ -14,7 +16,7 @@ const mapQuestion = (rawQuestion: RawQuestion): Question => ({
  */
 export const useQuestions = (topicId: string) => {
   return useQuery({
-    queryKey: ['questions', topicId],
+    queryKey: queryKeys.questions(topicId),
     queryFn: async () => {
       const response = await quizApi.get(`/questions?topicId=${topicId}`);
       
@@ -30,11 +32,11 @@ export const useQuestions = (topicId: string) => {
 };
 
 /**
- * 모의고사 문제 목록 조회 (랜덤 65문제)
+ * 모의고사 문제 목록 조회 (시험 유형별 문항 수만큼 랜덤 선택)
  */
 export const useMockExamQuestions = (topicId: string) => {
   return useQuery({
-    queryKey: ['mockExamQuestions', topicId], // 타임스탬프 제거
+    queryKey: queryKeys.mockExamQuestions(topicId),
     queryFn: async () => {
       const response = await quizApi.get(`/questions?topicId=${topicId}`);
       
@@ -42,12 +44,15 @@ export const useMockExamQuestions = (topicId: string) => {
         throw new Error('잘못된 응답 형식입니다.');
       }
 
-      // 전체 문제에서 랜덤하게 65문제 선택
+      // 시험 설정에서 문항 수 조회
+      const { questionCount } = getExamBasicInfo(topicId);
+
+      // 전체 문제에서 랜덤하게 필요한 개수만 선택
       const shuffled = response.data.sort(() => 0.5 - Math.random());
-      const selectedQuestions = shuffled.slice(0, 65);
+      const selectedQuestions = shuffled.slice(0, questionCount);
 
       return selectedQuestions.map((rawQuestion: RawQuestion, index: number) => ({
-        questionNumber: index + 1, // 모의고사에서는 1부터 65까지
+        questionNumber: index + 1,
         questionText: rawQuestion.question_text,
         choices: rawQuestion.choices,
         mostVotedAnswer: rawQuestion.most_voted_answer,

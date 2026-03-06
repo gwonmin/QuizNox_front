@@ -8,7 +8,7 @@ interface UseExamTimerProps {
 }
 
 export function useExamTimer({ isStarted, remainingTime, onTimeExpired }: UseExamTimerProps) {
-  const { tickTimer } = useMockExamStore();
+  const tickTimer = useMockExamStore((state) => state.tickTimer);
 
   // 타이머 실행
   useEffect(() => {

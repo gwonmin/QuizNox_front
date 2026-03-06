@@ -37,24 +37,27 @@ interface MockExamConfig {
   };
 }
 
-interface MockExamState {
+interface MockExamConfigState {
   examType: ExamType | null;
   examTypeId: string | null; // AWS_DVA, AWS_SAA, AWS_SOA, AWS_DOP
   examName: string | null; // AWS Certified Developer
   examShortName: string | null; // Developer Associate
   timeLimit: number; // 분 단위
+}
+
+interface MockExamRuntimeState {
   remainingTime: number; // 초 단위
   currentQuestionIndex: number;
-  answers: (string | null)[]; // 65개 답안
+  answers: (string | null)[]; // 각 문항에 대한 답안
   questions: Question[]; // 모의고사 문제들
   isStarted: boolean;
   isCompleted: boolean;
   isSubmitted: boolean;
   startTime: number | null;
   endTime: number | null;
-  loading: "idle" | "loading" | "succeeded" | "failed";
-  error: string | null;
 }
+
+type MockExamState = MockExamConfigState & MockExamRuntimeState;
 
 interface AnswerDetail {
   questionNumber: number;
@@ -114,7 +117,9 @@ export type {
   Question, 
   QuizState, 
   ExamType, 
-  MockExamConfig, 
+  MockExamConfig,
+  MockExamConfigState,
+  MockExamRuntimeState,
   MockExamState, 
   AnswerDetail, 
   MockExamResult,

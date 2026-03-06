@@ -1,201 +1,33 @@
-import { useEffect, useState, useCallback, useRef } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
-import { useMockExamStore } from "../../store/mockExamStore";
-import { useMockExamQuestions } from "../../hooks/queries/useQuizQueries";
+import { useNavigate } from "react-router-dom";
 import { LoadingOverlay } from "../../components/LoadingOverlay";
 import { ErrorBoundary } from "../../components/ErrorBoundary";
 import { Button } from "../../components/ui/button";
 import { QuestionDisplay } from "../../components/QuestionDisplay";
 import { ExamProgress } from "../../components/ExamProgress";
-import { useExamTimer } from "../../hooks/useExamTimer";
-import { EXAM_TYPE_IDS } from "../../constants/examTypes";
-import {
-  getExamBasicInfo,
-  getExamDisplayName,
-  getAnsweredQuestionsCount,
-} from "../../utils/examUtils";
+import { useMockExamPlay } from "../../hooks/mockExam/useMockExamPlay";
+import { getExamDisplayName } from "../../utils/examUtils";
 
 export default function MockExamPlay() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const examType = searchParams.get("type") as string;
-
   const {
-    remainingTime,
-    currentQuestionIndex,
-    answers,
-    questions,
+    examType,
+    isLoading,
+    error,
     isStarted,
     isSubmitted,
-    startExam,
-    setAnswer,
-    setCurrentQuestionIndex,
-    setQuestions,
-    resetMockExam,
-  } = useMockExamStore();
-
-  // TanStack Query로 모의고사 문제 가져오기
-  const {
-    data: mockExamQuestions,
-    isPending: isLoading,
-    error,
-  } = useMockExamQuestions(examType || "");
-
-  const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
-  const loadedExamType = useRef<string | null>(null);
-  const isSubmittingRef = useRef(false);
-  const isReviewingRef = useRef(false);
-
-  // 시험 타입 설정 및 문제 로드
-  useEffect(() => {
-    const validExamTypes = EXAM_TYPE_IDS;
-    if (!examType || !validExamTypes.includes(examType)) {
-      navigate("/mock-exam");
-      return;
-    }
-
-    // TanStack Query에서 가져온 문제를 Zustand에 저장
-    if (
-      mockExamQuestions &&
-      mockExamQuestions.length > 0 &&
-      loadedExamType.current !== examType
-    ) {
-      setQuestions(mockExamQuestions);
-      loadedExamType.current = examType;
-    }
-  }, [examType, navigate, mockExamQuestions, setQuestions]);
-
-  // 컴포넌트 언마운트 시 시험 데이터 초기화 (제출되지 않은 경우만)
-  useEffect(() => {
-    return () => {
-      // store의 현재 상태를 확인하여 안전하게 처리
-      const store = useMockExamStore.getState();
-
-      // 제출 중이거나 제출된 경우, 또는 검토 중인 경우에는 데이터를 유지
-      if (
-        isSubmittingRef.current ||
-        store.isSubmitted ||
-        isReviewingRef.current
-      ) {
-        return;
-      }
-
-      // 시험이 시작되었지만 제출되지 않은 경우에만 초기화
-      if (store.isStarted && !store.isSubmitted) {
-        resetMockExam();
-      }
-    };
-  }, [resetMockExam]);
-
-  // 다른 페이지로 이동할 때 시험 데이터 초기화 (검토 완료 후)
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      // 검토 완료 후 다른 페이지로 이동하는 경우에만 초기화
-      if (isSubmitted && !isReviewingRef.current) {
-        resetMockExam();
-      }
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, [isSubmitted, resetMockExam]);
-
-  // 문제 로드 완료 시 현재 문제의 답안 복원
-  useEffect(() => {
-    if (questions && questions.length > 0) {
-      const currentAnswer = answers[currentQuestionIndex];
-      if (currentAnswer) {
-        setSelectedAnswers(currentAnswer.split(""));
-      } else {
-        setSelectedAnswers([]);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [questions, currentQuestionIndex]); // answers 제거하여 무한 루프 방지
-
-  // 타이머 관리
-  useExamTimer({
-    isStarted,
     remainingTime,
-    onTimeExpired: () => navigate(`/mock-exam/review?type=${examType}`),
-  });
-
-  // 브라우저 새로고침 방지
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (isStarted && !isSubmitted) {
-        e.preventDefault();
-        e.returnValue = "시험이 진행 중입니다. 정말로 페이지를 떠나시겠습니까?";
-        return "시험이 진행 중입니다. 정말로 페이지를 떠나시겠습니까?";
-      }
-    };
-
-    if (isStarted && !isSubmitted) {
-      window.addEventListener("beforeunload", handleBeforeUnload);
-    }
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, [isStarted, isSubmitted]);
-
-  // 시험 시작
-  const handleStartExam = useCallback(() => {
-    startExam();
-  }, [startExam]);
-
-  // 답안 선택
-  const handleAnswerToggle = useCallback((choice: string) => {
-    setSelectedAnswers((prev) => {
-      const newAnswers = prev.includes(choice)
-        ? prev.filter((ans) => ans !== choice)
-        : [...prev, choice];
-
-      return newAnswers;
-    });
-  }, []);
-
-  // selectedAnswers가 변경될 때마다 store에 저장
-  useEffect(() => {
-    const answerString =
-      selectedAnswers.length > 0 ? selectedAnswers.join("") : null;
-    setAnswer(currentQuestionIndex, answerString);
-  }, [selectedAnswers, currentQuestionIndex, setAnswer]);
-
-  // 이전 문제
-  const handlePreviousQuestion = useCallback(() => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
-      // 이전 문제의 답안이 있으면 복원, 없으면 빈 배열
-      const prevAnswer = answers[currentQuestionIndex - 1];
-      setSelectedAnswers(prevAnswer ? prevAnswer.split("") : []);
-    }
-  }, [currentQuestionIndex, setCurrentQuestionIndex, answers]);
-
-  // 다음 문제
-  const handleNextQuestion = useCallback(() => {
-    if (questions && currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-      // 다음 문제의 답안이 있으면 복원, 없으면 빈 배열
-      const nextAnswer = answers[currentQuestionIndex + 1];
-      setSelectedAnswers(nextAnswer ? nextAnswer.split("") : []);
-    }
-  }, [currentQuestionIndex, questions, setCurrentQuestionIndex, answers]);
-
-  // 시험 제출 후 결과 페이지로 이동
-  useEffect(() => {
-    if (isSubmitted) {
-      navigate(`/mock-exam/result?type=${examType}`);
-    }
-  }, [isSubmitted, navigate, examType]);
-
-  // 시험 기본 정보
-  const examInfo = getExamBasicInfo(examType);
-
-  // 답변한 문제 수 계산
-  const answeredQuestions = getAnsweredQuestionsCount(answers);
+    currentQuestionIndex,
+    questions,
+    currentQuestion,
+    selectedAnswers,
+    examInfo,
+    answeredQuestions,
+    isReviewingRef,
+    handleStartExam,
+    handleAnswerToggle,
+    handlePreviousQuestion,
+    handleNextQuestion,
+  } = useMockExamPlay();
 
   if (isLoading) {
     return (
@@ -279,9 +111,6 @@ export default function MockExamPlay() {
     );
   }
 
-  // 현재 문제
-  const currentQuestion = questions[currentQuestionIndex];
-
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-background">
@@ -324,8 +153,8 @@ export default function MockExamPlay() {
         {/* 메인 콘텐츠 */}
         <div className="px-4 py-4">
           <QuestionDisplay
-            question={currentQuestion}
-            correctAnswer={currentQuestion.mostVotedAnswer}
+            question={currentQuestion!}
+            correctAnswer={currentQuestion!.mostVotedAnswer}
             selectedAnswers={selectedAnswers}
             onAnswerToggle={handleAnswerToggle}
           />

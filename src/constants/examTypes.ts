@@ -7,9 +7,11 @@ export interface ExamTypeInfo {
   examType: ExamType;
   timeLimit: number;
   passThreshold: number;
+  questionCount: number;
   level: string;
 }
 
+// 각 시험 유형별 기본 설정 (시간/합격 기준/문항 수)
 export const EXAM_TYPES: Record<string, ExamTypeInfo> = {
   AWS_DVA: {
     id: "AWS_DVA",
@@ -18,6 +20,7 @@ export const EXAM_TYPES: Record<string, ExamTypeInfo> = {
     examType: "associate",
     timeLimit: 130,
     passThreshold: 45,
+    questionCount: 65,
     level: "Associate",
   },
   AWS_SAA: {
@@ -27,6 +30,7 @@ export const EXAM_TYPES: Record<string, ExamTypeInfo> = {
     examType: "associate",
     timeLimit: 130,
     passThreshold: 45,
+    questionCount: 65,
     level: "Associate",
   },
   AWS_SOA: {
@@ -36,6 +40,7 @@ export const EXAM_TYPES: Record<string, ExamTypeInfo> = {
     examType: "associate",
     timeLimit: 130,
     passThreshold: 45,
+    questionCount: 65,
     level: "Associate",
   },
   AWS_DOP: {
@@ -45,6 +50,7 @@ export const EXAM_TYPES: Record<string, ExamTypeInfo> = {
     examType: "professional",
     timeLimit: 180,
     passThreshold: 45,
+    questionCount: 75,
     level: "Professional",
   },
 };

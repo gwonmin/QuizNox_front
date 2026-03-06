@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
-import { useEffect } from "react";
-import { useQuizStore } from "../../store/quizStore";
+import { useQuizTopic } from "../../hooks/quiz/useQuizTopic";
 import {
   Card,
   CardContent,
@@ -8,34 +7,8 @@ import {
   CardTitle,
 } from "../../components/ui/card";
 
-const QUIZ_TOPICS = [
-  {
-    id: "AWS_DVA",
-    name: "Associate(DVA-C02)",
-    shortName: "AWS Certified Developer",
-  },
-  {
-    id: "AWS_SAA",
-    name: "Associate(SAA-C03)",
-    shortName: "AWS Certified Solutions Architect",
-  },
-  {
-    id: "AWS_SOA",
-    name: "Associate(SOA-C02)",
-    shortName: "AWS Certified SysOps Administrator",
-  },
-  {
-    id: "AWS_DOP",
-    name: "Professional(DOP-C02)",
-    shortName: "AWS Certified DevOps Engineer",
-  },
-];
-
 export default function QuizListPage() {
-  const { setScrollIndex } = useQuizStore();
-  useEffect(() => {
-    setScrollIndex(0);
-  }, [setScrollIndex]);
+  const { topics } = useQuizTopic();
 
   return (
     <main className="flex flex-col items-center justify-center p-4 max-w-3xl mx-auto">
@@ -43,7 +16,7 @@ export default function QuizListPage() {
         문제 유형 선택
       </h1>
       <ul className="w-full space-y-3">
-        {QUIZ_TOPICS.map((topic) => (
+        {topics.map((topic) => (
           <li key={topic.id}>
             <Link to={`/quiz/list?topicId=${topic.id}`}>
               <Card className="hover:shadow-lg transition-all active:scale-[0.98] cursor-pointer">

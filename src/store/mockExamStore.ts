@@ -1,23 +1,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { ExamType, MockExamState, Question } from '../types/quiz';
-
-// 모의고사 설정 (공통 상수에서 생성)
-const MOCK_EXAM_CONFIG = {
-  associate: {
-    timeLimit: 130, // 분
-    passThreshold: 45,
-    name: 'AWS Certified Associate',
-  },
-  professional: {
-    timeLimit: 180, // 분
-    passThreshold: 45,
-    name: 'AWS Certified Professional',
-  },
-};
+import { getExamTypeInfo } from '../constants/examTypes';
 
 interface MockExamStore extends Omit<MockExamState, 'loading' | 'error'> {
-  // Actions
   setExamType: (data: { examType: ExamType; examTypeId: string; examName: string; examShortName: string }) => void;
   startExam: () => void;
   setAnswer: (questionIndex: number, answer: string | null) => void;
@@ -39,7 +25,7 @@ export const useMockExamStore = create<MockExamStore>()(
       timeLimit: 0,
       remainingTime: 0,
       currentQuestionIndex: 0,
-      answers: new Array(65).fill(null),
+      answers: [],
       questions: [],
       isStarted: false,
       isCompleted: false,
@@ -51,13 +37,15 @@ export const useMockExamStore = create<MockExamStore>()(
 
       setExamType: (data: { examType: ExamType; examTypeId: string; examName: string; examShortName: string }) => {
         const { examType, examTypeId, examName, examShortName } = data;
+        const info = getExamTypeInfo(examTypeId);
+        const timeLimit = info?.timeLimit ?? 0;
         set({
           examType,
           examTypeId,
           examName,
           examShortName,
-          timeLimit: MOCK_EXAM_CONFIG[examType].timeLimit,
-          remainingTime: MOCK_EXAM_CONFIG[examType].timeLimit * 60, // 초로 변환
+          timeLimit,
+          remainingTime: timeLimit * 60, // 초로 변환
         });
       },
 
@@ -118,7 +106,7 @@ export const useMockExamStore = create<MockExamStore>()(
           timeLimit: 0,
           remainingTime: 0,
           currentQuestionIndex: 0,
-          answers: new Array(65).fill(null),
+          answers: [],
           questions: [],
           isStarted: false,
           isCompleted: false,
