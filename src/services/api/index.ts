@@ -15,6 +15,8 @@ export {
   logout,
 } from "./authApi";
 export { getReviews, postReview, updateReview, deleteReview } from "./reviewApi";
+export { getProgress, saveProgress, deleteProgress } from "./progressApi";
+export type { ProgressItem, SaveProgressPayload } from "./progressApi";
 
 import { quizApiClient } from "./clients";
 export default quizApiClient;

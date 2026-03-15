@@ -140,7 +140,7 @@ export default function ReviewsSection() {
           onKeyDown={handleKeyDown}
           maxLength={MAX_LENGTH}
           rows={1}
-          placeholder="서비스 개선 요청사항이나 이용 후기를 남겨주세요."
+          placeholder="이용 후기를 남겨주세요."
           className="w-full resize-none rounded-md border border-input bg-background px-2.5 py-1.5 pr-14 text-sm leading-relaxed text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
           style={{ maxHeight: 80, overflowY: "auto" }}
           disabled={postMutation.isPending}

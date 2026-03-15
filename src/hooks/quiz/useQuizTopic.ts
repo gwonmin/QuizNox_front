@@ -7,7 +7,7 @@ export interface QuizTopic {
   shortName: string;
 }
 
-const QUIZ_TOPICS: QuizTopic[] = [
+export const QUIZ_TOPICS: QuizTopic[] = [
   {
     id: "AWS_DVA",
     name: "Associate(DVA-C02)",

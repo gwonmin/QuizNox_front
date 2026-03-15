@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuizStore } from "../../store/quizStore";
-import { useQuestions } from "../queries/useQuizQueries";
+import { useAuthStore } from "../../store/authStore";
+import { useQuestions, useSaveProgress } from "../queries/useQuizQueries";
+import { QUIZ_TOPICS } from "./useQuizTopic";
 
 export function useQuizPlay() {
   const navigate = useNavigate();
@@ -10,6 +12,8 @@ export function useQuizPlay() {
   const topicId = searchParams.get("topicId");
 
   const setScrollIndex = useQuizStore((state) => state.setScrollIndex);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const { mutate: saveProgressMutate } = useSaveProgress();
 
   const {
     data: questions = [],
@@ -36,6 +40,17 @@ export function useQuizPlay() {
   }, [q, questions]);
 
   const currentQuestion = questions[currentIndex];
+
+  const saveCurrentProgress = useCallback(() => {
+    if (!isAuthenticated || !topicId || !currentQuestion) return;
+    const topicName =
+      QUIZ_TOPICS.find((t) => t.id === topicId)?.shortName ?? topicId;
+    saveProgressMutate({
+      topicId,
+      questionNumber: currentQuestion.questionNumber,
+      topicName,
+    });
+  }, [isAuthenticated, topicId, currentQuestion, saveProgressMutate]);
 
   const handleAnswerToggle = useCallback((choice: string) => {
     setSelectedAnswers((prev) =>
@@ -81,12 +96,13 @@ export function useQuizPlay() {
 
     setAnswerToast(true);
     setAnswerToastVisible(true);
+    saveCurrentProgress();
 
     setTimeout(() => {
       setAnswerToastVisible(false);
       setTimeout(() => setAnswerToast(false), 300);
     }, 3000);
-  }, [selectedAnswers, currentQuestion]);
+  }, [selectedAnswers, currentQuestion, saveCurrentProgress]);
 
   const resetState = useCallback(() => {
     setIsCorrect(null);

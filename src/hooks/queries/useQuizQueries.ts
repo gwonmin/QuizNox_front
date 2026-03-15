@@ -1,8 +1,11 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { quizApi } from '../../services/api';
+import { getProgress, saveProgress, deleteProgress } from '../../services/api/progressApi';
+import type { ProgressItem, SaveProgressPayload } from '../../services/api/progressApi';
 import { Question, RawQuestion } from '../../types/quiz';
 import { queryKeys } from '../../constants/queryKeys';
 import { getExamBasicInfo } from '../../utils/examUtils';
+import { useAuthStore } from '../../store/authStore';
 
 const mapQuestion = (rawQuestion: RawQuestion): Question => ({
   questionNumber: Number(rawQuestion.question_number),
@@ -65,5 +68,47 @@ export const useMockExamQuestions = (topicId: string) => {
     gcTime: 0, // 가비지 컬렉션 즉시 실행
     refetchOnMount: true, // 마운트 시 항상 새로 가져오기
     refetchOnWindowFocus: false, // 윈도우 포커스 시에는 새로 가져오지 않음
+  });
+};
+
+/**
+ * 사용자의 토픽별 풀이 진행 상태 조회
+ */
+export const useProgress = () => {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+
+  return useQuery<ProgressItem[]>({
+    queryKey: queryKeys.progress,
+    queryFn: getProgress,
+    enabled: isAuthenticated,
+    staleTime: 2 * 60 * 1000,
+  });
+};
+
+/**
+ * 풀이 진행 상태 저장 mutation
+ */
+export const useSaveProgress = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: SaveProgressPayload) => saveProgress(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.progress });
+    },
+  });
+};
+
+/**
+ * 풀이 진행 상태 삭제 mutation
+ */
+export const useDeleteProgress = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (topicId: string) => deleteProgress(topicId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.progress });
+    },
   });
 };

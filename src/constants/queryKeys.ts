@@ -3,5 +3,6 @@ export const queryKeys = {
   questions: (topicId: string) => ["questions", topicId] as const,
   mockExamQuestions: (examType: string) =>
     ["mockExamQuestions", examType] as const,
+  progress: ["progress"] as const,
 };
 
