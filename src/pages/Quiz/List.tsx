@@ -16,6 +16,7 @@ export default function QuestionListPage() {
   const {
     topicId,
     containerRef,
+    listRef,
     questions,
     loading,
     error,
@@ -115,6 +116,7 @@ export default function QuestionListPage() {
           }}
         >
           <List
+            ref={listRef}
             height={listHeight}
             itemCount={questions.length}
             itemSize={getItemSize}

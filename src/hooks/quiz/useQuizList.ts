@@ -7,8 +7,9 @@ import {
   useState,
 } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import type { VariableSizeList } from "react-window";
 import { useQuizStore } from "../../store/quizStore";
-import { useQuestions } from "../queries/useQuizQueries";
+import { useQuestions, useProgress } from "../queries/useQuizQueries";
 
 function useVirtualListHeight(
   containerRef: React.RefObject<HTMLDivElement | null>,
@@ -90,6 +91,7 @@ export function useQuizList() {
   const [searchParams] = useSearchParams();
   const topicId = searchParams.get("topicId");
   const containerRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<VariableSizeList>(null);
 
   const scrollIndex = useQuizStore((state) => state.scrollIndex);
   const setScrollIndex = useQuizStore((state) => state.setScrollIndex);
@@ -99,6 +101,25 @@ export function useQuizList() {
     isLoading: loading,
     error,
   } = useQuestions(topicId || "");
+
+  const { data: progressList } = useProgress();
+  const progressApplied = useRef(false);
+
+  useEffect(() => {
+    if (progressApplied.current || !topicId || !questions.length || !progressList) return;
+    const prog = progressList.find((p) => p.topic_id === topicId);
+    if (!prog) return;
+
+    const nextQ = prog.question_number + 1;
+    const idx = questions.findIndex((q) => q.questionNumber === nextQ);
+    if (idx >= 0) {
+      setScrollIndex(idx);
+      requestAnimationFrame(() => {
+        listRef.current?.scrollToItem(idx, "start");
+      });
+    }
+    progressApplied.current = true;
+  }, [topicId, questions, progressList, setScrollIndex]);
 
   const listHeight = useVirtualListHeight(containerRef, questions.length);
 
@@ -141,6 +162,7 @@ export function useQuizList() {
   return {
     topicId,
     containerRef,
+    listRef,
     questions,
     loading,
     error,
