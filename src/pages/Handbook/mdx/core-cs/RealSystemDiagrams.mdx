@@ -64,7 +64,11 @@ import { MermaidDiagramWithLinks } from "@/components/handbook/MermaidDiagramWit
   subgraph cache [캐시]
     C([Cache hit/miss, TTL])
   end
-  storage --> perf --> cache`}
+  subgraph analytics [분석 저장소]
+    DW([DW / DM])
+  end
+  storage --> perf --> cache
+  perf --> analytics`}
 />
 
 ---
@@ -159,8 +163,12 @@ import { MermaidDiagramWithLinks } from "@/components/handbook/MermaidDiagramWit
     HA([HA / active-active])
     DR([DR 전략])
     SLO([SLI / SLO])
+    LT([부하 테스트])
+    AI([AIOps])
     HA --> SLO
     DR --> SLO
+    SLO --> LT
+    LT --> AI
   end
   observe --> mitigate --> recover --> target`}
 />
@@ -218,7 +226,11 @@ import { MermaidDiagramWithLinks } from "@/components/handbook/MermaidDiagramWit
     gitops["GitOps"]
     art --> deploy --> gitops
   end
-  test --> sec --> art`}
+  subgraph ml [ML 자동화]
+    mlops(["MLOps"])
+  end
+  test --> sec --> art
+  gitops --> mlops`}
 />
 
 ---
@@ -250,6 +262,29 @@ import { MermaidDiagramWithLinks } from "@/components/handbook/MermaidDiagramWit
     OPT([비용 최적화])
   end
   cost --> option --> observe --> opt`}
+/>
+
+---
+
+<h2 id="section-ai-agent">9. AI & Agent</h2>
+
+**왜 배우나요?** LLM·AI Agent·RAG가 소프트웨어 개발과 운영 전반에 빠르게 도입되고 있으며, 이들의 아키텍처와 동작 원리를 이해해야 효과적으로 활용할 수 있습니다.
+
+LLM 기초 → AI Agent(자율 수행) → RAG(외부 지식 연동)
+
+<MermaidDiagramWithLinks
+  diagramIndex={8}
+  code={`flowchart LR
+  subgraph llm [LLM 기초]
+    LLM([LLM 기초])
+  end
+  subgraph agent [에이전트]
+    AG([AI Agent])
+  end
+  subgraph retrieval [검색 증강]
+    RAG([RAG])
+  end
+  llm --> agent --> retrieval`}
 />
 
 ---

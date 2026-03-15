@@ -55,6 +55,7 @@ export const HANDBOOK_LAYERS: HandbookLayer[] = [
           { slug: "acid-transaction-lock", title: "ACID · 트랜잭션 · 락" },
           { slug: "index-why-fast", title: "Index가 왜 빠른가" },
           { slug: "caching", title: "Cache (hit/miss, TTL, write strategies)" },
+          { slug: "data-warehouse", title: "DW / DM (데이터 웨어하우스 · 데이터 마트)" },
         ],
       },
       {
@@ -108,6 +109,8 @@ export const HANDBOOK_LAYERS: HandbookLayer[] = [
           { slug: "ha-design", title: "HA · active-active 개념" },
           { slug: "dr-strategy", title: "DR 전략 (Backup · Pilot Light · Warm Standby · Active-Active)" },
           { slug: "sli-slo", title: "SLI / SLO" },
+          { slug: "load-testing", title: "부하 테스트 (Load · Stress · Spike · Soak)" },
+          { slug: "aiops", title: "AIOps (AI 기반 운영 자동화)" },
         ],
       },
       {
@@ -121,6 +124,7 @@ export const HANDBOOK_LAYERS: HandbookLayer[] = [
           { slug: "artifact", title: "아티팩트 (산출물 · 버전 · 저장)" },
           { slug: "deploy", title: "배포 자동화 (전략 · 롤백 · 환경)" },
           { slug: "gitops", title: "GitOps (선언적 배포 · Git 동기화)" },
+          { slug: "mlops", title: "MLOps (ML 모델 배포 · 재학습 자동화)" },
         ],
       },
       {
@@ -136,6 +140,15 @@ export const HANDBOOK_LAYERS: HandbookLayer[] = [
           { slug: "cost-visibility", title: "비용 관측 (Cost visibility)" },
           { slug: "cost-budgets", title: "예산 (Budgets)" },
           { slug: "cost-optimization", title: "비용 최적화" },
+        ],
+      },
+      {
+        id: "ai-agent",
+        title: "9. AI & Agent",
+        docs: [
+          { slug: "llm-basics", title: "LLM 기초 (Transformer · 토큰 · Prompt Engineering)" },
+          { slug: "ai-agent", title: "AI Agent (추론 · 도구 사용 · 멀티에이전트)" },
+          { slug: "rag", title: "RAG (Retrieval-Augmented Generation)" },
         ],
       },
     ],
@@ -216,6 +229,14 @@ export const HANDBOOK_LAYERS: HandbookLayer[] = [
           { slug: "kms-basics", title: "KMS 기본 (키 관리 · Envelope Encryption)" },
           { slug: "secrets-manager-basics", title: "Secrets Manager 기본 (시크릿 저장 · 회전)" },
           { slug: "ssm-parameter-store", title: "SSM Parameter Store (구성값 · 시크릿)" },
+        ],
+      },
+      {
+        id: "ai-bedrock",
+        title: "7. AI & Bedrock",
+        docs: [
+          { slug: "bedrock-overview", title: "Bedrock 개요 (관리형 FM · 모델 선택)" },
+          { slug: "bedrock-agent", title: "Bedrock Agent (Action Group · Knowledge Base · Guardrails)" },
         ],
       },
     ],

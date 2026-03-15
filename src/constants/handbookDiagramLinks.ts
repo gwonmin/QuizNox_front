@@ -49,6 +49,10 @@ export const REAL_SYSTEM_DIAGRAM_LINKS: Record<string, string> = {
   "Cache hit/miss": "/handbook/core-cs/caching",
   "Cache hit/miss, TTL": "/handbook/core-cs/caching",
   "캐시 원리": "/handbook/core-cs/caching",
+  "DW / DM": "/handbook/core-cs/data-warehouse",
+  "DW": "/handbook/core-cs/data-warehouse",
+  "DM": "/handbook/core-cs/data-warehouse",
+  "데이터 웨어하우스": "/handbook/core-cs/data-warehouse",
 
   // ---- 3. Distributed Systems Essentials ----
   "Stateless vs Stateful": "/handbook/core-cs/stateless-stateful",
@@ -113,6 +117,10 @@ export const REAL_SYSTEM_DIAGRAM_LINKS: Record<string, string> = {
   "SLI / SLO 개념": "/handbook/core-cs/sli-slo",
   Alarm: "/handbook/core-cs/sli-slo",
   "알람": "/handbook/core-cs/sli-slo",
+  "부하 테스트": "/handbook/core-cs/load-testing",
+  "Load Test": "/handbook/core-cs/load-testing",
+  AIOps: "/handbook/core-cs/aiops",
+  "AIOps 개념": "/handbook/core-cs/aiops",
   "백업": "/handbook/core-cs/backup",
   복제: "/handbook/core-cs/replication",
   "DR 전략": "/handbook/core-cs/dr-strategy",
@@ -135,6 +143,8 @@ export const REAL_SYSTEM_DIAGRAM_LINKS: Record<string, string> = {
   아티팩트: "/handbook/core-cs/artifact",
   "배포 자동화": "/handbook/core-cs/deploy",
   GitOps: "/handbook/core-cs/gitops",
+  MLOps: "/handbook/core-cs/mlops",
+  "MLOps 개념": "/handbook/core-cs/mlops",
   배포: "/handbook/core-cs/deploy",
 
   // ---- 8. Cost & FinOps ----
@@ -147,4 +157,11 @@ export const REAL_SYSTEM_DIAGRAM_LINKS: Record<string, string> = {
   "Cost Explorer": "/handbook/core-cs/cost-visibility",
   Budgets: "/handbook/core-cs/cost-budgets",
   "비용 최적화": "/handbook/core-cs/cost-optimization",
+
+  // ---- 9. AI & Agent ----
+  "LLM 기초": "/handbook/core-cs/llm-basics",
+  LLM: "/handbook/core-cs/llm-basics",
+  "AI Agent": "/handbook/core-cs/ai-agent",
+  Agent: "/handbook/core-cs/ai-agent",
+  RAG: "/handbook/core-cs/rag",
 };

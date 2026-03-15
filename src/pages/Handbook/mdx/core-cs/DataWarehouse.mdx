@@ -1,0 +1,530 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="DW(Data Warehouse)는 조직 전체의 데이터를 통합·정제하여 분석용으로 저장하는 중앙 저장소이고, DM(Data Mart)은 특정 부서·목적에 맞게 부분 추출한 분석 저장소이다."
+  bullets={[
+    "DW: 여러 운영 시스템(OLTP)의 데이터를 ETL로 통합하여 분석(OLAP)에 최적화된 형태로 저장한다.",
+    "DM: DW에서 부서·도메인별로 필요한 데이터만 추출하여 빠른 조회·리포팅에 활용한다.",
+    "데이터 레이크·레이크하우스와 함께 현대 데이터 아키텍처의 핵심 구성 요소이다.",
+  ]}
+/>
+
+## OLTP vs OLAP
+
+<KeyTable
+  columns={["구분", "OLTP (운영)", "OLAP (분석)"]}
+  rows={[
+    [
+      "목적",
+      "트랜잭션 처리 (주문, 결제, 회원가입 등)",
+      "데이터 분석 (매출 추이, 사용자 행동 등)",
+    ],
+    [
+      "쿼리 특성",
+      "단건·소량 읽기/쓰기, 짧은 트랜잭션",
+      "대량 집계·조인, 복잡한 분석 쿼리",
+    ],
+    [
+      "스키마",
+      "정규화 (3NF) — 중복 최소화",
+      "비정규화 (Star/Snowflake) — 조회 최적화",
+    ],
+    [
+      "대표 시스템",
+      "MySQL, PostgreSQL, Oracle (운영 DB)",
+      "DW, DM, Redshift, BigQuery, Snowflake",
+    ],
+  ]}
+/>
+
+## DW / DM 개념 비교
+
+<KeyTable
+  columns={["구분", "DW (Data Warehouse)", "DM (Data Mart)"]}
+  rows={[
+    [
+      "범위",
+      "조직 전체 데이터 통합",
+      "특정 부서·주제 영역 (마케팅, 재무 등)",
+    ],
+    [
+      "데이터 원천",
+      "여러 운영 시스템(ERP, CRM, 로그 등)",
+      "DW에서 추출하거나, 독립적으로 구축",
+    ],
+    [
+      "규모",
+      "대규모 (TB ~ PB)",
+      "소규모 (GB ~ TB)",
+    ],
+    [
+      "사용자",
+      "데이터 엔지니어, 분석가, BI 팀",
+      "특정 부서 담당자, 비즈니스 사용자",
+    ],
+    [
+      "구축 비용·시간",
+      "높음 (전사 데이터 통합 필요)",
+      "낮음 (범위가 좁아 빠르게 구축 가능)",
+    ],
+  ]}
+/>
+
+## 데이터 흐름 도식
+
+<MermaidDiagram
+  code={`flowchart LR
+  subgraph sources ["운영 시스템 (OLTP)"]
+    ERP["ERP"]
+    CRM["CRM"]
+    LOG["로그·이벤트"]
+    API["외부 API"]
+  end
+
+  ETL["ETL / ELT\n(추출·변환·적재)"]
+
+  subgraph dw ["DW (Data Warehouse)"]
+    FACT["팩트 테이블\n(매출, 주문 등)"]
+    DIM["디멘션 테이블\n(고객, 상품, 시간 등)"]
+  end
+
+  subgraph marts ["DM (Data Mart)"]
+    MKT["마케팅 DM"]
+    FIN["재무 DM"]
+    OPS["운영 DM"]
+  end
+
+  subgraph consume ["소비"]
+    BI["BI 대시보드"]
+    RPT["리포트"]
+    ML["ML 모델"]
+  end
+
+  sources --> ETL --> dw --> marts --> consume`}
+/>
+
+## 스키마 설계 — Star vs Snowflake
+
+<KeyTable
+  columns={["구분", "Star Schema", "Snowflake Schema"]}
+  rows={[
+    [
+      "구조",
+      "팩트 테이블을 중심으로 디멘션 테이블이 직접 연결 (1단계)",
+      "디멘션 테이블이 정규화되어 하위 테이블로 분리 (다단계)",
+    ],
+    [
+      "조회 성능",
+      "조인이 적어 빠름",
+      "조인이 많아 상대적으로 느림",
+    ],
+    [
+      "저장 효율",
+      "중복 데이터 존재 — 저장 공간 더 사용",
+      "중복 최소화 — 저장 공간 절약",
+    ],
+    [
+      "사용 환경",
+      "빠른 조회가 중요한 BI·대시보드",
+      "데이터 일관성이 중요한 대규모 DW",
+    ],
+  ]}
+/>
+
+<MermaidDiagram
+  code={`flowchart TB
+  subgraph star ["Star Schema"]
+    direction TB
+    F1["팩트: 주문"]
+    D1["고객"]
+    D2["상품"]
+    D3["시간"]
+    D4["매장"]
+    D1 --> F1
+    D2 --> F1
+    D3 --> F1
+    D4 --> F1
+  end
+
+  subgraph snowflake ["Snowflake Schema"]
+    direction TB
+    F2["팩트: 주문"]
+    C1["고객"]
+    C2["도시"]
+    C3["국가"]
+    P1["상품"]
+    P2["카테고리"]
+    C1 --> F2
+    C2 --> C1
+    C3 --> C2
+    P1 --> F2
+    P2 --> P1
+  end`}
+/>
+
+## ETL vs ELT
+
+<KeyTable
+  columns={["구분", "ETL", "ELT"]}
+  rows={[
+    [
+      "변환 위치",
+      "DW 밖(ETL 서버)에서 변환 후 적재",
+      "DW 안에 원본 적재 후 DW 엔진으로 변환",
+    ],
+    [
+      "적합한 환경",
+      "온프레미스 DW, 정형 데이터 중심",
+      "클라우드 DW (Redshift, BigQuery 등) — 컴퓨팅 파워를 활용",
+    ],
+    [
+      "대표 도구",
+      "Informatica, Talend, SSIS",
+      "dbt, Spark, BigQuery SQL",
+    ],
+  ]}
+/>
+
+## 대표 DW 기술 스택
+
+<KeyTable
+  columns={["기술", "유형", "특징"]}
+  rows={[
+    [
+      "Amazon Redshift",
+      "클라우드 관리형",
+      "컬럼 기반 스토리지, MPP(Massively Parallel Processing). AWS 생태계와 긴밀 통합.",
+    ],
+    [
+      "Google BigQuery",
+      "클라우드 서버리스",
+      "서버리스, 사용한 만큼 과금. 페타바이트 규모 쿼리를 수 초 만에 처리.",
+    ],
+    [
+      "Snowflake",
+      "클라우드 멀티 플랫폼",
+      "스토리지·컴퓨팅 분리. AWS/GCP/Azure 모두 지원. 동시 워크로드 독립 확장.",
+    ],
+    [
+      "Apache Hive",
+      "하둡 에코시스템",
+      "HDFS 위에서 SQL 인터페이스 제공. 대용량 배치 분석에 적합. 실시간 쿼리에는 부적합.",
+    ],
+    [
+      "Oracle DW / Exadata",
+      "온프레미스",
+      "전통적 엔터프라이즈 DW. 금융·공공 레거시에서 다수 사용.",
+    ],
+  ]}
+/>
+
+## 데이터 레이크 vs DW vs 레이크하우스
+
+<KeyTable
+  columns={["구분", "DW", "데이터 레이크", "레이크하우스"]}
+  rows={[
+    [
+      "데이터 유형",
+      "정형 데이터 (테이블)",
+      "정형 + 반정형 + 비정형 (JSON, 이미지, 로그 등)",
+      "모든 유형 (정형·비정형 통합)",
+    ],
+    [
+      "스키마",
+      "Schema-on-Write (적재 시 스키마 정의)",
+      "Schema-on-Read (읽을 때 스키마 적용)",
+      "Schema-on-Write + Read 모두 지원",
+    ],
+    [
+      "저장소",
+      "전용 DW 엔진",
+      "HDFS, S3 등 저비용 오브젝트 스토리지",
+      "오브젝트 스토리지 + 테이블 포맷 (Delta Lake, Iceberg)",
+    ],
+    [
+      "트랜잭션",
+      "ACID 지원",
+      "미지원 (일관성 보장 어려움)",
+      "ACID 지원 (테이블 포맷이 제공)",
+    ],
+    [
+      "대표 기술",
+      "Redshift, BigQuery, Snowflake",
+      "HDFS, S3 + Athena",
+      "Delta Lake, Apache Iceberg, Apache Hudi",
+    ],
+  ]}
+/>
+
+<MermaidDiagram
+  code={`flowchart LR
+  subgraph evolution ["데이터 저장 아키텍처 발전"]
+    direction LR
+    DW["DW\n(정형 데이터 분석)"]
+    DL["데이터 레이크\n(모든 데이터 저장)"]
+    LH["레이크하우스\n(DW + 레이크 통합)"]
+    DW --> DL --> LH
+  end`}
+/>
+
+---
+
+## Kimball vs Inmon 방법론
+
+DW 설계의 양대 철학이다. 프로젝트 규모·조직 구조·우선순위에 따라 접근 방식이 달라진다.
+
+<KeyTable
+  columns={["구분", "Kimball (Bottom-Up)", "Inmon (Top-Down)"]}
+  rows={[
+    [
+      "접근 방식",
+      "부서별 DM을 먼저 구축하고, DM들을 합쳐 DW를 형성한다.",
+      "전사 통합 DW를 먼저 설계하고, DW에서 DM을 파생한다.",
+    ],
+    [
+      "스키마",
+      "비정규화 (Star Schema 중심)",
+      "정규화 (3NF) — 이후 DM에서 비정규화",
+    ],
+    [
+      "초기 구축 속도",
+      "빠름 — 하나의 DM부터 시작 가능",
+      "느림 — 전사 모델링 선행 필요",
+    ],
+    [
+      "데이터 일관성",
+      "Conformed Dimension으로 DM 간 일관성 확보 필요",
+      "중앙 통합 모델이므로 일관성이 높음",
+    ],
+    [
+      "적합한 환경",
+      "빠른 성과가 필요한 중소 조직, 애자일 환경",
+      "데이터 거버넌스가 중요한 대규모 조직",
+    ],
+  ]}
+/>
+
+<MermaidDiagram
+  code={`flowchart TB
+  subgraph kimball ["Kimball (Bottom-Up)"]
+    direction LR
+    KM1["마케팅 DM"] --> KDW["통합 DW"]
+    KM2["재무 DM"] --> KDW
+    KM3["운영 DM"] --> KDW
+  end
+
+  subgraph inmon ["Inmon (Top-Down)"]
+    direction LR
+    IDW["통합 DW (3NF)"] --> IM1["마케팅 DM"]
+    IDW --> IM2["재무 DM"]
+    IDW --> IM3["운영 DM"]
+  end`}
+/>
+
+## Grain (세분화 수준)
+
+Grain은 **팩트 테이블의 한 행이 무엇을 의미하는지** 정의하는 것으로, DW 설계의 출발점이다.
+
+<KeyTable
+  columns={["Grain 예시", "한 행의 의미", "분석 가능 범위"]}
+  rows={[
+    [
+      "일별 매장별 매출",
+      "2024-01-15, 강남점의 총 매출액",
+      "매장별 일간 매출 추이, 요일별 비교",
+    ],
+    [
+      "주문 건별",
+      "주문 1건 (주문번호 단위)",
+      "개별 주문 분석, 건당 금액, 반품률",
+    ],
+    [
+      "주문 라인별",
+      "주문 1건 안의 상품 1개 (주문번호 + 상품 단위)",
+      "상품별 판매량, 교차 판매 분석",
+    ],
+  ]}
+/>
+
+> Grain을 너무 굵게 잡으면 상세 분석이 불가능하고, 너무 세밀하면 데이터 양이 폭증한다. 비즈니스 질문에 답할 수 있는 가장 세밀한 수준으로 정하는 것이 원칙이다.
+
+## Fact 테이블 유형
+
+<KeyTable
+  columns={["유형", "설명", "예시"]}
+  rows={[
+    [
+      "Transaction Fact",
+      "개별 이벤트(트랜잭션)를 한 행으로 기록한다. 가장 세밀한 Grain.",
+      "주문 1건, 클릭 1회, 결제 1건",
+    ],
+    [
+      "Periodic Snapshot",
+      "일정 주기(일/주/월)마다 상태를 스냅샷으로 기록한다.",
+      "일별 계좌 잔액, 월별 재고 수량",
+    ],
+    [
+      "Accumulating Snapshot",
+      "하나의 프로세스가 여러 단계를 거치는 것을 한 행에서 추적한다. 단계마다 업데이트.",
+      "주문 접수일 → 출고일 → 배송일 → 수령일",
+    ],
+  ]}
+/>
+
+## SCD (Slowly Changing Dimension)
+
+디멘션 데이터(고객 주소, 상품 가격 등)가 시간이 지나면서 변경될 때 이를 어떻게 추적할지 결정하는 기법이다.
+
+<KeyTable
+  columns={["유형", "변경 처리 방식", "이력 보존", "예시"]}
+  rows={[
+    [
+      "Type 1 (덮어쓰기)",
+      "기존 값을 새 값으로 덮어쓴다.",
+      "보존 안 함 — 과거 값 소실",
+      "고객 전화번호 변경 시 이전 번호가 필요 없는 경우",
+    ],
+    [
+      "Type 2 (이력 추가)",
+      "새 행을 추가하고, 유효 기간(start_date, end_date)과 현재 플래그(is_current)를 관리한다.",
+      "전체 이력 보존",
+      "고객 주소 변경 시 '이 기간에는 서울, 이 기간에는 부산'으로 분석 가능",
+    ],
+    [
+      "Type 3 (이전 값 컬럼)",
+      "이전 값을 별도 컬럼(previous_address 등)에 보관한다.",
+      "직전 값만 보존",
+      "단순 비교만 필요한 경우 (현재 vs 이전)",
+    ],
+  ]}
+/>
+
+<MermaidDiagram
+  code={`flowchart LR
+  subgraph type1 ["Type 1: 덮어쓰기"]
+    T1A["고객 #1\n주소: 서울"] -->|"주소 변경"| T1B["고객 #1\n주소: 부산\n(서울 기록 소실)"]
+  end
+
+  subgraph type2 ["Type 2: 이력 추가"]
+    T2A["고객 #1 (v1)\n주소: 서울\n유효: ~2024-06"] --> T2B["고객 #1 (v2)\n주소: 부산\n유효: 2024-07~"]
+  end
+
+  subgraph type3 ["Type 3: 이전 값 컬럼"]
+    T3A["고객 #1\n주소: 부산\n이전주소: 서울"]
+  end`}
+/>
+
+## Surrogate Key vs Natural Key
+
+<KeyTable
+  columns={["구분", "Surrogate Key (인조키)", "Natural Key (자연키)"]}
+  rows={[
+    [
+      "정의",
+      "DW에서 자동 생성하는 의미 없는 정수 (1, 2, 3...)",
+      "운영 시스템의 실제 키 (주민번호, 주문번호 등)",
+    ],
+    [
+      "변경 영향",
+      "운영 시스템 키가 바뀌어도 DW 키는 유지",
+      "운영 키 변경 시 DW에도 영향",
+    ],
+    [
+      "성능",
+      "정수 조인 — 빠름",
+      "문자열 복합키 — 상대적으로 느림",
+    ],
+    [
+      "SCD 지원",
+      "Type 2에서 동일 엔티티의 여러 버전에 각각 다른 Surrogate Key 부여 가능",
+      "같은 키에 여러 버전을 담기 어려움",
+    ],
+    [
+      "DW 권장",
+      "디멘션 테이블에 Surrogate Key 사용이 표준",
+      "운영 키는 별도 컬럼으로 보관",
+    ],
+  ]}
+/>
+
+## CDC (Change Data Capture)
+
+운영 DB의 **변경분(Insert/Update/Delete)만 감지**하여 DW에 실시간·준실시간으로 반영하는 데이터 통합 패턴이다.
+
+<MermaidDiagram
+  code={`flowchart LR
+  subgraph source ["운영 DB"]
+    DB["트랜잭션 로그\n(binlog, WAL 등)"]
+  end
+
+  CDC["CDC 엔진\n(변경분 감지)"]
+
+  subgraph target ["DW / 스트리밍"]
+    DW["DW 적재"]
+    STREAM["Kafka 토픽"]
+  end
+
+  DB --> CDC
+  CDC --> DW
+  CDC --> STREAM`}
+/>
+
+<KeyTable
+  columns={["구분", "전통적 배치 ETL", "CDC"]}
+  rows={[
+    [
+      "데이터 추출",
+      "전체 테이블을 주기적으로 덤프 (Full Extract)",
+      "변경된 행만 실시간으로 캡처",
+    ],
+    [
+      "지연 시간",
+      "수 시간 ~ 1일 (배치 주기)",
+      "수 초 ~ 수 분 (준실시간)",
+    ],
+    [
+      "운영 DB 부하",
+      "Full Scan으로 부하 큼",
+      "로그 기반이라 부하 최소",
+    ],
+    [
+      "대표 도구",
+      "Informatica, SSIS, Airflow",
+      "Debezium, AWS DMS, Oracle GoldenGate, Maxwell",
+    ],
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["핵심 포인트", "설명"]}
+  rows={[
+    [
+      "DW는 분석 전용 저장소",
+      "운영 DB(OLTP)와 분리하여, 대량 집계·분석(OLAP)에 최적화된 스키마로 데이터를 통합한다.",
+    ],
+    [
+      "DM은 DW의 부분 집합",
+      "부서·주제별로 필요한 데이터만 추출하여 빠른 의사결정을 돕는다.",
+    ],
+    [
+      "Kimball vs Inmon",
+      "Bottom-Up(DM 우선) vs Top-Down(전사 DW 우선). 조직 규모와 거버넌스 요구에 따라 선택한다.",
+    ],
+    [
+      "SCD로 이력을 관리한다",
+      "디멘션 변경 시 Type 1(덮어쓰기) / Type 2(이력 추가) / Type 3(이전 값 컬럼)으로 추적한다.",
+    ],
+    [
+      "CDC로 실시간 통합",
+      "배치 ETL의 지연과 부하를 줄이고, 변경분만 준실시간으로 DW에 반영한다.",
+    ],
+    [
+      "레이크하우스가 트렌드",
+      "DW의 ACID·성능과 데이터 레이크의 유연성을 결합하여 단일 아키텍처로 통합하는 방향으로 발전 중이다.",
+    ],
+  ]}
+/>

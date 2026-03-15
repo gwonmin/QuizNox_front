@@ -1,0 +1,281 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="MLOps는 ML 모델의 개발·배포·운영·재학습을 자동화하는 CI/CD의 확장판이다. 코드뿐 아니라 데이터와 모델까지 파이프라인으로 관리한다."
+  bullets={[
+    "CI/CD가 코드 배포를 자동화하듯, MLOps는 모델 학습·배포·재학습까지 자동화한다.",
+    "Data Drift와 Model Drift를 모니터링하여 모델 품질을 지속적으로 유지한다.",
+    "Feature Store, Model Registry, Experiment Tracking 등 ML 전용 인프라가 핵심 구성 요소이다.",
+  ]}
+/>
+
+## CI/CD vs MLOps
+
+<KeyTable
+  columns={["구분", "CI/CD (소프트웨어)", "MLOps (ML 모델)"]}
+  rows={[
+    [
+      "배포 대상",
+      "코드 (애플리케이션)",
+      "모델 + 코드 + 데이터",
+    ],
+    [
+      "파이프라인",
+      "빌드 → 테스트 → 배포",
+      "데이터 수집 → 학습 → 평가 → 배포 → 모니터링 → 재학습",
+    ],
+    [
+      "테스트",
+      "단위·통합·E2E 테스트",
+      "모델 정확도·공정성·편향 검증 + 데이터 품질 검증",
+    ],
+    [
+      "트리거",
+      "코드 변경 (git push)",
+      "코드 변경 + 데이터 변경 + 성능 저하 감지",
+    ],
+    [
+      "재배포 이유",
+      "기능 추가·버그 수정",
+      "데이터 분포 변화(Drift)로 인한 모델 품질 하락",
+    ],
+  ]}
+/>
+
+## ML 모델 라이프사이클
+
+<MermaidDiagram
+  code={`flowchart LR
+  DC["데이터 수집\n· 정제"]
+  FE["피처 엔지니어링"]
+  TR["모델 학습"]
+  EV["모델 평가\n· 검증"]
+  RG["모델 레지스트리\n등록"]
+  DP["모델 배포\n(서빙)"]
+  MN["모니터링\n(Drift 감지)"]
+  RT["재학습\n(CT)"]
+
+  DC --> FE --> TR --> EV --> RG --> DP --> MN
+  MN -->|"성능 저하 감지"| RT
+  RT --> TR`}
+/>
+
+## MLOps 성숙도 레벨
+
+<KeyTable
+  columns={["레벨", "이름", "특징"]}
+  rows={[
+    [
+      "Level 0",
+      "수동 프로세스",
+      "노트북에서 수동으로 학습·배포. 재현성 없음. 모니터링 없음.",
+    ],
+    [
+      "Level 1",
+      "ML 파이프라인 자동화",
+      "학습 파이프라인이 자동화됨. CT(Continuous Training) 도입. 데이터 변경 시 자동 재학습.",
+    ],
+    [
+      "Level 2",
+      "CI/CD/CT 완전 자동화",
+      "파이프라인 코드 자체도 CI/CD로 관리. 모델 배포·롤백 자동화. A/B 테스트·카나리 배포.",
+    ],
+  ]}
+/>
+
+<MermaidDiagram
+  code={`flowchart TB
+  subgraph level0 ["Level 0: 수동"]
+    direction LR
+    L0A["데이터 사이언티스트가\n노트북에서 수동 학습"] --> L0B["수동 배포\n(pkl 파일 전달)"]
+  end
+
+  subgraph level1 ["Level 1: 파이프라인 자동화"]
+    direction LR
+    L1A["자동 학습\n파이프라인"] --> L1B["자동 배포"]
+    L1B --> L1C["모니터링"]
+    L1C -->|"Drift 감지"| L1A
+  end
+
+  subgraph level2 ["Level 2: CI/CD/CT"]
+    direction LR
+    L2A["파이프라인 코드\nCI/CD"] --> L2B["자동 학습\n+ 평가"]
+    L2B --> L2C["자동 배포\n(카나리/A/B)"]
+    L2C --> L2D["모니터링\n+ 자동 재학습"]
+    L2D --> L2A
+  end`}
+/>
+
+## 핵심 구성 요소
+
+<KeyTable
+  columns={["구성 요소", "역할", "대표 도구"]}
+  rows={[
+    [
+      "Feature Store",
+      "학습·서빙에서 동일한 피처를 재사용할 수 있도록 중앙에서 피처를 관리·제공한다. 학습-서빙 간 불일치(skew)를 방지한다.",
+      "Feast, SageMaker Feature Store, Vertex AI Feature Store",
+    ],
+    [
+      "Experiment Tracking",
+      "학습 실험(하이퍼파라미터, 메트릭, 코드 버전)을 기록·비교하여 최적의 모델을 선택한다.",
+      "MLflow, Weights & Biases, Neptune.ai",
+    ],
+    [
+      "Model Registry",
+      "학습된 모델을 버전 관리하고, 스테이징·프로덕션 단계를 관리한다. 롤백이 가능하다.",
+      "MLflow Model Registry, SageMaker Model Registry",
+    ],
+    [
+      "학습 파이프라인",
+      "데이터 수집 → 전처리 → 학습 → 평가를 DAG(방향 비순환 그래프)로 정의하고 자동 실행한다.",
+      "Kubeflow Pipelines, Airflow, SageMaker Pipelines, Vertex AI Pipelines",
+    ],
+    [
+      "모델 서빙",
+      "학습된 모델을 API로 노출하여 추론 요청을 처리한다.",
+      "TF Serving, Triton, SageMaker Endpoint, KServe",
+    ],
+  ]}
+/>
+
+## 모델 서빙 패턴
+
+<KeyTable
+  columns={["패턴", "특징", "사용 예시"]}
+  rows={[
+    [
+      "Online Serving (실시간)",
+      "API 요청마다 즉시 추론. 낮은 지연시간이 핵심. GPU/인스턴스 상시 가동.",
+      "추천 시스템, 사기 탐지, 챗봇",
+    ],
+    [
+      "Batch Serving (배치)",
+      "대량 데이터를 주기적으로 일괄 추론. 비용 효율적.",
+      "이메일 마케팅 대상 선정, 일일 리포트 생성",
+    ],
+    [
+      "Edge Serving",
+      "모델을 디바이스에 배포하여 로컬에서 추론. 네트워크 불필요.",
+      "모바일 앱, IoT 디바이스, 자율주행",
+    ],
+  ]}
+/>
+
+<MermaidDiagram
+  code={`flowchart LR
+  subgraph online ["Online Serving"]
+    REQ["API 요청"] --> MODEL1["모델 서버"] --> RES["즉시 응답"]
+  end
+
+  subgraph batch ["Batch Serving"]
+    DATA["대량 데이터"] --> SPARK["Spark / 배치 잡"] --> STORE["결과 저장소"]
+  end
+
+  subgraph edge ["Edge Serving"]
+    DEVICE["디바이스"] --> LOCAL["로컬 모델"] --> RESULT["로컬 추론"]
+  end`}
+/>
+
+## Data Drift / Model Drift
+
+모델 배포 후 시간이 지나면 입력 데이터의 분포나 데이터와 타깃의 관계가 변하여 모델 성능이 저하된다.
+
+<KeyTable
+  columns={["구분", "Data Drift", "Model Drift (Concept Drift)"]}
+  rows={[
+    [
+      "정의",
+      "입력 데이터의 통계적 분포가 학습 시점과 달라지는 현상",
+      "입력과 타깃 간의 관계 자체가 변하는 현상",
+    ],
+    [
+      "예시",
+      "코로나 이후 구매 패턴 변화로 입력 피처 분포가 달라짐",
+      "경제 환경 변화로 기존 대출 심사 모델의 판단 기준이 맞지 않게 됨",
+    ],
+    [
+      "감지 방법",
+      "PSI, KS 테스트, 분포 비교 대시보드",
+      "예측 정확도·F1 점수 등 모델 메트릭 추이 모니터링",
+    ],
+    [
+      "대응",
+      "최신 데이터로 재학습 (CT 트리거)",
+      "모델 구조·피처 재설계 후 재학습",
+    ],
+  ]}
+/>
+
+<MermaidDiagram
+  code={`flowchart LR
+  PROD["프로덕션 모델"]
+  MON["모니터링\n(정확도, 분포 추적)"]
+  DRIFT["Drift 감지\n(임계치 초과)"]
+  ALERT["알람 발송"]
+  CT["자동 재학습\n(CT 파이프라인)"]
+  DEPLOY["새 모델 배포"]
+
+  PROD --> MON --> DRIFT
+  DRIFT -->|"정상"| MON
+  DRIFT -->|"Drift 발생"| ALERT --> CT --> DEPLOY --> MON`}
+/>
+
+## 대표 MLOps 플랫폼
+
+<KeyTable
+  columns={["플랫폼", "유형", "특징"]}
+  rows={[
+    [
+      "MLflow",
+      "오픈소스",
+      "Experiment Tracking + Model Registry + 배포. 가볍고 유연하며 다양한 ML 프레임워크와 연동.",
+    ],
+    [
+      "Kubeflow",
+      "오픈소스 (K8s)",
+      "Kubernetes 위에서 ML 파이프라인을 실행. 대규모 분산 학습에 적합.",
+    ],
+    [
+      "AWS SageMaker",
+      "클라우드 관리형",
+      "학습·서빙·파이프라인·Feature Store·모니터링을 통합 제공. AWS 생태계와 긴밀 연동.",
+    ],
+    [
+      "GCP Vertex AI",
+      "클라우드 관리형",
+      "AutoML + 커스텀 학습 + Feature Store + 파이프라인. BigQuery와 직접 연동.",
+    ],
+    [
+      "Azure ML",
+      "클라우드 관리형",
+      "디자이너 UI + SDK + 자동 ML. Azure DevOps와의 CI/CD 통합.",
+    ],
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["핵심 포인트", "설명"]}
+  rows={[
+    [
+      "MLOps = CI/CD + 데이터 + 모델",
+      "코드 배포 자동화를 넘어, 데이터 변화에 대응하는 모델 학습·배포·재학습까지 자동화한다.",
+    ],
+    [
+      "성숙도를 점진적으로 높인다",
+      "수동(Level 0) → 파이프라인 자동화(Level 1) → CI/CD/CT 완전 자동화(Level 2).",
+    ],
+    [
+      "Drift 모니터링이 핵심",
+      "배포 후 방치하면 모델 성능이 저하된다. Data Drift / Model Drift를 지속적으로 감지하고 재학습한다.",
+    ],
+    [
+      "Feature Store로 일관성 확보",
+      "학습과 서빙에서 동일한 피처를 사용하여 Training-Serving Skew를 방지한다.",
+    ],
+  ]}
+/>

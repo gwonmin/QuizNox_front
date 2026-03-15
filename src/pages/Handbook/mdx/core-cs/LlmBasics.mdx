@@ -1,0 +1,235 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="LLM(Large Language Model)은 대규모 텍스트 데이터로 사전 학습된 언어 모델로, 자연어 이해·생성·추론 능력을 갖춘다."
+  bullets={[
+    "Transformer 아키텍처 기반으로, 토큰 단위로 입력을 처리하고 다음 토큰을 예측하는 방식으로 텍스트를 생성한다.",
+    "Prompt Engineering으로 모델의 동작을 제어하고, Fine-tuning이나 RAG로 특정 도메인에 맞출 수 있다.",
+    "컨텍스트 윈도우(토큰 제한) 안에서만 정보를 처리할 수 있어, 긴 문서나 외부 지식 활용에는 별도 전략이 필요하다.",
+  ]}
+/>
+
+## LLM 핵심 개념
+
+<KeyTable
+  columns={["개념", "설명"]}
+  rows={[
+    [
+      "Transformer",
+      "Self-Attention 메커니즘으로 입력 토큰 간 관계를 병렬 계산하는 아키텍처. 2017년 'Attention is All You Need' 논문에서 제안. 현재 거의 모든 LLM의 기반.",
+    ],
+    [
+      "토큰 (Token)",
+      "모델이 처리하는 텍스트의 최소 단위. 영어는 대략 1단어 ≈ 1~1.5토큰, 한국어는 1글자 ≈ 1~2토큰. 토큰 수가 비용과 속도에 직접 영향.",
+    ],
+    [
+      "컨텍스트 윈도우",
+      "모델이 한 번에 처리할 수 있는 최대 토큰 수. GPT-5: 128~400K, Claude 4.6: 1M, Gemini 2.5: 1M, Llama 4 Scout: 10M 등. 이 범위를 넘으면 입력을 잘라야 한다.",
+    ],
+    [
+      "사전 학습 (Pre-training)",
+      "대규모 텍스트 코퍼스로 언어의 일반적 패턴을 학습하는 단계. 막대한 컴퓨팅 자원이 필요.",
+    ],
+    [
+      "파라미터",
+      "모델의 학습된 가중치 수. Llama 4 Scout은 109B(활성 17B), Maverick은 400B(활성 17B) 등. MoE 아키텍처로 전체 파라미터 대비 활성 파라미터를 줄여 효율을 높인다.",
+    ],
+    [
+      "Temperature",
+      "출력의 무작위성을 조절하는 파라미터. 0에 가까울수록 결정적(사실 기반), 1에 가까울수록 창의적(다양한 표현).",
+    ],
+  ]}
+/>
+
+## LLM 동작 원리
+
+<MermaidDiagram
+  code={`flowchart LR
+  INPUT["입력 텍스트"]
+  TOK["토크나이저\n(텍스트 → 토큰)"]
+  EMB["임베딩\n(토큰 → 벡터)"]
+  TF["Transformer 레이어\n(Self-Attention × N)"]
+  PRED["다음 토큰 예측\n(확률 분포)"]
+  OUT["출력 토큰"]
+
+  INPUT --> TOK --> EMB --> TF --> PRED --> OUT
+  OUT -->|"반복 (Auto-regressive)"| TF`}
+/>
+
+## Prompt Engineering
+
+모델에게 지시하는 방식을 설계하여 원하는 결과를 이끌어내는 기법이다.
+
+<KeyTable
+  columns={["기법", "설명", "예시"]}
+  rows={[
+    [
+      "Zero-shot",
+      "예시 없이 지시만으로 수행.",
+      "'이 문장을 영어로 번역해줘: 오늘 날씨가 좋다.'",
+    ],
+    [
+      "Few-shot",
+      "몇 가지 예시를 함께 제공하여 패턴을 학습시킴.",
+      "'긍정: 좋아요 → positive\\n부정: 싫어요 → negative\\n분류해줘: 최고다 →'",
+    ],
+    [
+      "Chain-of-Thought (CoT)",
+      "'단계별로 생각해봐'와 같은 지시로 추론 과정을 유도.",
+      "'문제를 단계별로 풀어봐. 사과 5개 중 2개를 먹으면...'",
+    ],
+    [
+      "System Prompt",
+      "모델의 역할·성격·제약 조건을 사전에 설정.",
+      "'당신은 AWS 전문가입니다. 한국어로 간결하게 답변하세요.'",
+    ],
+    [
+      "Self-Consistency",
+      "같은 질문에 여러 번 답변을 생성한 뒤 다수결로 최종 답을 선택.",
+      "복잡한 수학 문제에서 여러 추론 경로의 합의를 구함.",
+    ],
+  ]}
+/>
+
+## Fine-tuning vs RAG vs Prompt Engineering
+
+<KeyTable
+  columns={["구분", "Prompt Engineering", "RAG", "Fine-tuning"]}
+  rows={[
+    [
+      "방식",
+      "프롬프트를 잘 설계하여 원하는 출력 유도",
+      "외부 지식을 검색하여 프롬프트에 주입",
+      "도메인 데이터로 모델 가중치를 추가 학습",
+    ],
+    [
+      "모델 변경",
+      "없음 (모델 그대로 사용)",
+      "없음 (모델 그대로 + 검색 파이프라인 추가)",
+      "있음 (모델 가중치 업데이트)",
+    ],
+    [
+      "지식 최신성",
+      "모델 학습 시점까지의 지식만",
+      "외부 DB에서 최신 정보를 실시간 검색 가능",
+      "학습 데이터 시점까지 (재학습 필요)",
+    ],
+    [
+      "비용",
+      "낮음 (API 호출만)",
+      "중간 (벡터 DB + 임베딩 + API 호출)",
+      "높음 (GPU + 학습 데이터 준비 + 학습 시간)",
+    ],
+    [
+      "적합한 경우",
+      "일반적인 작업, 빠른 프로토타이핑",
+      "사내 문서·최신 정보 기반 답변이 필요할 때",
+      "특정 도메인의 톤·스타일·전문 지식이 필요할 때",
+    ],
+  ]}
+/>
+
+<MermaidDiagram
+  code={`flowchart TB
+  subgraph pe ["Prompt Engineering"]
+    direction LR
+    PE1["프롬프트 설계"] --> PE2["LLM"] --> PE3["응답"]
+  end
+
+  subgraph rag ["RAG"]
+    direction LR
+    R1["질문"] --> R2["벡터 검색\n(관련 문서 조회)"]
+    R2 --> R3["프롬프트 + 검색 결과"]
+    R3 --> R4["LLM"] --> R5["근거 기반 응답"]
+  end
+
+  subgraph ft ["Fine-tuning"]
+    direction LR
+    F1["도메인 데이터"] --> F2["추가 학습"] --> F3["커스텀 모델"] --> F4["전문 응답"]
+  end`}
+/>
+
+## 주요 LLM 모델 비교 (2026.03 기준)
+
+<KeyTable
+  columns={["모델", "제공사", "컨텍스트", "강점", "API 비용 (입력/출력, 1M 토큰)"]}
+  rows={[
+    [
+      "GPT-5",
+      "OpenAI",
+      "128K ~ 400K",
+      "범용성, Tool-use·Agent 생태계 최강. 응답 속도 빠름.",
+      "$15 / $60",
+    ],
+    [
+      "Claude Opus 4.6",
+      "Anthropic",
+      "1M",
+      "코딩(SWE-bench 82%)·추론 최상위. Adaptive Thinking으로 연산량 제어. 최대 128K 출력.",
+      "$5 / $25",
+    ],
+    [
+      "Claude Sonnet 4.6",
+      "Anthropic",
+      "1M",
+      "Opus 대비 가볍고 빠름. 일상 코딩·분석에 가성비 우수.",
+      "$3 / $15",
+    ],
+    [
+      "Gemini 2.5 Pro",
+      "Google",
+      "1M+",
+      "가격 대비 성능 최고. 멀티모달(텍스트·이미지·영상·코드). Google 생태계 통합.",
+      "$1.25 / $5",
+    ],
+    [
+      "Llama 4 Scout",
+      "Meta (오픈소스)",
+      "10M",
+      "MoE 109B(활성 17B). 10M 컨텍스트로 초장문 처리. 자체 서빙·Fine-tuning 가능.",
+      "자체 호스팅",
+    ],
+    [
+      "Llama 4 Maverick",
+      "Meta (오픈소스)",
+      "1M",
+      "MoE 400B(활성 17B). Chatbot Arena 2위. 오픈소스 최강 성능.",
+      "자체 호스팅",
+    ],
+    [
+      "DeepSeek V3 / R1",
+      "DeepSeek (오픈소스)",
+      "128K",
+      "MoE 671B. 수학·추론 특화. 중국 오픈소스 생태계 선두. 극저가 API 제공.",
+      "$0.27 / $1.10",
+    ],
+  ]}
+/>
+
+> **선택 가이드**: 범용 Agent·프로토타이핑 → GPT-5 | 코드 품질·심층 추론 → Claude Opus 4.6 | 비용 효율 → Gemini 2.5 Pro | 자체 서빙·프라이버시 → Llama 4 / DeepSeek
+
+## 요약
+
+<KeyTable
+  columns={["핵심 포인트", "설명"]}
+  rows={[
+    [
+      "LLM = 다음 토큰 예측기",
+      "Transformer 기반으로 입력 토큰의 관계를 파악하고, 가장 적절한 다음 토큰을 생성한다.",
+    ],
+    [
+      "컨텍스트 윈도우가 핵심 제약",
+      "모델이 한 번에 처리할 수 있는 토큰 수가 제한적이므로, 긴 문서는 RAG나 청킹 전략이 필요하다.",
+    ],
+    [
+      "Prompt Engineering이 가장 빠른 시작점",
+      "모델 변경 없이 프롬프트만으로 성능을 크게 개선할 수 있다.",
+    ],
+    [
+      "용도에 따라 RAG 또는 Fine-tuning 선택",
+      "최신 정보·사내 문서 기반이면 RAG, 도메인 전문성·톤 조정이면 Fine-tuning이 적합하다.",
+    ],
+  ]}
+/>

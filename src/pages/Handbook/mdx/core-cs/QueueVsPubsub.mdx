@@ -22,8 +22,8 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
     ],
     [
       "주요 용도",
-      "주문 처리, 이메일 발송 등 “한 번만 처리”해야 하는 작업 분산",
-      "“주문 생성됨”과 같은 이벤트를 여러 서비스에 동시에 전달",
+      "주문 처리, 이메일 발송 등 \u201c한 번만 처리\u201d해야 하는 작업 분산",
+      "\u201c주문 생성됨\u201d과 같은 이벤트를 여러 서비스에 동시에 전달",
     ],
     [
       "특징",
@@ -61,13 +61,138 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
     [
       "Queue",
       "주문 처리 큐, 이메일 발송 큐",
-      "“주문 1건 = 1번만 처리”하는 작업을 워커 여러 대에 분산한다.",
+      "\u201c주문 1건 = 1번만 처리\u201d하는 작업을 워커 여러 대에 분산한다.",
     ],
     [
       "Pub/Sub",
-      "“주문 생성됨” 이벤트",
+      "\u201c주문 생성됨\u201d 이벤트",
       "재고·결제·알림·로그 서비스가 각자 구독해 독립적으로 처리한다.",
     ],
   ]}
 />
 
+## Apache Kafka — Queue + Pub/Sub 통합
+
+Kafka는 **로그 기반 분산 이벤트 스트리밍 플랫폼**으로, Queue와 Pub/Sub 두 패턴을 하나의 모델로 통합합니다.
+
+<KeyTable
+  columns={["개념", "설명"]}
+  rows={[
+    [
+      "Topic · Partition",
+      "메시지가 토픽에 append-only로 저장된다. 토픽은 여러 파티션으로 나뉘어 병렬 처리가 가능하다.",
+    ],
+    [
+      "Consumer Group",
+      "같은 그룹 내 컨슈머끼리는 파티션을 나눠 가져 Queue처럼 동작한다 (1메시지 → 1컨슈머).",
+    ],
+    [
+      "여러 Consumer Group",
+      "서로 다른 그룹은 같은 메시지를 각각 독립적으로 읽어 Pub/Sub처럼 동작한다.",
+    ],
+    [
+      "메시지 보존",
+      "소비해도 삭제되지 않고 보존 기간(retention) 동안 유지된다. 재처리·리플레이가 가능하다.",
+    ],
+    [
+      "처리량",
+      "파티션 수만큼 병렬 소비가 가능하여 초당 수백만 건 처리가 가능하다.",
+    ],
+  ]}
+/>
+
+<MermaidDiagram
+  code={`flowchart LR
+  P["Producer"] --> T["Topic (3 partitions)"]
+  T --> CG1_1["Group A - Consumer 1"]
+  T --> CG1_2["Group A - Consumer 2"]
+  T --> CG2_1["Group B - Consumer 1"]
+
+  style CG1_1 fill:#dbeafe
+  style CG1_2 fill:#dbeafe
+  style CG2_1 fill:#fef3c7`}
+/>
+
+> **Group A** 내에서는 파티션을 나눠 가져 **Queue**처럼 동작하고, **Group B**는 같은 메시지를 독립적으로 읽어 **Pub/Sub**처럼 동작한다.
+
+### Queue · Pub/Sub · Kafka 비교
+
+<KeyTable
+  columns={["구분", "전통적 Queue", "전통적 Pub/Sub", "Kafka"]}
+  rows={[
+    ["메시지 소비", "1메시지 → 1소비자", "1메시지 → 모든 구독자", "Consumer Group 설정에 따라 둘 다 가능"],
+    ["소비 후 메시지", "큐에서 즉시 삭제", "구독자에게 전달 후 삭제", "보존 기간까지 유지 (재처리 가능)"],
+    ["순서 보장", "FIFO 큐에서 보장", "보장하지 않음", "파티션 단위로 보장"],
+    ["확장 방식", "워커 수 증가", "구독자 추가", "파티션 수 + 컨슈머 수 증가"],
+    ["대표 서비스", "SQS, RabbitMQ", "SNS, Redis Pub/Sub", "Apache Kafka, Amazon MSK"],
+  ]}
+/>
+
+## MQTT — IoT 특화 Pub/Sub 프로토콜
+
+MQTT(Message Queuing Telemetry Transport)는 **저대역폭·불안정한 네트워크 환경**에서도 동작하도록 설계된 경량 Pub/Sub 프로토콜이다. IoT 디바이스, 센서, 모바일 앱 등 리소스가 제한된 환경에서 널리 사용된다.
+
+<KeyTable
+  columns={["개념", "설명"]}
+  rows={[
+    [
+      "Broker",
+      "모든 메시지를 중계하는 중앙 서버. 클라이언트는 Broker에만 연결하며, Publisher와 Subscriber가 서로를 알 필요가 없다.",
+    ],
+    [
+      "Topic",
+      "계층형 문자열 (예: home/living-room/temperature). 와일드카드(+, #)로 여러 토픽을 한 번에 구독할 수 있다.",
+    ],
+    [
+      "QoS (Quality of Service)",
+      "0: 최대 1회 (fire-and-forget), 1: 최소 1회 (ACK 확인), 2: 정확히 1회 (4-way handshake). 네트워크 상태와 데이터 중요도에 따라 선택한다.",
+    ],
+    [
+      "경량 프로토콜",
+      "최소 헤더가 2바이트. HTTP 대비 수십 배 작은 오버헤드로, 배터리·대역폭이 제한된 디바이스에 적합하다.",
+    ],
+    [
+      "Retained Message",
+      "Broker가 토픽의 마지막 메시지를 보관하여, 새 구독자가 연결 즉시 최신 상태를 받을 수 있다.",
+    ],
+    [
+      "Last Will (유언)",
+      "클라이언트가 비정상 종료되면 Broker가 미리 등록된 메시지를 자동 발행한다. 디바이스 오프라인 감지에 활용된다.",
+    ],
+  ]}
+/>
+
+<MermaidDiagram
+  code={`flowchart LR
+  subgraph devices [디바이스]
+    S1["온도 센서"]
+    S2["습도 센서"]
+    S3["도어락"]
+  end
+  B["MQTT Broker"]
+  subgraph subscribers [구독자]
+    APP["모바일 앱\n(home/#)"]
+    DB["시계열 DB\n(home/+/temperature)"]
+    ALERT["알림 서비스\n(home/door/status)"]
+  end
+  S1 -->|"home/living-room/temperature"| B
+  S2 -->|"home/living-room/humidity"| B
+  S3 -->|"home/door/status"| B
+  B --> APP
+  B --> DB
+  B --> ALERT`}
+/>
+
+### MQTT vs Kafka vs 전통적 Pub/Sub
+
+<KeyTable
+  columns={["구분", "MQTT", "Kafka", "전통적 Pub/Sub (SNS 등)"]}
+  rows={[
+    ["설계 목적", "IoT · 저대역폭 · 불안정 네트워크", "대용량 이벤트 스트리밍 · 로그 수집", "서버 간 이벤트 팬아웃"],
+    ["프로토콜 크기", "최소 2바이트 헤더 (초경량)", "TCP 기반 커스텀 프로토콜", "HTTP/HTTPS 기반"],
+    ["메시지 보존", "Retained Message (토픽당 최신 1건)", "보존 기간 동안 전체 보관 (리플레이 가능)", "전달 후 삭제"],
+    ["전달 보장", "QoS 0/1/2 선택", "파티션 내 순서 보장 + offset 관리", "최소 1회 (재시도)"],
+    ["대표 서비스", "Mosquitto, AWS IoT Core, HiveMQ", "Apache Kafka, Amazon MSK", "Amazon SNS, Google Pub/Sub"],
+    ["주요 사용처", "스마트홈, 산업 센서, 커넥티드카", "실시간 분석, 로그 파이프라인, 이벤트 소싱", "마이크로서비스 간 이벤트 알림"],
+  ]}
+/>

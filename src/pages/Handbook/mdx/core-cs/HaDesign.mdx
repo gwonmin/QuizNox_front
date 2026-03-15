@@ -94,3 +94,123 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
   ]}
 />
 
+---
+
+## MCCS (Mission Critical Cluster Software)
+
+온프레미스 환경에서 DB·핵심 애플리케이션의 HA를 구현하기 위해 사용하는 **클러스터링 소프트웨어**다. Active 노드 장애 시 Standby 노드로 자동 전환(failover)하여 서비스 중단을 최소화한다.
+
+### 동작 원리
+
+<MermaidDiagram
+  code={`flowchart TB
+  subgraph cluster ["MCCS 클러스터"]
+    direction TB
+    A["Active 노드\n(DB 서비스 구동)"]
+    S["Standby 노드\n(대기 상태)"]
+    HB["Heartbeat\n(주기적 상태 확인)"]
+    A <-->|"heartbeat"| HB
+    S <-->|"heartbeat"| HB
+    SS[("공유 스토리지\n(SAN/NAS)")]
+    A --> SS
+    S -.->|"장애 시 마운트"| SS
+  end
+
+  subgraph failover ["장애 발생 시"]
+    direction LR
+    F1["Active 장애 감지\n(heartbeat 실패)"] --> F2["Standby가\nActive로 전환"]
+    F2 --> F3["공유 스토리지 마운트\n+ 서비스 기동"]
+    F3 --> F4["VIP 전환\n(클라이언트 투명)"]
+  end`}
+/>
+
+### 핵심 구성 요소
+
+<KeyTable
+  columns={["구성 요소", "역할"]}
+  rows={[
+    [
+      "Heartbeat",
+      "Active ↔ Standby 간 주기적 상태 확인. 일정 횟수 응답 실패 시 장애로 판단한다.",
+    ],
+    [
+      "공유 스토리지 (SAN/NAS)",
+      "양쪽 노드가 동일한 데이터에 접근할 수 있도록 공유 디스크를 사용한다. failover 시 Standby가 마운트를 이어받는다.",
+    ],
+    [
+      "VIP (Virtual IP)",
+      "클라이언트가 접속하는 가상 IP. 장애 시 VIP가 Standby로 이동하여 클라이언트 변경 없이 전환된다.",
+    ],
+    [
+      "Failover 스크립트",
+      "서비스 중지·시작, 파일시스템 마운트, IP 전환 등 전환 절차를 자동화한 스크립트.",
+    ],
+  ]}
+/>
+
+### 대표 MCCS 제품
+
+<KeyTable
+  columns={["제품", "벤더", "특징"]}
+  rows={[
+    [
+      "HP ServiceGuard",
+      "HPE",
+      "HP-UX·Linux 기반 미션 크리티컬 클러스터. 금융·통신 레거시에서 다수 사용.",
+    ],
+    [
+      "Veritas Cluster Server (VCS)",
+      "Veritas",
+      "멀티 OS 지원(AIX·Solaris·Linux·Windows). 유연한 리소스 그룹 관리.",
+    ],
+    [
+      "Oracle Clusterware / RAC",
+      "Oracle",
+      "Oracle DB 전용. Active-Active 구성으로 여러 노드가 동시에 DB 서비스 가능.",
+    ],
+    [
+      "Windows WSFC",
+      "Microsoft",
+      "Windows Server 기본 내장. SQL Server Always On 가용성 그룹과 결합.",
+    ],
+    [
+      "Pacemaker + Corosync",
+      "오픈소스",
+      "Linux HA 표준 스택. PostgreSQL, MariaDB 등 오픈소스 DB와 조합.",
+    ],
+  ]}
+/>
+
+### 온프레미스 MCCS vs 클라우드 관리형 HA
+
+<KeyTable
+  columns={["구분", "온프레미스 MCCS", "클라우드 관리형 (AWS 예시)"]}
+  rows={[
+    [
+      "failover 방식",
+      "Heartbeat + VIP 전환 + 공유 스토리지 마운트",
+      "RDS Multi-AZ: 자동 DNS 전환, Aurora: 스토리지 레벨 복제 + 엔드포인트 전환",
+    ],
+    [
+      "failover 시간",
+      "수십 초 ~ 수 분 (스크립트·서비스 기동 시간 포함)",
+      "RDS: 60~120초, Aurora: 보통 30초 이내",
+    ],
+    [
+      "운영 부담",
+      "클러스터 SW 설치·패치, 스크립트 관리, 공유 스토리지 운영 필요",
+      "AWS가 failover·패치·복제를 관리. 운영자는 모니터링에 집중",
+    ],
+    [
+      "비용 구조",
+      "하드웨어 + MCCS 라이선스 + 운영 인력",
+      "인스턴스 + 스토리지 종량 과금",
+    ],
+    [
+      "적합한 환경",
+      "규제·보안 요건으로 온프레미스 필수인 금융·공공·통신",
+      "클라우드 네이티브 환경, 빠른 확장·축소가 필요한 서비스",
+    ],
+  ]}
+/>
+
