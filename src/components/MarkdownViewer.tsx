@@ -16,6 +16,8 @@ interface MarkdownViewerProps {
   diagramLinks?: Record<string, string>;
   /** diagramLinks 사용 시 클릭 시 SPA 이동용. (path, scrollHash) 전달 시 이전 버튼에서 해당 노드로 스크롤 가능 */
   onDiagramLinkClick?: (path: string, scrollHash?: string) => void;
+  /** Mermaid 블록 처리(또는 없음)까지 끝났을 때 한 번 호출 */
+  onMermaidSettled?: () => void;
 }
 
 export function MarkdownViewer({
@@ -23,6 +25,7 @@ export function MarkdownViewer({
   className = "",
   diagramLinks,
   onDiagramLinkClick,
+  onMermaidSettled,
 }: MarkdownViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mermaidInitialized = useRef(false);
@@ -31,59 +34,69 @@ export function MarkdownViewer({
     let cancelled = false;
 
     const timer = setTimeout(async () => {
-      const container = containerRef.current;
-      if (!container || cancelled) return;
-
       try {
-        const mermaid = await import("mermaid");
-        if (cancelled) return;
-
-        if (!mermaidInitialized.current) {
-          mermaid.default.initialize({
-            startOnLoad: false,
-            theme: "default",
-            securityLevel: "loose",
-          });
-          mermaidInitialized.current = true;
+        const container = containerRef.current;
+        if (!container || cancelled) {
+          return;
         }
 
-        const blocks = container.querySelectorAll("code.language-mermaid");
-
-        for (let i = 0; i < blocks.length && !cancelled; i++) {
-          const codeBlock = blocks[i];
-          if (codeBlock.parentElement?.classList.contains("mermaid-wrapper")) {
-            continue;
+        try {
+          const mermaid = await import("mermaid");
+          if (cancelled) {
+            return;
           }
 
-          const code = codeBlock.textContent ?? "";
-          const uniqueId = `mermaid-${i}-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+          if (!mermaidInitialized.current) {
+            mermaid.default.initialize({
+              startOnLoad: false,
+              theme: "default",
+              securityLevel: "loose",
+            });
+            mermaidInitialized.current = true;
+          }
 
-          const wrapper = document.createElement("div");
-          wrapper.className = "mermaid-wrapper my-4";
-          wrapper.setAttribute("data-mermaid-index", String(i));
+          const blocks = container.querySelectorAll("code.language-mermaid");
 
-          const mermaidDiv = document.createElement("div");
-          mermaidDiv.className = "mermaid";
-          mermaidDiv.id = uniqueId;
-          mermaidDiv.textContent = code;
-          wrapper.appendChild(mermaidDiv);
+          for (let i = 0; i < blocks.length && !cancelled; i++) {
+            const codeBlock = blocks[i];
+            if (codeBlock.parentElement?.classList.contains("mermaid-wrapper")) {
+              continue;
+            }
 
-          const pre = codeBlock.parentElement;
-          if (pre) {
-            pre.replaceWith(wrapper);
-            try {
-              await mermaid.default.run({ nodes: [mermaidDiv] });
-            } catch (err) {
-              console.warn("Mermaid render error:", err);
+            const code = codeBlock.textContent ?? "";
+            const uniqueId = `mermaid-${i}-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+
+            const wrapper = document.createElement("div");
+            wrapper.className = "mermaid-wrapper my-4";
+            wrapper.setAttribute("data-mermaid-index", String(i));
+
+            const mermaidDiv = document.createElement("div");
+            mermaidDiv.className = "mermaid";
+            mermaidDiv.id = uniqueId;
+            mermaidDiv.textContent = code;
+            wrapper.appendChild(mermaidDiv);
+
+            const pre = codeBlock.parentElement;
+            if (pre) {
+              pre.replaceWith(wrapper);
+              try {
+                await mermaid.default.run({ nodes: [mermaidDiv] });
+              } catch (err) {
+                console.warn("Mermaid render error:", err);
+              }
             }
           }
-        }
 
-        if (!cancelled && diagramLinks && Object.keys(diagramLinks).length > 0) {
-          injectDiagramLinks(container, diagramLinks, onDiagramLinkClick);
+          if (!cancelled && diagramLinks && Object.keys(diagramLinks).length > 0) {
+            injectDiagramLinks(container, diagramLinks, onDiagramLinkClick);
+          }
+        } catch (err) {
+          if (!cancelled) console.warn("Mermaid not available:", err);
         }
-      } catch (err) {
-        if (!cancelled) console.warn("Mermaid not available:", err);
+      } finally {
+        if (!cancelled) {
+          onMermaidSettled?.();
+        }
       }
     }, MERMAID_RENDER_DELAY_MS);
 
@@ -91,7 +104,7 @@ export function MarkdownViewer({
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [content, diagramLinks, onDiagramLinkClick]);
+  }, [content, diagramLinks, onDiagramLinkClick, onMermaidSettled]);
 
   return (
     <div className={className} ref={containerRef}>

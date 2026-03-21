@@ -1,10 +1,11 @@
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { Link, useParams, useNavigate, useLocation } from "react-router-dom";
 import { MarkdownViewer } from "../../components/MarkdownViewer";
 import { LoadingSpinner } from "../../components/LoadingSpinner";
 import { getHandbookDoc } from "../../constants/handbookManifest";
 import { getDiagramConfig } from "../../constants/handbookLayerDiagramConfig";
 import { HandbookLayout } from "../../components/handbook/HandbookLayout";
+import { HandbookContentReadyProvider } from "@/contexts/HandbookContentReadyContext";
 import QueueVsPubsubMdx from "./mdx/core-cs/QueueVsPubsub.mdx";
 import SoaOverviewMdx from "./mdx/soa/SoaOverview.mdx";
 import DvaOverviewMdx from "./mdx/dva/DvaOverview.mdx";
@@ -225,6 +226,7 @@ const HandbookView = memo(function HandbookView() {
   const location = useLocation();
   const [content, setContent] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [markdownVisualReady, setMarkdownVisualReady] = useState(false);
 
   const meta = useHandbookDoc(layerId, slug);
 
@@ -405,9 +407,9 @@ const HandbookView = memo(function HandbookView() {
     }
   }, [layerId, slug, navigate]);
 
-  if (layerId === "core-cs" && (slug === "real-system-diagrams" || slug === "symmetric-asymmetric")) {
-    return null;
-  }
+  useEffect(() => {
+    setMarkdownVisualReady(false);
+  }, [layerId, slug]);
 
   useEffect(() => {
     if (!layerId || !slug) return;
@@ -439,7 +441,20 @@ const HandbookView = memo(function HandbookView() {
       });
 
     return () => controller.abort();
+  }, [isMdxDoc, layerId, slug]);
+
+  const onMarkdownMermaidSettled = useCallback(() => {
+    setMarkdownVisualReady(true);
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!layerId || !slug) return;
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }, [layerId, slug]);
+
+  if (layerId === "core-cs" && (slug === "real-system-diagrams" || slug === "symmetric-asymmetric")) {
+    return null;
+  }
 
   if (!layerId || !slug) {
     return (
@@ -700,15 +715,30 @@ const HandbookView = memo(function HandbookView() {
       sectionTitle={meta.section.title}
       docTitle={meta.doc.title}
       backToDiagramHref={backToDiagramHref}
+      centerReadingColumn
     >
       {isMdxDoc && (
-        <div className="handbook-doc-content max-w-4xl">
-          <div className="markdown-body">{mdxComponent}</div>
-        </div>
+        <HandbookContentReadyProvider
+          key={`${layerId}-${slug}`}
+          fallback={<LoadingSpinner />}
+        >
+          <div className="handbook-doc-content w-full">
+            <div className="markdown-body">{mdxComponent}</div>
+          </div>
+        </HandbookContentReadyProvider>
       )}
       {!isMdxDoc && content !== null && (
-        <div className="handbook-doc-content max-w-4xl">
-          <MarkdownViewer key={`${layerId}-${slug}`} content={content} />
+        <div className="relative handbook-doc-content min-h-[200px] w-full">
+          <MarkdownViewer
+            key={`${layerId}-${slug}`}
+            content={content}
+            onMermaidSettled={onMarkdownMermaidSettled}
+          />
+          {!markdownVisualReady ? (
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/85 backdrop-blur-[1px]">
+              <LoadingSpinner />
+            </div>
+          ) : null}
         </div>
       )}
       <RelatedInSection

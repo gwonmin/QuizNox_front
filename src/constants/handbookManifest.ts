@@ -146,9 +146,9 @@ export const HANDBOOK_LAYERS: HandbookLayer[] = [
         id: "ai-agent",
         title: "9. AI & Agent",
         docs: [
-          { slug: "llm-basics", title: "LLM 기초 (Transformer · 토큰 · Prompt Engineering)" },
-          { slug: "ai-agent", title: "AI Agent (추론 · 도구 사용 · 멀티에이전트)" },
-          { slug: "rag", title: "RAG (Retrieval-Augmented Generation)" },
+          { slug: "llm-basics", title: "LLM 기초 (Transformer · 토큰 · 프롬프트 · 구조화 출력 · MCP)" },
+          { slug: "ai-agent", title: "AI Agent (ReAct · 도구 · MCP · 거버넌스 · 멀티에이전트)" },
+          { slug: "rag", title: "RAG (검색 증강 · 고급 파이프라인 · 평가 · 보안)" },
         ],
       },
     ],
@@ -235,8 +235,8 @@ export const HANDBOOK_LAYERS: HandbookLayer[] = [
         id: "ai-bedrock",
         title: "7. AI & Bedrock",
         docs: [
-          { slug: "bedrock-overview", title: "Bedrock 개요 (관리형 FM · 모델 선택)" },
-          { slug: "bedrock-agent", title: "Bedrock Agent (Action Group · Knowledge Base · Guardrails)" },
+          { slug: "bedrock-overview", title: "Bedrock 개요 (관리형 FM · Converse · 모델 선택)" },
+          { slug: "bedrock-agent", title: "Bedrock Agent (Action Group · KB · Guardrails · 운영)" },
         ],
       },
     ],

@@ -17,6 +17,8 @@ interface HandbookLayoutProps {
   backToDiagramHref?: string;
   tocItems?: HandbookTocItem[];
   className?: string;
+  /** 문서 헤더·본문을 max-w-4xl 블록으로 묶어 그리드 칸 안에서 가운데 정렬 */
+  centerReadingColumn?: boolean;
   children: ReactNode;
 }
 
@@ -29,6 +31,7 @@ export function HandbookLayout({
   backToDiagramHref,
   tocItems,
   className,
+  centerReadingColumn = false,
   children,
 }: HandbookLayoutProps) {
   const hasToc = tocItems && tocItems.length > 0;
@@ -42,45 +45,51 @@ export function HandbookLayout({
       )}
     >
       <section>
-        <header className="mb-6">
-          <nav aria-label="breadcrumb" className="text-sm text-muted-foreground">
-            {showBackToListLink && (
-              <>
-                <Link to={backToListHref} className="hover:text-foreground">
-                  핸드북
-                </Link>
-                {layerTitle && (
-                  <>
-                    <span className="mx-1.5 text-muted-foreground/70">/</span>
-                    <span className="text-foreground/80">{layerTitle}</span>
-                  </>
-                )}
-              </>
-            )}
-          </nav>
-          <div className="mt-3 space-y-1">
-            {docTitle && (
-              <h1 className="text-xl font-semibold text-foreground">{docTitle}</h1>
-            )}
-            {sectionTitle && (
-              <p className="text-xs text-muted-foreground">
-                {sectionTitle}
-                {backToDiagramHref && (
-                  <>
-                    <span className="mx-1.5 text-muted-foreground/60">·</span>
-                    <Link
-                      to={backToDiagramHref}
-                      className="text-xs text-primary hover:underline"
-                    >
-                      다이어그램으로 돌아가기
-                    </Link>
-                  </>
-                )}
-              </p>
-            )}
-          </div>
-        </header>
-        <div>{children}</div>
+        <div
+          className={cn(
+            centerReadingColumn && "mx-auto w-full max-w-4xl"
+          )}
+        >
+          <header className="mb-6">
+            <nav aria-label="breadcrumb" className="text-sm text-muted-foreground">
+              {showBackToListLink && (
+                <>
+                  <Link to={backToListHref} className="hover:text-foreground">
+                    핸드북
+                  </Link>
+                  {layerTitle && (
+                    <>
+                      <span className="mx-1.5 text-muted-foreground/70">/</span>
+                      <span className="text-foreground/80">{layerTitle}</span>
+                    </>
+                  )}
+                </>
+              )}
+            </nav>
+            <div className="mt-3 space-y-1">
+              {docTitle && (
+                <h1 className="text-xl font-semibold text-foreground">{docTitle}</h1>
+              )}
+              {sectionTitle && (
+                <p className="text-xs text-muted-foreground">
+                  {sectionTitle}
+                  {backToDiagramHref && (
+                    <>
+                      <span className="mx-1.5 text-muted-foreground/60">·</span>
+                      <Link
+                        to={backToDiagramHref}
+                        className="text-xs text-primary hover:underline"
+                      >
+                        다이어그램으로 돌아가기
+                      </Link>
+                    </>
+                  )}
+                </p>
+              )}
+            </div>
+          </header>
+          <div>{children}</div>
+        </div>
       </section>
 
       {hasToc && (
@@ -109,4 +118,3 @@ export function HandbookLayout({
     </main>
   );
 }
-

@@ -3,11 +3,11 @@ import { KeyTable } from "@/components/handbook/KeyTable";
 import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
 
 <SectionSummary
-  lead="Amazon Bedrock은 다양한 Foundation Model(FM)을 API로 제공하는 관리형 서비스로, 인프라 관리 없이 생성형 AI 애플리케이션을 구축할 수 있다."
+  lead="Amazon Bedrock은 여러 제공사의 Foundation Model(FM)을 API로 쓰는 관리형 서비스다. 모델 ID·지역·가격은 수시로 바뀌므로 콘솔·문서의 지원 목록을 기준으로 한다."
   bullets={[
-    "여러 제공사(Anthropic, Meta, Mistral, Amazon 등)의 모델을 단일 API로 사용할 수 있다.",
-    "서버리스로 동작하여 인프라 프로비저닝 없이 사용한 만큼만 과금된다.",
-    "Agent, Knowledge Base, Guardrails 등 생성형 AI 구축에 필요한 기능을 통합 제공한다.",
+    "InvokeModel·Converse 등 API로 텍스트·멀티모달·임베딩을 통합 호출할 수 있다(모델별 지원 상이).",
+    "서버리스 과금(토큰·이미지 단위 등)이 기본이며, 배치·프롬프트 캐시 등 비용 최적화 옵션을 검토한다.",
+    "Agent, Knowledge Base, Guardrails, 평가·모델 커스터마이징(지원 모델 한정)으로 엔터프라이즈 구성을 맞출 수 있다.",
   ]}
 />
 
@@ -29,38 +29,40 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
   VDB["벡터 DB\n(OpenSearch 등)"] --> KB`}
 />
 
-## 지원 모델
+## 지원 모델(패밀리 관점)
 
 <KeyTable
-  columns={["모델", "제공사", "특징"]}
+  columns={["패밀리", "제공사", "특징"]}
   rows={[
     [
-      "Claude 3.5 Sonnet / Haiku",
+      "Claude 시리즈",
       "Anthropic",
-      "코딩·분석·장문 처리에 강함. Sonnet은 고성능, Haiku는 저비용·저지연.",
+      "추론·코딩·장문에 자주 선택. Sonnet·Opus·Haiku 등 티어별로 속도·단가·컨텍스트가 다르다.",
     ],
     [
-      "Llama 3 (8B / 70B)",
+      "Llama 시리즈",
       "Meta",
-      "오픈소스 기반. Fine-tuning 가능. 범용 태스크에 적합.",
+      "오픈웨이트 계열을 Bedrock에서 호스팅. 일부 SKU는 커스터마이징·미세조정 옵션이 있다.",
     ],
     [
-      "Mistral / Mixtral",
-      "Mistral AI",
-      "MoE 아키텍처로 경량 고성능. 코드 생성·분석에 강점.",
+      "Mistral 등",
+      "Mistral AI 등",
+      "경량·코드·유럽 규정 대응 시나리오에서 후보가 된다.",
     ],
     [
       "Amazon Titan",
       "Amazon",
-      "텍스트 생성 + 임베딩 모델 제공. Bedrock 네이티브 모델로 통합도 높음.",
+      "텍스트·임베딩·이미지 등 네이티브 모델. 다른 AWS 서비스와 연계 시 단순하다.",
     ],
     [
-      "Stability AI (SDXL)",
-      "Stability AI",
-      "이미지 생성 모델. 텍스트-투-이미지 생성.",
+      "Cohere · Stability 등",
+      "Cohere, Stability AI 등",
+      "임베딩·명령형 텍스트·이미지 생성 등 용도별 SKU가 있다.",
     ],
   ]}
 />
+
+> 실제 모델 ID·리전 가용·컨텍스트 길이는 [Bedrock 지원 모델 문서](https://docs.aws.amazon.com/bedrock/latest/userguide/models-supported.html)와 콘솔에서 확인한다.
 
 ## 모델 선택 기준
 
@@ -84,8 +86,8 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
     ],
     [
       "컨텍스트 길이",
-      "긴 문서를 처리해야 하면 큰 컨텍스트 윈도우가 필요하다.",
-      "장문 문서 분석 → Claude(200K)",
+      "긴 문서·멀티턴은 SKU별 상한이 다르다. 초과 시 RAG·요약으로 나눈다.",
+      "요구 토큰 수를 산정한 뒤 해당 범위를 지원하는 모델을 고른다.",
     ],
     [
       "Fine-tuning 필요성",
@@ -165,7 +167,11 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
   rows={[
     [
       "Model Access",
-      "원하는 FM을 활성화하고 API로 호출. InvokeModel / Converse API 사용.",
+      "콘솔에서 모델 액세스를 켠 뒤 InvokeModel·Converse·배치 추론 등으로 호출. 멀티턴·툴 호출은 Converse 쪽이 단순한 경우가 많다.",
+    ],
+    [
+      "프롬프트 관리",
+      "시스템 지시·Few-shot 예시를 버전 관리하고, 환경별로 배포한다. IaC·SDK와 함께 두면 재현성이 좋다.",
     ],
     [
       "Knowledge Base",
