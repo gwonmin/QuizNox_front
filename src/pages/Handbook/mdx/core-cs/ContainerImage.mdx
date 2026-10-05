@@ -44,7 +44,7 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
 ## 이미지 빌드·배포 흐름
 
 <MermaidDiagram
-  code={`flowchart LR
+  code={`flowchart TB
   df["Dockerfile"] --> build["빌드"]
   build --> layers["레이어 이미지"]
   layers --> push["레지스트리 푸시"]

@@ -86,7 +86,7 @@ import { DocLink } from "@/components/handbook/DocLink";
 ## 중단 후 재개
 
 <MermaidDiagram
-  code={`flowchart LR
+  code={`flowchart TB
   S["재시작"] --> L["checkpoint 읽기"]
   L --> C{"다음 단계가 이미 실행됐나? (멱등 키로 확인)"}
   C -->|"예"| SKIP["결과만 읽고 다음 단계로"]

@@ -40,7 +40,7 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
 ## 개념 도식
 
 <MermaidDiagram
-  code={`flowchart LR
+  code={`flowchart TB
   subgraph lat [Latency]
     L["요청 ----시간---- 응답"]
   end
@@ -49,6 +49,9 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
   end
   subgraph iops [IOPS]
     I["초당 연산 수"]
-  end`}
+  end
+  lat ~~~ tp
+  tp ~~~ iops
+`}
 />
 

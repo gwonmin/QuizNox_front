@@ -52,7 +52,7 @@ import { ModelReferenceLinks } from "@/components/handbook/ModelReferenceLinks";
 ## LLM 동작 원리
 
 <MermaidDiagram
-  code={`flowchart LR
+  code={`flowchart TB
   INPUT["입력 텍스트"]
   TOK["토크나이저\n(텍스트 → 토큰)"]
   EMB["임베딩\n(토큰 → 벡터)"]
@@ -165,7 +165,10 @@ import { ModelReferenceLinks } from "@/components/handbook/ModelReferenceLinks";
   subgraph ft ["Fine-tuning"]
     direction LR
     F1["도메인 데이터"] --> F2["추가 학습"] --> F3["커스텀 모델"] --> F4["전문 응답"]
-  end`}
+  end
+  pe ~~~ rag
+  rag ~~~ ft
+`}
 />
 
 ## 모델 유형

@@ -33,12 +33,13 @@ import { DocLink } from "@/components/handbook/DocLink";
   code={`flowchart TB
   SES["Session: 대화 하나"] --> TR["Trace: 사용자 요청 하나"]
   TR --> S1["span: 모델 호출 (계획)"]
-  TR --> S2["span: 검색"]
-  TR --> S3["span: 도구 호출 get_order"]
-  TR --> S4["span: 하위 Agent 호출"]
+  S1 --> S2["span: 검색"]
+  S2 --> S3["span: 도구 호출 get_order"]
+  S3 --> S4["span: 하위 Agent 호출"]
   S4 --> S41["span: 모델 호출"]
   S4 --> S42["span: 도구 호출"]
-  TR --> S5["span: 모델 호출 (최종 답)"]`}
+  S41 --> S5["span: 모델 호출 (최종 답)"]
+  S42 --> S5`}
 />
 
 ## span마다 남길 것

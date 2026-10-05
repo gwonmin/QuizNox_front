@@ -21,6 +21,7 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
   subgraph brain ["추론 엔진"]
     FM["Foundation Model\n(Claude 등)"]
     INST["지시 (Instruction)\n에이전트 역할 · 행동 규칙"]
+    FM ~~~ INST
   end
 
   subgraph tools ["도구"]
@@ -29,6 +30,7 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
     L1["Lambda 함수"]
     L2["Lambda 함수"]
     AG1 --> L1
+    L1 ~~~ AG2
     AG2 --> L2
   end
 
@@ -74,7 +76,7 @@ Action Group은 Agent가 **외부 세계와 상호작용**하기 위한 도구 �
 />
 
 <MermaidDiagram
-  code={`flowchart LR
+  code={`flowchart TB
   REQ["사용자: 최근 주문 상태 알려줘"]
   AGENT["Agent\n(FM이 추론)"]
   THINK["Thought: 주문 조회\nAPI를 호출해야 한다"]
@@ -91,7 +93,7 @@ Action Group은 Agent가 **외부 세계와 상호작용**하기 위한 도구 �
 Knowledge Base는 **S3에 저장된 문서를 자동으로 RAG 파이프라인으로 구성**해주는 관리형 서비스이다.
 
 <MermaidDiagram
-  code={`flowchart LR
+  code={`flowchart TB
   subgraph setup ["설정 (1회)"]
     S3["S3 버킷\n(PDF, HTML, TXT 등)"]
     SYNC["자동 동기화\n(청킹 · 임베딩)"]
@@ -174,7 +176,7 @@ Guardrails는 Agent의 **입출력에 안전장치**를 적용하여 부적절�
 />
 
 <MermaidDiagram
-  code={`flowchart LR
+  code={`flowchart TB
   INPUT["사용자 입력"]
   GR_IN["Guardrails\n(입력 필터링)"]
   AGENT["Agent 처리\n(FM + Tool + KB)"]

@@ -105,7 +105,6 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
 <MermaidDiagram
   code={`flowchart TB
   subgraph cluster ["MCCS 클러스터"]
-    direction TB
     A["Active 노드\n(DB 서비스 구동)"]
     S["Standby 노드\n(대기 상태)"]
     HB["Heartbeat\n(주기적 상태 확인)"]
@@ -121,7 +120,9 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
     F1["Active 장애 감지\n(heartbeat 실패)"] --> F2["Standby가\nActive로 전환"]
     F2 --> F3["공유 스토리지 마운트\n+ 서비스 기동"]
     F3 --> F4["VIP 전환\n(클라이언트 투명)"]
-  end`}
+  end
+  cluster ~~~ failover
+`}
 />
 
 ### 핵심 구성 요소

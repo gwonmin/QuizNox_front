@@ -86,7 +86,6 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
 <MermaidDiagram
   code={`flowchart TB
   subgraph stateful ["Stateful: 서버 세션"]
-    direction LR
     C1["클라이언트"] -->|"1. 로그인"| S1["서버 A"]
     S1 -->|"2. 세션 생성\n(서버 메모리 저장)"| S1
     S1 -->|"3. session_id 반환"| C1
@@ -95,12 +94,12 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
   end
 
   subgraph stateless ["Stateless: JWT"]
-    direction LR
     C2["클라이언트"] -->|"1. 로그인"| S2["서버 A"]
     S2 -->|"2. JWT 발급\n(서명만 하고 저장 안 함)"| C2
     C2 -->|"3. JWT와 함께 요청"| S3["서버 B"]
     S3 -->|"4. 서명 검증만으로\n사용자 확인"| S3
-  end`}
+  end
+  stateful ~~~ stateless`}
 />
 
 <KeyTable

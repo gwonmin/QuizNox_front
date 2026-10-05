@@ -76,7 +76,7 @@ Trajectory 비교의 네 가지 기준(strict, unordered, subset, superset)은 L
 ## Offline과 Online
 
 <MermaidDiagram
-  code={`flowchart LR
+  code={`flowchart TB
   DS["평가 데이터셋"] --> OFF["Offline 평가 (배포 전)"]
   OFF -->|"기준 통과"| DEP["배포"]
   DEP --> PROD["운영 trace"]

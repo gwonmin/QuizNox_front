@@ -41,13 +41,17 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
 ## 개념 도식
 
 <MermaidDiagram
-  code={`flowchart LR
+  code={`flowchart TB
   subgraph lb4 [L4 LB]
+    direction LR
     A1["IP:포트만 봄"] --> B1["서버1"]
     A1 --> B2["서버2"]
   end
   subgraph lb7 [L7 LB]
+    direction LR
     A2["URL·헤더 봄"] --> B3["경로별 서버"]
-  end`}
+  end
+  lb4 ~~~ lb7
+`}
 />
 

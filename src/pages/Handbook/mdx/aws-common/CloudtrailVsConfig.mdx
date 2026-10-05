@@ -23,13 +23,17 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
 ## 개념 도식
 
 <MermaidDiagram
-  code={`flowchart LR
+  code={`flowchart TB
   subgraph ct [CloudTrail]
+    direction LR
     API[API 호출] --> EVT[이벤트 로그]
     EVT --> Q1[누가 언제 어떤 API]
   end
   subgraph cfg [Config]
+    direction LR
     RES[리소스] --> SNAP[스냅샷 및 변경 이력]
     SNAP --> Q2[설정이 어떻게 바뀌었나]
-  end`}
+  end
+  ct ~~~ cfg
+`}
 />

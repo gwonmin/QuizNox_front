@@ -24,12 +24,16 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
 ## 개념 도식
 
 <MermaidDiagram
-  code={`flowchart LR
+  code={`flowchart TB
   subgraph igw [IGW 양방향]
+    direction LR
     A[퍼블릭 인스턴스] <--> B[인터넷]
   end
   subgraph nat [NAT 아웃바운드]
+    direction LR
     C[프라이빗 인스턴스] --> D[NAT GW]
     D --> E[인터넷]
-  end`}
+  end
+  igw ~~~ nat
+`}
 />

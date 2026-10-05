@@ -16,19 +16,23 @@ import { DocLink } from "@/components/handbook/DocLink";
 ## 비용이 생기는 구조
 
 <MermaidDiagram
-  code={`flowchart LR
+  code={`flowchart TB
   subgraph unit [과금 단위]
+    direction LR
     T["켜 둔 시간"]
     S["크기 (vCPU · 메모리)"]
     N["실행 횟수 · 동시 실행"]
   end
   subgraph price [단가]
+    direction LR
     OD["온디맨드"]
     RI["예약 · Savings Plans"]
     SP["스팟"]
   end
   unit --> COST["컴퓨트 비용"]
-  price --> COST`}
+  price --> COST
+  unit ~~~ price
+`}
 />
 
 같은 워크로드라도 **왼쪽(사용량)** 과 **오른쪽(단가)** 두 축을 따로 줄일 수 있다. 적정 사이징과 오토 스케일은 사용량을, 구매 옵션은 단가를 줄인다.

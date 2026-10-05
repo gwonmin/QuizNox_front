@@ -28,7 +28,9 @@ import { DocLink } from "@/components/handbook/DocLink";
   EC2["EC2 · Lambda · ECS"] -->|"AssumeRole (자동)"| TP
   X["다른 계정 · SSO 사용자"] -->|"AssumeRole"| TP
   TP --> TMP["임시 자격<br/>(수 분 ~ 12시간)"] --> API
-  PP -.->|"적용"| TMP`}
+  PP -.->|"적용"| TMP
+  user ~~~ role
+`}
 />
 
 User는 자격을 **갖고 있고**, Role은 자격을 **발급받는다**. Role에는 두 정책이 붙는다. 신뢰 정책이 "누가"를, 권한 정책이 "무엇을"을 정한다.

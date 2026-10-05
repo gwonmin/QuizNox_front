@@ -17,14 +17,20 @@ import { DocLink } from "@/components/handbook/DocLink";
 <MermaidDiagram
   code={`flowchart TB
   subgraph rolling [롤링]
+    direction LR
     R1["v1 v1 v1 v1"] --> R2["v2 v1 v1 v1"] --> R3["v2 v2 v2 v2"]
   end
   subgraph bg [블루 / 그린]
+    direction LR
     B1["Blue v1 100%<br/>Green v2 0%"] -->|"한 번에 전환"| B2["Blue v1 0%<br/>Green v2 100%"]
   end
   subgraph canary [카나리]
+    direction LR
     C1["v2 5%"] -->|"지표 정상"| C2["v2 25%"] -->|"지표 정상"| C3["v2 100%"]
-  end`}
+  end
+  rolling ~~~ bg
+  bg ~~~ canary
+`}
 />
 
 롤링은 인스턴스를 **하나씩 바꾸고**, 블루/그린은 전체 복제본을 만들어 **트래픽을 한 번에 돌리며**, 카나리는 **일부 사용자에게 먼저** 보내고 지표를 보며 늘린다. 되돌리는 방법도 다르다. 롤링은 다시 롤링, 블루/그린은 트래픽을 되돌리기만, 카나리는 비율을 0으로.

@@ -93,7 +93,7 @@ import { DocLink } from "@/components/handbook/DocLink";
 AI Agent의 핵심 실행 패턴으로, **추론(Thought)과 행동(Action)을 번갈아 수행**하며 **관찰(Observation) 결과를 다음 추론에 반영**한다.
 
 <MermaidDiagram
-  code={`flowchart LR
+  code={`flowchart TB
   Q["사용자 질문"]
   T1["Thought 1\n(무엇을 해야 하는가)"]
   A1["Action 1\n(도구 호출)"]
@@ -205,12 +205,12 @@ LangChain은 **부품(모듈)**, LangGraph는 그 부품을 **조립하는 설�
 LangChain은 LLM 애플리케이션에 필요한 모듈을 제공하고, 이들을 파이프(`|`) 연산자로 연결한다.
 
 <MermaidDiagram
-  code={`flowchart LR
+  code={`flowchart TB
   subgraph modules ["LangChain 모듈 (부품)"]
-    direction TB
     subgraph io ["입출력"]
       PT["Prompt Template\n(프롬프트 틀)"]
       OP["Output Parser\n(응답 구조화)"]
+      PT ~~~ OP
     end
     subgraph brain ["두뇌"]
       LLM_MOD["LLM / ChatModel\n(GPT, Claude 등)"]
@@ -218,10 +218,13 @@ LangChain은 LLM 애플리케이션에 필요한 모듈을 제공하고, 이들�
     subgraph hands ["손 (외부 상호작용)"]
       TOOL["Tool\n(API, 계산기, 검색...)"]
       RET["Retriever\n(벡터 DB 검색 = RAG)"]
+      TOOL ~~~ RET
     end
     subgraph memory ["기억"]
       MEM["Memory\n(대화 이력 관리)"]
     end
+    io ~~~ hands
+    brain ~~~ memory
   end
 
   subgraph chain ["이 부품들을 파이프로 연결하면 → 체인"]
@@ -339,7 +342,6 @@ LangChain은 LLM 애플리케이션에 필요한 모듈을 제공하고, 이들�
     API_ENTRY --> ROUTER
 
     subgraph AGENT ["LangGraph Agent"]
-      direction TB
       ROUTER{"라우터 — 의도 분류"}
 
       ROUTER -->|"단순 질의"| RAG["RAG 노드"]
@@ -358,27 +360,28 @@ LangChain은 LLM 애플리케이션에 필요한 모듈을 제공하고, 이들�
   ACTION -->|"Tool Calling"| TOOLS
 
   subgraph DATA ["데이터 소스 ← RAG 노드"]
-    direction LR
     VDB["Vector DB\nPinecone · OpenSearch"]
     DOCS["지식베이스\nS3 · Notion"]
     DOCS -->|"Embedding"| VDB
   end
 
   subgraph TOOLS ["외부 도구 ← Action 노드"]
-    direction LR
     EXTAPI["외부 API\n날씨 · 예약 · 결제"]
     APPDB["App DB\nRDS · DynamoDB"]
   end
 
   subgraph INFRA ["공통 인프라 ← Agent 전체"]
-    direction LR
     CKPT["Checkpoint\nRedis · DynamoDB"]
     CONV["Memory\nRedis · RDS"]
     TRACE["Tracing\nLangSmith · Langfuse"]
     MON["Metrics\nCloudWatch · Datadog"]
+    CKPT ~~~ TRACE
+    CONV ~~~ MON
   end
 
-  AGENT --> INFRA`}
+  AGENT --> INFRA
+  DATA ~~~ INFRA
+  TOOLS ~~~ INFRA`}
 />
 
 <KeyTable

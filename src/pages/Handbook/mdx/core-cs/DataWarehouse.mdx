@@ -75,7 +75,7 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
 ## 데이터 흐름 도식
 
 <MermaidDiagram
-  code={`flowchart LR
+  code={`flowchart TB
   subgraph sources ["운영 시스템 (OLTP)"]
     ERP["ERP"]
     CRM["CRM"]
@@ -161,7 +161,9 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
     C3 --> C2
     P1 --> F2
     P2 --> P1
-  end`}
+  end
+  star ~~~ snowflake
+`}
 />
 
 ## ETL vs ELT

@@ -96,32 +96,33 @@ Kubernetes가 다양한 런타임(containerd, CRI-O 등)을 플러그인처럼 �
 ## Pod가 노드에서 실행되기까지
 
 <MermaidDiagram
-  code={`sequenceDiagram
+  code={`---
+config: { sequence: { width: 110, actorMargin: 24, messageMargin: 24, wrap: true } }
+---
+sequenceDiagram
   participant API as API Server
-  participant Sched as Scheduler
   participant Kubelet as kubelet
   participant CRI as CRI
   participant Runtime as Runtime
   participant Reg as Registry
 
-  API -> Sched: 스케줄 대기 중인 Pod
-  Sched -> API: Pod를 Node A에 바인딩
-  API -> Kubelet: Pod 스펙 수신
-  Kubelet -> CRI: RunPodSandbox
-  CRI -> Runtime: Sandbox 생성
-  Runtime --> CRI: Sandbox 준비 완료
-  CRI --> Kubelet: Sandbox 준비 완료
-  Kubelet -> CRI: PullImage
-  CRI -> Runtime: 이미지 풀 요청
-  Runtime -> Reg: 이미지 풀
-  Reg --> Runtime: 이미지 전달
-  Runtime --> CRI: 이미지 준비
-  CRI --> Kubelet: 이미지 준비
-  Kubelet -> CRI: CreateContainer, StartContainer
-  CRI -> Runtime: 컨테이너 생성 및 시작
-  Runtime --> CRI: Running
-  CRI --> Kubelet: Running
-  Kubelet -> API: Pod 상태 보고`}
+  Note over API: Scheduler가 Pod를 Node A에 바인딩
+  API ->> Kubelet: Pod 스펙
+  Kubelet ->> CRI: RunPodSandbox
+  CRI ->> Runtime: Sandbox 생성
+  Runtime -->> CRI: 준비 완료
+  CRI -->> Kubelet: 준비 완료
+  Kubelet ->> CRI: PullImage
+  CRI ->> Runtime: 이미지 풀
+  Runtime ->> Reg: 이미지 풀
+  Reg -->> Runtime: 이미지
+  Runtime -->> CRI: 준비
+  CRI -->> Kubelet: 준비
+  Kubelet ->> CRI: CreateContainer<br/>StartContainer
+  CRI ->> Runtime: 생성 · 시작
+  Runtime -->> CRI: Running
+  CRI -->> Kubelet: Running
+  Kubelet ->> API: Pod 상태 보고`}
 />
 
 <KeyTable

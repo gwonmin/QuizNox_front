@@ -47,7 +47,7 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
 ## ML 모델 라이프사이클
 
 <MermaidDiagram
-  code={`flowchart LR
+  code={`flowchart TB
   DC["데이터 수집\n· 정제"]
   FE["피처 엔지니어링"]
   TR["모델 학습"]
@@ -105,7 +105,10 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
     L2B --> L2C["자동 배포\n(카나리/A/B)"]
     L2C --> L2D["모니터링\n+ 자동 재학습"]
     L2D --> L2A
-  end`}
+  end
+  level0 ~~~ level1
+  level1 ~~~ level2
+`}
 />
 
 ## 핵심 구성 요소
@@ -165,18 +168,24 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
 />
 
 <MermaidDiagram
-  code={`flowchart LR
+  code={`flowchart TB
   subgraph online ["Online Serving"]
+    direction LR
     REQ["API 요청"] --> MODEL1["모델 서버"] --> RES["즉시 응답"]
   end
 
   subgraph batch ["Batch Serving"]
+    direction LR
     DATA["대량 데이터"] --> SPARK["Spark / 배치 잡"] --> STORE["결과 저장소"]
   end
 
   subgraph edge ["Edge Serving"]
+    direction LR
     DEVICE["디바이스"] --> LOCAL["로컬 모델"] --> RESULT["로컬 추론"]
-  end`}
+  end
+  online ~~~ batch
+  batch ~~~ edge
+`}
 />
 
 ## Data Drift / Model Drift
@@ -210,7 +219,7 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
 />
 
 <MermaidDiagram
-  code={`flowchart LR
+  code={`flowchart TB
   PROD["프로덕션 모델"]
   MON["모니터링\n(정확도, 분포 추적)"]
   DRIFT["Drift 감지\n(임계치 초과)"]
