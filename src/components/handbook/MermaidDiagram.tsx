@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useHandbookAsyncHold } from "@/contexts/HandbookContentReadyContext";
+import { loadMermaid } from "@/utils/loadMermaid";
 
 const RENDER_DELAY_MS = 200;
 
@@ -10,7 +11,6 @@ interface MermaidDiagramProps {
 
 export function MermaidDiagram({ code, className }: MermaidDiagramProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const initializedRef = useRef(false);
   const { completeHold } = useHandbookAsyncHold([code]);
 
   useEffect(() => {
@@ -24,18 +24,9 @@ export function MermaidDiagram({ code, className }: MermaidDiagramProps) {
         }
 
         try {
-          const mermaid = await import("mermaid");
+          const mermaid = await loadMermaid();
           if (cancelled) {
             return;
-          }
-
-          if (!initializedRef.current) {
-            mermaid.default.initialize({
-              startOnLoad: false,
-              theme: "default",
-              securityLevel: "loose",
-            });
-            initializedRef.current = true;
           }
 
           const uniqueId = `mdx-mermaid-${Date.now().toString(36)}-${Math.random()
@@ -51,7 +42,7 @@ export function MermaidDiagram({ code, className }: MermaidDiagramProps) {
           el.appendChild(node);
 
           try {
-            await mermaid.default.run({ nodes: [node] });
+            await mermaid.run({ nodes: [node] });
           } catch (err) {
             console.warn("MermaidDiagram render error:", err);
           }
@@ -82,4 +73,3 @@ export function MermaidDiagram({ code, className }: MermaidDiagramProps) {
     />
   );
 }
-

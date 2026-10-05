@@ -1,0 +1,31 @@
+import { MermaidDiagramWithLinks } from "@/components/handbook/MermaidDiagramWithLinks";
+
+<MermaidDiagramWithLinks
+  diagramIndex={1}
+  code={`flowchart TB
+  subgraph infra [인프라 저장]
+    direction LR
+    B["Block"] ~~~ F["File"] ~~~ O["Object"]
+  end
+  subgraph db [DB 유형]
+    direction LR
+    RDB["RDB"] ~~~ NoSQL["NoSQL"] ~~~ VDB["벡터 DB"] ~~~ TS["시계열 DB"]
+  end
+  subgraph use [용도별 저장·조회]
+    direction LR
+    SE["검색"] ~~~ LOG["로그 스토어"]
+  end
+  subgraph perf [성능과 일관성]
+    direction LR
+    IO["Latency / Throughput / IOPS"] ~~~ AC["ACID / 트랜잭션 / 락"] ~~~ IX["Index"]
+  end
+  subgraph cache [캐시]
+    C["Cache hit/miss, TTL"]
+  end
+  subgraph analytics [분석 저장소]
+    DW["DW / DM"]
+  end
+  infra --> db --> use --> perf
+  perf --> cache
+  perf --> analytics`}
+/>

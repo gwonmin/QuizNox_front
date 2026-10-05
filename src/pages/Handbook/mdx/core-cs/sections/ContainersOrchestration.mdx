@@ -1,0 +1,26 @@
+import { MermaidDiagramWithLinks } from "@/components/handbook/MermaidDiagramWithLinks";
+
+<MermaidDiagramWithLinks
+  diagramIndex={5}
+  code={`flowchart TB
+  subgraph img [이미지]
+    direction LR
+    ctImg["컨테이너 이미지"]
+    ctReg["이미지 레지스트리"]
+    ctImg --> ctReg
+  end
+  subgraph run [실행]
+    direction LR
+    ctHw["물리 서버"]
+    ctHost["Host OS"]
+    ctRt["Container Runtime"]
+    ctHw --> ctHost --> ctRt
+  end
+  subgraph manage [관리]
+    direction LR
+    ctOrc["Container Orchestration"]
+    ctSvc["서비스 엔드포인트"]
+    ctOrc --> ctSvc
+  end
+  img --> run --> manage`}
+/>

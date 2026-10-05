@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useHandbookAsyncHold } from "@/contexts/HandbookContentReadyContext";
 import { useDiagramLinks } from "@/contexts/DiagramLinksContext";
 import { injectDiagramLinks } from "@/utils/injectDiagramLinks";
+import { loadMermaid } from "@/utils/loadMermaid";
 
 const RENDER_DELAY_MS = 200;
 
@@ -17,7 +18,6 @@ export function MermaidDiagramWithLinks({
   className,
 }: MermaidDiagramWithLinksProps) {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
-  const initializedRef = useRef(false);
   const ctx = useDiagramLinks();
   const { completeHold } = useHandbookAsyncHold([
     code,
@@ -37,18 +37,9 @@ export function MermaidDiagramWithLinks({
         }
 
         try {
-          const mermaid = await import("mermaid");
+          const mermaid = await loadMermaid();
           if (cancelled) {
             return;
-          }
-
-          if (!initializedRef.current) {
-            mermaid.default.initialize({
-              startOnLoad: false,
-              theme: "default",
-              securityLevel: "loose",
-            });
-            initializedRef.current = true;
           }
 
           const uniqueId = `core-cs-mermaid-${diagramIndex}-${Date.now().toString(36)}`;
@@ -61,7 +52,7 @@ export function MermaidDiagramWithLinks({
           el.appendChild(node);
 
           try {
-            await mermaid.default.run({ nodes: [node] });
+            await mermaid.run({ nodes: [node] });
             if (cancelled) {
               return;
             }

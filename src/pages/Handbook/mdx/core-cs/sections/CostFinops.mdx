@@ -1,0 +1,22 @@
+import { MermaidDiagramWithLinks } from "@/components/handbook/MermaidDiagramWithLinks";
+
+<MermaidDiagramWithLinks
+  diagramIndex={7}
+  code={`flowchart TB
+  subgraph cost [비용 발생]
+    direction LR
+    CMP["컴퓨트 비용"] ~~~ STO["스토리지 비용"] ~~~ TRF["트래픽 비용"]
+  end
+  subgraph option [구매 옵션]
+    direction LR
+    OD["온디맨드"] ~~~ RI["예약"] ~~~ SP["스팟"]
+  end
+  subgraph observe [비용 관측]
+    direction LR
+    CE["Cost Explorer"] ~~~ BUD["Budgets"]
+  end
+  subgraph opt [최적화]
+    OPT["비용 최적화"]
+  end
+  cost --> option --> observe --> opt`}
+/>

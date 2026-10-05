@@ -12,6 +12,8 @@ export function injectDiagramLinks(
   /** 단일 다이어그램 wrapper일 때 사용. 지정하면 doc-${diagramIndex}-${slug} 로 id 부여 */
   diagramIndex?: number
 ): void {
+  // "AI Agent"가 "Agent"보다, "배포 자동화"가 "배포"보다 먼저 맞도록 긴 키부터 비교
+  const entries = Object.entries(links).sort(([a], [b]) => b.length - a.length);
   const descendants = container.querySelectorAll(".mermaid-wrapper");
   const selfMatch = container.classList.contains("mermaid-wrapper") ? [container] : [];
   const wrappers = selfMatch.length > 0 ? selfMatch : Array.from(descendants);
@@ -23,7 +25,7 @@ export function injectDiagramLinks(
     nodes.forEach((g) => {
       if (g.getAttribute("data-handbook-linked") === "true") return;
       const text = (g.textContent ?? "").trim();
-      for (const [key, path] of Object.entries(links)) {
+      for (const [key, path] of entries) {
         if (text.includes(key)) {
           const slug = path.split("/").filter(Boolean).pop() ?? "";
           const nodeId = slug ? `doc-${index}-${slug}` : "";

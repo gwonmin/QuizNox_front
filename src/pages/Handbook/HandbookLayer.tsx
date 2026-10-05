@@ -3,12 +3,13 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import { Card, CardHeader, CardTitle } from "../../components/ui/card";
 import { getHandbookLayer } from "../../constants/handbookManifest";
 import { getDiagramConfig } from "../../constants/handbookLayerDiagramConfig";
-import { CoreCSDiagramPage } from "./CoreCSDiagramPage";
+import { LAYERS_WITH_SECTION_PAGES } from "../../constants/handbookLayerDiagramConfig";
+import { LayerSectionListPage } from "./LayerSectionListPage";
 import { LayerDiagramPage } from "./LayerDiagramPage";
 
 const MAIN_CLASS = "flex flex-col items-center p-4 max-w-3xl mx-auto";
 
-const LAYERS_WITH_DIAGRAM = ["core-cs", "aws-common", "saa", "dva", "soa"];
+const LAYERS_WITH_DIAGRAM = ["aws-common", "saa", "dva", "soa"];
 
 function HandbookLayer() {
   const { layerId } = useParams<{ layerId: string }>();
@@ -16,8 +17,8 @@ function HandbookLayer() {
   const layer = layerId ? getHandbookLayer(layerId) : undefined;
   const hasDiagram = layerId && LAYERS_WITH_DIAGRAM.includes(layerId) && getDiagramConfig(layerId);
 
-  if (layerId === "core-cs") {
-    return <CoreCSDiagramPage />;
+  if (layer && LAYERS_WITH_SECTION_PAGES.includes(layer.id)) {
+    return <LayerSectionListPage layer={layer} />;
   }
   if (hasDiagram && layerId) {
     return <LayerDiagramPage />;

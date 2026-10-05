@@ -83,8 +83,8 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
     ],
     [
       "임베딩 모델 (Embedding)",
-      "텍스트·코드 등을 벡터로 변환. 다국어·도메인 적합도는 모델·크기마다 다르다.",
-      "벤더 임베딩 API, 오픈소스 E5·BGE 계열, Amazon Titan Embeddings 등(카탈로그 확인)",
+      "텍스트를 의미를 담은 고차원 벡터로 변환한다. 유사한 의미의 텍스트는 가까운 벡터로 매핑. 다국어 · 도메인 적합도는 모델마다 다르다.",
+      "제공사 임베딩 API(OpenAI, Cohere, Amazon Titan 등), E5 · BGE 같은 오픈 가중치 모델",
     ],
     [
       "벡터 DB",
@@ -93,8 +93,8 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
     ],
     [
       "LLM",
-      "검색 결과와 질문을 합쳐 답변·인용을 생성한다. 구조화 출력(JSON·스키마)으로 인용 필드를 고정하면 운영이 쉬워진다.",
-      "사용 중인 플랫폼의 최신 채팅·추론 SKU",
+      "검색된 문서와 질문을 받아 근거 기반 답변을 생성한다. 구조화 출력(JSON 스키마)으로 인용 필드를 고정하면 운영이 쉬워진다.",
+      "범용 LLM API 또는 자체 호스팅 모델 (최신 목록은 LLM 기초 문서의 링크 참고)",
     ],
   ]}
 />
@@ -192,7 +192,7 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
     ],
     [
       "Re-ranking",
-      "Cross-encoder 모델로 (질문, 문서) 쌍의 관련도를 정밀 평가하여 순위를 재조정한다. Cohere Rerank, bge-reranker 등.",
+      "Cross-encoder 모델로 (질문, 문서) 쌍의 관련도를 정밀 평가하여 순위를 재조정한다. 제공사 Rerank API나 오픈 가중치 reranker를 쓴다.",
     ],
     [
       "Parent-Child Chunking",

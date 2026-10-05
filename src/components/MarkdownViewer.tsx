@@ -6,6 +6,7 @@ import rehypeSanitize from "rehype-sanitize";
 import "github-markdown-css/github-markdown.css";
 import "../styles/markdown-theme.css";
 import { injectDiagramLinks } from "@/utils/injectDiagramLinks";
+import { loadMermaid } from "@/utils/loadMermaid";
 
 const MERMAID_RENDER_DELAY_MS = 400;
 
@@ -28,7 +29,6 @@ export function MarkdownViewer({
   onMermaidSettled,
 }: MarkdownViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const mermaidInitialized = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -41,18 +41,9 @@ export function MarkdownViewer({
         }
 
         try {
-          const mermaid = await import("mermaid");
+          const mermaid = await loadMermaid();
           if (cancelled) {
             return;
-          }
-
-          if (!mermaidInitialized.current) {
-            mermaid.default.initialize({
-              startOnLoad: false,
-              theme: "default",
-              securityLevel: "loose",
-            });
-            mermaidInitialized.current = true;
           }
 
           const blocks = container.querySelectorAll("code.language-mermaid");
@@ -80,7 +71,7 @@ export function MarkdownViewer({
             if (pre) {
               pre.replaceWith(wrapper);
               try {
-                await mermaid.default.run({ nodes: [mermaidDiv] });
+                await mermaid.run({ nodes: [mermaidDiv] });
               } catch (err) {
                 console.warn("Mermaid render error:", err);
               }

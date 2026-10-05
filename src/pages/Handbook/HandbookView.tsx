@@ -2,8 +2,15 @@ import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useState } from
 import { Link, useParams, useNavigate, useLocation } from "react-router-dom";
 import { MarkdownViewer } from "../../components/MarkdownViewer";
 import { LoadingSpinner } from "../../components/LoadingSpinner";
-import { getHandbookDoc } from "../../constants/handbookManifest";
-import { getDiagramConfig } from "../../constants/handbookLayerDiagramConfig";
+import {
+  getAdjacentDocs,
+  getHandbookDoc,
+  handbookSectionPath,
+} from "../../constants/handbookManifest";
+import {
+  getDiagramConfig,
+  LAYERS_WITH_SECTION_PAGES,
+} from "../../constants/handbookLayerDiagramConfig";
 import { HandbookLayout } from "../../components/handbook/HandbookLayout";
 import { HandbookContentReadyProvider } from "@/contexts/HandbookContentReadyContext";
 import QueueVsPubsubMdx from "./mdx/core-cs/QueueVsPubsub.mdx";
@@ -115,6 +122,18 @@ import CostOptimizationMdx from "./mdx/core-cs/CostOptimization.mdx";
 import LlmBasicsMdx from "./mdx/core-cs/LlmBasics.mdx";
 import AiAgentMdx from "./mdx/core-cs/AiAgent.mdx";
 import RagMdx from "./mdx/core-cs/Rag.mdx";
+import AgentHarnessMdx from "./mdx/core-cs/AgentHarness.mdx";
+import ContextEngineeringMdx from "./mdx/core-cs/ContextEngineering.mdx";
+import AgentStateMemoryMdx from "./mdx/core-cs/AgentStateMemory.mdx";
+import AgentLoopMdx from "./mdx/core-cs/AgentLoop.mdx";
+import AgentToolUseMdx from "./mdx/core-cs/AgentToolUse.mdx";
+import AgentOrchestrationMdx from "./mdx/core-cs/AgentOrchestration.mdx";
+import ModelRoutingMdx from "./mdx/core-cs/ModelRouting.mdx";
+import AgentHitlMdx from "./mdx/core-cs/AgentHitl.mdx";
+import AgentGuardrailsAuthzMdx from "./mdx/core-cs/AgentGuardrailsAuthz.mdx";
+import AgentEvalMdx from "./mdx/core-cs/AgentEval.mdx";
+import AgentObservabilityMdx from "./mdx/core-cs/AgentObservability.mdx";
+import AgentReliabilityMdx from "./mdx/core-cs/AgentReliability.mdx";
 import SaaVpcPeeringMdx from "./mdx/saa/SaaVpcPeering.mdx";
 import SaaTransitGatewayMdx from "./mdx/saa/SaaTransitGateway.mdx";
 import SaaDirectConnectVpnMdx from "./mdx/saa/SaaDirectConnectVpn.mdx";
@@ -213,6 +232,59 @@ function RelatedInSection({
   );
 }
 
+function DocPager({
+  layerId,
+  slug,
+  sectionTitle,
+  sectionHref,
+}: {
+  layerId: string;
+  slug: string;
+  sectionTitle: string;
+  sectionHref: string;
+}) {
+  const { prev, next } = getAdjacentDocs(layerId, slug);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, [layerId, slug]);
+
+  return (
+    <nav aria-label="문서 이동" className="mt-10 pt-6 border-t border-border">
+      <div className="grid gap-3 sm:grid-cols-2">
+        {prev ? (
+          <Link
+            to={`/handbook/${layerId}/${prev.slug}`}
+            className="rounded-lg border border-border px-4 py-3 hover:bg-muted/50"
+          >
+            <span className="block text-xs text-muted-foreground">← 이전</span>
+            <span className="block text-sm text-foreground">{prev.title}</span>
+          </Link>
+        ) : (
+          <span className="hidden sm:block" />
+        )}
+        {next ? (
+          <Link
+            to={`/handbook/${layerId}/${next.slug}`}
+            className="rounded-lg border border-border px-4 py-3 text-right hover:bg-muted/50"
+          >
+            <span className="block text-xs text-muted-foreground">다음 →</span>
+            <span className="block text-sm text-foreground">{next.title}</span>
+          </Link>
+        ) : (
+          <Link
+            to={sectionHref}
+            className="rounded-lg border border-border px-4 py-3 text-right hover:bg-muted/50"
+          >
+            <span className="block text-xs text-muted-foreground">섹션 끝 · 돌아가기 →</span>
+            <span className="block text-sm text-foreground">{sectionTitle}</span>
+          </Link>
+        )}
+      </div>
+    </nav>
+  );
+}
+
 function useHandbookDoc(layerId: string | undefined, slug: string | undefined) {
   return useMemo(
     () => (layerId && slug ? getHandbookDoc(layerId, slug) : null),
@@ -299,6 +371,18 @@ const HandbookView = memo(function HandbookView() {
     if (layerId === "core-cs" && slug === "llm-basics") return true;
     if (layerId === "core-cs" && slug === "ai-agent") return true;
     if (layerId === "core-cs" && slug === "rag") return true;
+    if (layerId === "core-cs" && slug === "agent-harness") return true;
+    if (layerId === "core-cs" && slug === "context-engineering") return true;
+    if (layerId === "core-cs" && slug === "agent-state-memory") return true;
+    if (layerId === "core-cs" && slug === "agent-loop") return true;
+    if (layerId === "core-cs" && slug === "agent-tool-use") return true;
+    if (layerId === "core-cs" && slug === "agent-orchestration") return true;
+    if (layerId === "core-cs" && slug === "model-routing") return true;
+    if (layerId === "core-cs" && slug === "agent-hitl") return true;
+    if (layerId === "core-cs" && slug === "agent-guardrails-authz") return true;
+    if (layerId === "core-cs" && slug === "agent-eval") return true;
+    if (layerId === "core-cs" && slug === "agent-observability") return true;
+    if (layerId === "core-cs" && slug === "agent-reliability") return true;
     if (layerId === "soa" && slug === "overview") return true;
     if (layerId === "dva" && slug === "overview") return true;
     if (layerId === "aws-common" && slug === "overview") return true;
@@ -511,11 +595,17 @@ const HandbookView = memo(function HandbookView() {
     );
   }
 
-  const backScrollHash =
-    (location.state as { scrollBackHash?: string } | null)?.scrollBackHash ??
-    (typeof window !== "undefined" ? sessionStorage.getItem(SCROLL_BACK_KEY) : null);
-  const backToDiagramHref =
-    meta.layer.id && LAYERS_WITH_DIAGRAM.includes(meta.layer.id) && getDiagramConfig(meta.layer.id)
+  const hasSectionPages = LAYERS_WITH_SECTION_PAGES.includes(meta.layer.id);
+  const sectionHref = hasSectionPages
+    ? handbookSectionPath(meta.layer.id, meta.section.id)
+    : undefined;
+  const backScrollHash = hasSectionPages
+    ? null
+    : (location.state as { scrollBackHash?: string } | null)?.scrollBackHash ??
+      (typeof window !== "undefined" ? sessionStorage.getItem(SCROLL_BACK_KEY) : null);
+  const backToDiagramHref = hasSectionPages
+    ? sectionHref
+    : LAYERS_WITH_DIAGRAM.includes(meta.layer.id) && getDiagramConfig(meta.layer.id)
       ? `/handbook/${meta.layer.id}${backScrollHash ?? ""}`
       : undefined;
 
@@ -600,6 +690,18 @@ const HandbookView = memo(function HandbookView() {
     if (layerId === "core-cs" && slug === "llm-basics") return <LlmBasicsMdx />;
     if (layerId === "core-cs" && slug === "ai-agent") return <AiAgentMdx />;
     if (layerId === "core-cs" && slug === "rag") return <RagMdx />;
+    if (layerId === "core-cs" && slug === "agent-harness") return <AgentHarnessMdx />;
+    if (layerId === "core-cs" && slug === "context-engineering") return <ContextEngineeringMdx />;
+    if (layerId === "core-cs" && slug === "agent-state-memory") return <AgentStateMemoryMdx />;
+    if (layerId === "core-cs" && slug === "agent-loop") return <AgentLoopMdx />;
+    if (layerId === "core-cs" && slug === "agent-tool-use") return <AgentToolUseMdx />;
+    if (layerId === "core-cs" && slug === "agent-orchestration") return <AgentOrchestrationMdx />;
+    if (layerId === "core-cs" && slug === "model-routing") return <ModelRoutingMdx />;
+    if (layerId === "core-cs" && slug === "agent-hitl") return <AgentHitlMdx />;
+    if (layerId === "core-cs" && slug === "agent-guardrails-authz") return <AgentGuardrailsAuthzMdx />;
+    if (layerId === "core-cs" && slug === "agent-eval") return <AgentEvalMdx />;
+    if (layerId === "core-cs" && slug === "agent-observability") return <AgentObservabilityMdx />;
+    if (layerId === "core-cs" && slug === "agent-reliability") return <AgentReliabilityMdx />;
     if (layerId === "soa" && slug === "overview") return <SoaOverviewMdx />;
     if (layerId === "dva" && slug === "overview") return <DvaOverviewMdx />;
     if (layerId === "aws-common" && slug === "overview") return <AwsCommonOverviewMdx />;
@@ -712,10 +814,12 @@ const HandbookView = memo(function HandbookView() {
   return (
     <HandbookLayout
       layerTitle={meta.layer.title}
+      layerHref={hasSectionPages ? `/handbook/${meta.layer.id}` : undefined}
       sectionTitle={meta.section.title}
       docTitle={meta.doc.title}
       backToDiagramHref={backToDiagramHref}
       centerReadingColumn
+      backLabel={hasSectionPages ? "섹션으로 돌아가기" : undefined}
     >
       {isMdxDoc && (
         <HandbookContentReadyProvider
@@ -741,12 +845,21 @@ const HandbookView = memo(function HandbookView() {
           ) : null}
         </div>
       )}
-      <RelatedInSection
-        layerId={meta.layer.id}
-        sectionTitle={meta.section.title}
-        docs={meta.section.docs}
-        currentSlug={meta.doc.slug}
-      />
+      {hasSectionPages && sectionHref ? (
+        <DocPager
+          layerId={meta.layer.id}
+          slug={meta.doc.slug}
+          sectionTitle={meta.section.title}
+          sectionHref={sectionHref}
+        />
+      ) : (
+        <RelatedInSection
+          layerId={meta.layer.id}
+          sectionTitle={meta.section.title}
+          docs={meta.section.docs}
+          currentSlug={meta.doc.slug}
+        />
+      )}
     </HandbookLayout>
   );
 });

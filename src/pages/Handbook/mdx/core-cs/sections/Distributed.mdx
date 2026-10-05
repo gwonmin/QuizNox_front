@@ -1,0 +1,27 @@
+import { MermaidDiagramWithLinks } from "@/components/handbook/MermaidDiagramWithLinks";
+
+<MermaidDiagramWithLinks
+  diagramIndex={3}
+  code={`flowchart TB
+  subgraph app [앱 상태]
+    direction LR
+    S["Stateless"] ~~~ ST["Stateful"]
+  end
+  subgraph scale [확장]
+    direction LR
+    SU["Scale-up"] ~~~ SO["Scale-out"]
+  end
+  subgraph msg [메시징·이벤트]
+    direction LR
+    Q["Queue"] ~~~ P["Pub/Sub"] ~~~ EDA["Event-driven Architecture"]
+  end
+  subgraph safe [일관성]
+    direction LR
+    ID["Idempotency"] ~~~ CON["Consistency Model"]
+  end
+  subgraph dist [분산 처리]
+    direction LR
+    CAP["CAP Theorem"] ~~~ DT["분산 TX · 분산 락"]
+  end
+  app --> scale --> msg --> safe --> dist`}
+/>

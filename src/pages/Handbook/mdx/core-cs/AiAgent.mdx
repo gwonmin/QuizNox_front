@@ -1,6 +1,7 @@
 import { SectionSummary } from "@/components/handbook/SectionSummary";
 import { KeyTable } from "@/components/handbook/KeyTable";
 import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+import { DocLink } from "@/components/handbook/DocLink";
 
 <SectionSummary
   lead="AI Agent는 LLM이 계획·도구 호출·관찰·재시도를 루프하며 목표를 달성하는 시스템이다. 프로덕션에서는 MCP 등 도구 표준, 사람 승인, 감사 로그가 설계의 일부가 된다."
@@ -85,6 +86,8 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
   ]}
 />
 
+여기서는 개념만 짚는다. Planning·Reflection을 포함한 반복 구조와 종료 조건은 <DocLink slug="agent-loop">Agent Loop</DocLink>, 기억의 종류와 저장 정책은 <DocLink slug="agent-state-memory">State & Memory</DocLink>에서 자세히 다룬다.
+
 ## ReAct 패턴 (Reasoning + Acting)
 
 AI Agent의 핵심 실행 패턴으로, **추론(Thought)과 행동(Action)을 번갈아 수행**하며 **관찰(Observation) 결과를 다음 추론에 반영**한다.
@@ -125,89 +128,9 @@ AI Agent의 핵심 실행 패턴으로, **추론(Thought)과 행동(Action)을 �
   ]}
 />
 
-## Agentic Workflow 패턴
+## 여러 단계 · 여러 Agent 엮기
 
-<KeyTable
-  columns={["패턴", "설명", "사용 시나리오"]}
-  rows={[
-    [
-      "Router",
-      "입력을 분석하여 적절한 전문 Agent나 경로로 분기한다.",
-      "고객 문의를 기술지원/결제/일반 Agent로 라우팅",
-    ],
-    [
-      "Orchestrator",
-      "중앙 Agent가 하위 Agent들에게 작업을 위임하고 결과를 종합한다.",
-      "리서치 Agent + 작성 Agent + 검수 Agent를 조율하여 보고서 생성",
-    ],
-    [
-      "Evaluator-Optimizer",
-      "생성 Agent가 출력하면, 평가 Agent가 품질을 판단하고 부족하면 재생성을 요청한다.",
-      "코드 생성 → 코드 리뷰 → 개선 반복",
-    ],
-    [
-      "Parallelizer",
-      "독립적인 하위 작업을 여러 Agent에게 병렬로 할당하여 속도를 높인다.",
-      "여러 소스에서 동시에 정보를 검색하여 종합",
-    ],
-  ]}
-/>
-
-<MermaidDiagram
-  code={`flowchart TB
-  subgraph router ["Router 패턴"]
-    direction LR
-    RI["입력"] --> RR["Router Agent"]
-    RR --> RA1["기술지원 Agent"]
-    RR --> RA2["결제 Agent"]
-    RR --> RA3["일반 Agent"]
-  end
-
-  subgraph orchestrator ["Orchestrator 패턴"]
-    direction LR
-    OI["목표"] --> OO["Orchestrator"]
-    OO --> OA1["리서치 Agent"]
-    OO --> OA2["작성 Agent"]
-    OO --> OA3["검수 Agent"]
-    OA1 --> OO
-    OA2 --> OO
-    OA3 --> OO
-    OO --> OR["최종 결과"]
-  end`}
-/>
-
-## Single Agent vs Multi-Agent
-
-<KeyTable
-  columns={["구분", "Single Agent", "Multi-Agent"]}
-  rows={[
-    [
-      "구조",
-      "하나의 LLM이 모든 도구와 추론을 담당",
-      "역할이 다른 여러 Agent가 협업",
-    ],
-    [
-      "복잡성",
-      "구현이 단순",
-      "Agent 간 통신·조율 로직 필요",
-    ],
-    [
-      "적합한 작업",
-      "범위가 좁고 도구가 적은 작업",
-      "여러 전문성이 필요하거나 작업을 병렬화할 수 있는 복잡한 작업",
-    ],
-    [
-      "장점",
-      "지연 시간이 짧고 디버깅이 쉬움",
-      "전문성 분리, 병렬 처리, 각 Agent 독립 개선 가능",
-    ],
-    [
-      "예시",
-      "단일 고객 상담 봇",
-      "소프트웨어 팀 시뮬레이션 (PM + 개발자 + QA + 디자이너)",
-    ],
-  ]}
-/>
+Router(분기), Supervisor(중앙 조율), 병렬 실행, Evaluator-Optimizer(평가 후 개선) 같은 Workflow 패턴과, Single Agent와 Multi-Agent 중 무엇을 고를지는 <DocLink slug="agent-orchestration">Orchestration</DocLink>에서 자세히 다룬다.
 
 ## 대표 프레임워크 · SDK
 
@@ -243,28 +166,32 @@ AI Agent의 핵심 실행 패턴으로, **추론(Thought)과 행동(Action)을 �
 
 ## 도구 연결 표준: MCP
 
-**Model Context Protocol(MCP)** 은 호스트(IDE·런타임)가 서버(파일·DB·API 래퍼)에 붙는 규약이다. 에이전트마다 **커스텀 REST**를 반복하기보다 MCP 서버를 두면 도구 스키마·권한 경계를 맞추기 쉽다. 다만 MCP는 **인증·승인·레이트 리밋**을 대신하지 않으므로 게이트웨이·OIDC·감사 로그는 애플리케이션 책임이다.
+**Model Context Protocol(MCP)** 은 호스트(IDE·런타임)가 서버(파일·DB·API 래퍼)에 붙는 규약이다. 에이전트마다 커스텀 REST를 반복하기보다 MCP 서버를 두면 도구 스키마·권한 경계를 맞추기 쉽다. 다만 MCP는 인증·승인·레이트 리밋을 대신하지 않는다. 도구 정의와 MCP 구조는 <DocLink slug="agent-tool-use">Tool Use</DocLink>에서 자세히 다룬다.
 
 ## 프로덕션 체크리스트
 
 <KeyTable
-  columns={["영역", "내용"]}
+  columns={["영역", "내용", "자세히"]}
   rows={[
     [
       "승인 · 휴먼인더루프",
       "결제·삭제·권한 상승 등 부수 효과가 큰 도구는 사람 승인 노드 또는 정책 엔진을 둔다.",
+      <DocLink slug="agent-hitl">Human-in-the-Loop</DocLink>,
     ],
     [
       "멱등 · 타임아웃",
       "도구 호출은 타임아웃·재시도·멱등 키를 명시한다. 실패 시 보상 트랜잭션·사가 패턴을 검토한다.",
+      <DocLink slug="agent-reliability">Reliability</DocLink>,
     ],
     [
       "관측성",
-      "스팬 단위로 도구 이름·인자·결과 요약을 로깅(PII 마스킹). LangSmith·Langfuse·OpenTelemetry 등과 연동.",
+      "스팬 단위로 도구 이름·인자·결과 요약을 로깅한다(PII 마스킹).",
+      <DocLink slug="agent-observability">Observability & Tracing</DocLink>,
     ],
     [
-      "샌드박스",
-      "코드 실행·쉘 접근은 격리 컨테이너·읽기 전용 FS 등으로 제한한다.",
+      "샌드박스 · 권한",
+      "코드 실행·쉘 접근은 격리 컨테이너·읽기 전용 FS 등으로 제한하고, 인증·감사 로그는 애플리케이션이 맡는다.",
+      <DocLink slug="agent-guardrails-authz">Guardrails / Identity / Authorization</DocLink>,
     ],
   ]}
 />
@@ -331,58 +258,9 @@ LangChain은 LLM 애플리케이션에 필요한 모듈을 제공하고, 이들�
   ]}
 />
 
-### 2단계: 조립 — LangGraph로 Agent 워크플로우 구성
+### 2단계: 조립 — LangGraph
 
-단순 체인(`A → B → C`)은 직선형이라 **"도구를 쓸지 말지 LLM이 판단"** 하는 루프를 표현할 수 없다. LangGraph는 **그래프(노드 + 조건부 엣지)** 로 이 문제를 해결한다.
-
-<MermaidDiagram
-  code={`flowchart TB
-  subgraph compare ["LangChain 체인 vs LangGraph 그래프"]
-    subgraph chain_flow ["LangChain 체인 (직선)"]
-      direction LR
-      CA["질문"] --> CB["검색"] --> CC["LLM"] --> CD["답변"]
-    end
-
-    subgraph graph_flow ["LangGraph 그래프 (루프 · 분기)"]
-      START(["시작"])
-      AGENT["agent 노드\n(LLM이 판단)"]
-      TOOLS["tools 노드\n(도구 실행)"]
-      HUMAN["human 노드\n(사람 승인)"]
-      END_NODE(["완료"])
-
-      START --> AGENT
-      AGENT -->|"도구 필요"| TOOLS -->|"결과 반환"| AGENT
-      AGENT -->|"승인 필요"| HUMAN -->|"승인 완료"| AGENT
-      AGENT -->|"답변 완료"| END_NODE
-    end
-  end`}
-/>
-
-<KeyTable
-  columns={["LangGraph 개념", "역할"]}
-  rows={[
-    [
-      "State (상태)",
-      "그래프 전체에서 공유되는 객체. 각 노드가 상태를 읽고 업데이트하며 정보를 전달한다.",
-    ],
-    [
-      "Node (노드)",
-      "하나의 작업 단위. LLM 호출, 도구 실행, 조건 판단 등을 파이썬 함수로 정의한다.",
-    ],
-    [
-      "Conditional Edge (조건부 엣지)",
-      "LLM 출력에 따라 다음 노드를 동적으로 결정한다. 이것이 '자율적 판단'을 가능하게 하는 핵심.",
-    ],
-    [
-      "Checkpoint",
-      "실행 중간 상태를 저장. 장애 시 복구, 이전 상태로 되돌리기(시간 여행)가 가능하다.",
-    ],
-    [
-      "Human-in-the-Loop",
-      "특정 노드에서 실행을 멈추고 사람의 승인·수정을 받은 뒤 재개한다.",
-    ],
-  ]}
-/>
+단순 체인(`A → B → C`)은 직선형이라 "도구를 쓸지 말지 LLM이 판단"하는 루프를 표현할 수 없다. LangGraph는 노드 · 조건부 엣지 · 공유 상태로 이루어진 그래프로 이 루프와 분기를 표현한다. 그래프의 구성 요소(State, Node, Conditional Edge, Checkpoint, Interrupt)와 체인과의 비교는 <DocLink slug="agent-orchestration">Orchestration</DocLink>에서 다룬다.
 
 ### 3단계: 실전 — "여행 계획 Agent" 동작 흐름
 
@@ -445,39 +323,6 @@ LangChain은 LLM 애플리케이션에 필요한 모듈을 제공하고, 이들�
 />
 
 > 핵심은 **agent ↔ tools 루프**이다. LLM이 매 회차마다 "어떤 도구를 호출할지" 또는 "답변을 완료할지"를 **자율적으로 판단**한다. 3회차에서 Retriever Tool을 호출한 것이 RAG가 Agent 안에서 **도구 중 하나로 작동**하는 대표적인 패턴이다. 이 루프 구조가 LangGraph가 아닌 단순 체인으로는 불가능한 이유이다.
-
-### LangChain vs LangGraph 언제 뭘 쓰나?
-
-<KeyTable
-  columns={["구분", "LangChain 체인", "LangGraph"]}
-  rows={[
-    [
-      "실행 흐름",
-      "직선형 (A → B → C)",
-      "그래프 (조건 분기, 루프, 병렬)",
-    ],
-    [
-      "적합한 경우",
-      "RAG 파이프라인, 단순 체인, 프로토타이핑",
-      "복잡한 Agent, 멀티스텝 워크플로우, 프로덕션 Agent",
-    ],
-    [
-      "상태 관리",
-      "체인 간 데이터 전달 (단순)",
-      "중앙 State 객체로 전체 상태 관리",
-    ],
-    [
-      "Human-in-the-Loop",
-      "직접 구현 필요",
-      "내장 지원 (interrupt → 승인 → resume)",
-    ],
-    [
-      "에러 복구",
-      "재시도 수준",
-      "Checkpoint로 중간 상태 복구·재개",
-    ],
-  ]}
-/>
 
 ### 프로덕션 AI Agent 서비스 아키텍처
 
@@ -572,6 +417,8 @@ LangChain은 LLM 애플리케이션에 필요한 모듈을 제공하고, 이들�
   ]}
 />
 
+위 표의 Agent Runtime이 하는 일(검증·재시도·제한·격리)은 <DocLink slug="agent-harness">Agent Harness</DocLink>, Checkpoint와 Memory 설계는 <DocLink slug="agent-state-memory">State & Memory</DocLink>에서 이어서 다룬다.
+
 > 이 아키텍처의 핵심은 **Agent Runtime 내부의 라우터 패턴**이다. 모든 요청을 동일한 Agent 루프로 처리하는 대신, 의도 분류 후 단순 질의는 RAG 노드로, 작업 요청은 Action 노드로, 복합 작업은 Planner를 거쳐 처리한다. 이렇게 하면 불필요한 도구 호출을 줄이고 응답 속도와 비용을 최적화할 수 있다.
 
 ## 요약
@@ -588,16 +435,38 @@ LangChain은 LLM 애플리케이션에 필요한 모듈을 제공하고, 이들�
       "추론(Thought) → 행동(Action) → 관찰(Observation)을 반복하며 점진적으로 답에 접근한다.",
     ],
     [
-      "복잡한 작업은 Multi-Agent로",
-      "역할을 분리하고 전문 Agent를 조합하면 단일 Agent보다 높은 품질과 확장성을 확보할 수 있다.",
+      "RAG는 Agent의 도구 중 하나",
+      "Retriever를 도구로 두면, 검색이 필요한지 여부를 Agent가 스스로 판단한다.",
     ],
     [
-      "Workflow 패턴을 목적에 맞게 선택",
-      "Router(분기), Orchestrator(조율), Evaluator(품질 관리), Parallelizer(병렬화)를 조합한다.",
+      "운영에는 Runtime 계층이 필요",
+      "라우터 · 상태 저장 · 관측 · 외부 도구 통제가 실제 서비스 품질을 좌우한다.",
     ],
     [
       "MCP·거버넌스는 별도 설계",
       "도구 표준화와 별개로 승인·감사·샌드박스를 두어야 프로덕션 요구를 만족한다.",
     ],
+  ]}
+/>
+
+## 더 깊이 보기: 10. Agent Engineering
+
+이 문서는 Agent의 전체 그림을 보여주는 개요다. 실제로 Agent를 만들고 운영할 때 필요한 내용은 다음 섹션에서 계층별로 나눠 다룬다.
+
+<KeyTable
+  columns={["이 문서의 내용", "자세히 다루는 문서"]}
+  rows={[
+    ["Agent Runtime, 프레임워크 선택", <DocLink slug="agent-harness">Agent Harness / Runtime</DocLink>],
+    ["프롬프트에 무엇을 넣을지", <DocLink slug="context-engineering">Context Engineering</DocLink>],
+    ["Memory, Checkpoint", <DocLink slug="agent-state-memory">State & Memory Architecture</DocLink>],
+    ["ReAct, Planning, Reflection", <DocLink slug="agent-loop">Agent Loop</DocLink>],
+    ["Tool Use, 외부 도구 연동", <DocLink slug="agent-tool-use">Tool Use (Function Calling · MCP)</DocLink>],
+    ["Workflow 패턴, Multi-Agent, LangGraph 그래프", <DocLink slug="agent-orchestration">Orchestration</DocLink>],
+    ["라우터의 모델 배정", <DocLink slug="model-routing">Model Strategy / Routing</DocLink>],
+    ["사람 승인 (Human-in-the-Loop)", <DocLink slug="agent-hitl">Human-in-the-Loop</DocLink>],
+    ["API Gateway 인증, 외부 도구 권한", <DocLink slug="agent-guardrails-authz">Guardrails / Identity / Authorization</DocLink>],
+    ["품질 평가", <DocLink slug="agent-eval">Agent Evaluation</DocLink>],
+    ["Tracing, Metrics", <DocLink slug="agent-observability">Observability & Tracing</DocLink>],
+    ["Checkpoint 복구, 재시도", <DocLink slug="agent-reliability">Reliability / Production Engineering</DocLink>],
   ]}
 />

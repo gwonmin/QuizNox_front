@@ -1,0 +1,27 @@
+import { MermaidDiagramWithLinks } from "@/components/handbook/MermaidDiagramWithLinks";
+
+<MermaidDiagramWithLinks
+  diagramIndex={6}
+  code={`flowchart TB
+  subgraph ci [연속 통합]
+    direction LR
+    src["소스 관리"]
+    build["빌드"]
+    test["테스트"]
+    src --> build --> test
+  end
+  subgraph security [보안 검증]
+    sec["보안 스캔"]
+  end
+  subgraph cd [배포]
+    direction LR
+    art["아티팩트"]
+    deploy["배포 자동화"]
+    gitops["GitOps"]
+    art --> deploy --> gitops
+  end
+  subgraph ml [ML 자동화]
+    mlops["MLOps"]
+  end
+  ci --> security --> cd --> ml`}
+/>

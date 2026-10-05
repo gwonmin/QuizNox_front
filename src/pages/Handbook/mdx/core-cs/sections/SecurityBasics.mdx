@@ -1,0 +1,20 @@
+import { MermaidDiagramWithLinks } from "@/components/handbook/MermaidDiagramWithLinks";
+
+<MermaidDiagramWithLinks
+  diagramIndex={2}
+  code={`flowchart LR
+  subgraph auth [인증·인가]
+    direction TB
+    A1["Authn (인증)"]
+    A2["Authz (인가)"]
+    A1 --> A2
+  end
+  subgraph data [데이터 보호]
+    H["Hash vs Encryption"]
+  end
+  subgraph access [접근·경계]
+    direction TB
+    LP["Least Privilege"] ~~~ FW["인바운드/아웃바운드"]
+  end
+  auth --> data --> access`}
+/>

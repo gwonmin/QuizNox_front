@@ -1,11 +1,14 @@
 /**
  * 레이어별 진입 다이어그램 URL 및 노드→문서 경로 맵.
- * Systems Fundamentals(core-cs)는 MDX(RealSystemDiagrams.mdx) 사용, diagramUrl 미사용.
+ * Systems Fundamentals(core-cs)는 섹션별 페이지(mdx/core-cs/sections/*.mdx) 사용, diagramUrl 미사용.
  * 그 외 레이어는 overview.md → MDX 컴포넌트로 렌더하며 diagramUrl은 레거시 참조용.
  */
 import { REAL_SYSTEM_DIAGRAM_LINKS } from "./handbookDiagramLinks";
 
 const BASE = "/handbook";
+
+/** 레이어 페이지가 섹션 카드 목록이고, 섹션마다 /handbook/:layerId/section/:sectionId 페이지가 있는 레이어 */
+export const LAYERS_WITH_SECTION_PAGES: string[] = ["core-cs"];
 
 export function getDiagramConfig(layerId: string): {
   diagramUrl: string;

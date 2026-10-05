@@ -1,0 +1,137 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+import { Callout } from "@/components/handbook/Callout";
+import { DocLink } from "@/components/handbook/DocLink";
+
+<SectionSummary
+  lead="Agent 평가는 최종 답이 맞았는지만 보지 않는다. 어떤 도구를 어떤 인자로 어떤 순서로 썼는지(trajectory), 얼마나 걸리고 얼마나 썼는지, 위험한 행동은 없었는지까지 함께 본다."
+  bullets={[
+    "평가 대상은 출력, 경로(trajectory), 도구 선택 · 인자, 검색 품질, 지연, 비용, 안전이다.",
+    "평가 단위는 한 번의 호출(run), 요청 하나의 전체 실행(trace), 대화 전체(thread)로 나뉜다.",
+    "배포 전에는 고정된 데이터셋으로 회귀를 막고(offline), 운영 중에는 실제 trace를 표본 평가한다(online). 실패 사례는 다시 데이터셋으로 들어간다.",
+  ]}
+/>
+
+## 무엇을 평가하나
+
+<KeyTable
+  columns={["대상", "질문", "예시 지표"]}
+  rows={[
+    ["출력", "최종 결과가 맞고 쓸 만한가", "정답 일치, 테스트 통과, 기준표 점수"],
+    ["경로 (trajectory)", "합리적인 순서로 목표에 도달했나", "기대 단계 포함 비율, 불필요한 단계 수"],
+    ["도구 선택", "필요한 도구를 골랐고 불필요한 도구는 안 썼나", "올바른 도구 호출 비율"],
+    ["도구 인자", "인자가 정확했나", "스키마 위반률, 인자 정확도"],
+    ["검색", "필요한 근거를 찾아왔나", "Context Precision · Recall (RAG 문서 참고)"],
+    ["지연 · 비용", "허용 범위 안인가", "p95 지연, 작업당 토큰 · 비용, 단계 수"],
+    ["안전", "하면 안 되는 일을 했나", "권한 밖 시도, 승인 없는 고위험 행동, 민감정보 노출"],
+  ]}
+/>
+
+최종 답이 맞아도 경로가 나쁠 수 있다. 예를 들어 같은 조회를 다섯 번 반복했거나, 승인이 필요한 행동을 건너뛰었다면 운이 좋았던 것이다. 검색 품질 지표는 <DocLink slug="rag">RAG</DocLink> 문서의 평가 지표와 같다.
+
+## 평가 단위
+
+<MermaidDiagram
+  code={`flowchart TB
+  subgraph thread ["Thread: 대화 전체"]
+    direction TB
+    subgraph trace1 ["Trace: 요청 1의 전체 실행"]
+      direction LR
+      R1["Run: 모델 호출"] ~~~ R2["Run: 도구 호출"] ~~~ R3["Run: 모델 호출"]
+    end
+    subgraph trace2 ["Trace: 요청 2의 전체 실행"]
+      direction LR
+      R4["Run: 모델 호출"] ~~~ R5["Run: 도구 호출"]
+    end
+    trace1 ~~~ trace2
+  end`}
+/>
+
+<KeyTable
+  columns={["단위", "평가 질문", "예"]}
+  rows={[
+    ["Run (단계)", "이 한 번의 호출이 맞았나", "의도 분류가 맞았나, 도구 인자가 맞았나"],
+    ["Trace (요청)", "요청 하나를 잘 처리했나", "경로 · 최종 답 · 지연 · 비용"],
+    ["Thread (대화)", "대화 전체로 목표를 이뤘나", "사용자 의도 파악, 최종 해결 여부, 같은 질문 반복 여부"],
+  ]}
+/>
+
+LangSmith 문서는 이 세 단위의 평가를 구분해 지원하고, thread 단위 평가는 대화가 끝난 뒤 한 번 실행해 의도 · 결과 · 경로를 매기는 방식으로 설명한다([multi-turn evaluators](https://docs.langchain.com/langsmith/online-evaluations-multi-turn), 2026.10 확인).
+
+## 평가 방법
+
+<KeyTable
+  columns={["방법", "방식", "장점", "한계"]}
+  rows={[
+    ["코드 기반", "정답 비교, 스키마 검사, 테스트 실행, 금지 행동 검사", "빠르고 싸고 결정적", "정답이 하나가 아닌 작업에는 못 씀"],
+    ["Trajectory 비교", "기대한 도구 호출 순서와 실제를 비교 (정확히 일치 · 순서 무관 · 부분집합 · 상위집합)", "경로 오류를 결정적으로 잡음", "정답 경로가 여러 개면 기준을 느슨하게 해야 함"],
+    ["LLM-as-judge", "평가 모델이 기준표로 점수를 매김", "열린 답변 · 대화 품질 평가 가능", "판정 모델도 틀림. 사람 판정과 주기적으로 맞춰 봐야 함"],
+    ["사람 평가", "전문가가 직접 판정", "가장 정확", "느리고 비쌈. 기준 데이터 만들기와 judge 검증에 쓴다"],
+  ]}
+/>
+
+Trajectory 비교의 네 가지 기준(strict, unordered, subset, superset)은 LangChain의 [agentevals](https://docs.langchain.com/langsmith/trajectory-evals)에서 쓰는 분류다.
+
+## Offline과 Online
+
+<MermaidDiagram
+  code={`flowchart LR
+  DS["평가 데이터셋"] --> OFF["Offline 평가 (배포 전)"]
+  OFF -->|"기준 통과"| DEP["배포"]
+  DEP --> PROD["운영 trace"]
+  PROD --> ON["Online 평가 (표본)"]
+  ON -->|"실패 · 낮은 점수"| REV["사람 검토"]
+  REV -->|"사례 추가"| DS`}
+/>
+
+<KeyTable
+  columns={["구분", "Offline", "Online"]}
+  rows={[
+    ["시점", "프롬프트 · 도구 · 모델을 바꾼 뒤 배포 전", "운영 중 지속적으로"],
+    ["입력", "고정된 데이터셋", "실제 사용자 trace의 표본"],
+    ["목적", "회귀 방지, 변경 전후 비교", "실제 분포에서의 품질 감시, 새 실패 유형 발견"],
+    ["정답", "기대 결과 · 기대 경로를 미리 준비", "대부분 정답이 없어 judge와 사용자 피드백 활용"],
+  ]}
+/>
+
+## 데이터셋 만들기
+
+<KeyTable
+  columns={["단계", "방법"]}
+  rows={[
+    ["작게 시작", "실제 요청에서 20~50개를 골라 기대 결과 · 기대 경로를 적는다."],
+    ["경계 사례", "권한 밖 요청, 모호한 요청, 도구 실패 상황, 긴 대화를 일부러 넣는다."],
+    ["공격 사례", "prompt injection이 섞인 문서, 금지 행동을 유도하는 요청"],
+    ["운영에서 보강", "사람이 거절 · 수정한 사례(Human-in-the-Loop 문서 참고)와 낮은 점수를 받은 trace를 추가한다."],
+    ["버전 관리", "데이터셋도 코드처럼 버전을 붙여, 어떤 버전으로 평가했는지 기록한다."],
+  ]}
+/>
+
+<Callout variant="info" title="같은 입력, 다른 결과">
+  <p>Agent는 같은 입력에도 매번 다른 경로를 탈 수 있다. 사례마다 여러 번 실행해 통과 비율을 보고, 변경 전후 차이가 그 흔들림보다 큰지 확인한다.</p>
+</Callout>
+
+## 흔한 실수
+
+<KeyTable
+  columns={["실수", "결과", "대응"]}
+  rows={[
+    ["최종 답만 채점", "위험한 경로 · 낭비를 놓친다.", "경로 · 도구 · 비용 · 안전도 함께 평가"],
+    ["judge 점수를 그대로 믿음", "판정 모델의 편향이 품질 기준이 된다.", "사람 판정 표본과 일치율을 주기적으로 확인"],
+    ["한 번 실행으로 판단", "우연한 성공 · 실패에 흔들린다.", "여러 번 실행해 통과 비율로 비교"],
+    ["데이터셋을 처음 만든 뒤 방치", "실제 사용 분포와 멀어진다.", "운영 실패 사례를 계속 추가"],
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["핵심 포인트", "설명"]}
+  rows={[
+    ["결과 + 경로 + 비용 + 안전", "답이 맞았는지와 함께 어떻게 도달했는지를 본다."],
+    ["Run · Trace · Thread", "단계, 요청, 대화 단위로 나눠 평가한다."],
+    ["Offline으로 막고 Online으로 찾는다", "배포 전 회귀 방지, 운영 중 새 실패 발견, 실패는 다시 데이터셋으로."],
+    ["다음 문서", "평가에 쓸 trace를 어떻게 남기는지는 Observability & Tracing에서 본다."],
+  ]}
+/>

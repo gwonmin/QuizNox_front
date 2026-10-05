@@ -264,3 +264,15 @@
   margin-bottom: 1.5rem;
 }
 
+/* 다이어그램을 축소하지 않고 원래 크기로 두고, 넓으면 가로 스크롤 */
+.mermaid-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mermaid-wrapper svg {
+  display: block;
+  max-width: none;
+  margin: 0 auto;
+}
+

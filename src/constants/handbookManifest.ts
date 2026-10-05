@@ -11,6 +11,13 @@ export interface HandbookDoc {
 export interface HandbookSection {
   id: string;
   title: string;
+  /** 섹션 카드에 보이는 한 줄 요약 */
+  summary?: string;
+  /** 섹션 페이지 상단 "왜 배우나요?" 단락 */
+  why?: string;
+  /** 섹션 다이어그램 위 학습 흐름 한 줄 */
+  flow?: string;
+  /** 학습 순서대로 정렬 */
   docs: HandbookDoc[];
 }
 
@@ -25,11 +32,14 @@ export const HANDBOOK_LAYERS: HandbookLayer[] = [
   {
     id: "core-cs",
     title: "1. Systems Fundamentals",
-    description: "시스템 기초 개념 (네트워크·스토리지·보안·분산·운영·배포·비용)",
+    description: "시스템 기초 개념 (네트워크·스토리지·보안·분산·운영·배포·비용·AI)",
     sections: [
       {
         id: "networking",
         title: "1. Networking Fundamentals",
+        summary: "요청이 주소·경로·프로토콜·로드밸런서를 거쳐 서버에 닿기까지",
+        why: "요청이 어디서 막혔는지 짚으려면 주소와 경로, 이름 해석, 전송 프로토콜, 로드밸런서를 순서대로 알아야 합니다. VPC·DNS·ALB 설계도 같은 순서로 결정됩니다.",
+        flow: "주소·경로 → 프로토콜 → 로드밸런싱 → 컴퓨트",
         docs: [
           { slug: "ip-cidr-subnetting", title: "IP / CIDR / Subnet" },
           { slug: "routing-table", title: "Routing" },
@@ -43,6 +53,9 @@ export const HANDBOOK_LAYERS: HandbookLayer[] = [
       {
         id: "data-storage",
         title: "2. Data & Storage Fundamentals",
+        summary: "저장 방식과 DB 유형을 고르고, 성능·일관성·캐시를 설계하기",
+        why: "데이터를 어디에 어떤 모델로 둘지에 따라 성능과 일관성, 비용이 정해집니다. 저장 방식과 DB 유형을 먼저 고르고, 그다음 인덱스·트랜잭션·캐시로 다듬습니다.",
+        flow: "저장 방식·DB 유형 → 성능·일관성·인덱스 → 캐시 · 분석 저장소",
         docs: [
           { slug: "block-file-object", title: "Block vs File vs Object" },
           { slug: "rdb", title: "RDB" },
@@ -61,6 +74,9 @@ export const HANDBOOK_LAYERS: HandbookLayer[] = [
       {
         id: "security-basics",
         title: "3. Security Basics",
+        summary: "누가 무엇에 접근하는지, 데이터를 어떻게 보호하는지",
+        why: "인증과 인가, 해시와 암호화를 섞어 쓰면 권한 설계가 흔들립니다. 신원 확인, 데이터 보호, 접근 경계를 따로 떼어 생각해야 IAM·KMS·Security Group을 제대로 쓸 수 있습니다.",
+        flow: "인증·인가 → 데이터 보호 → 접근 경계",
         docs: [
           { slug: "authn-vs-authz", title: "Authn vs Authz" },
           { slug: "hash-vs-encryption", title: "Encryption vs Hash, Symmetric vs Asymmetric" },
@@ -71,34 +87,26 @@ export const HANDBOOK_LAYERS: HandbookLayer[] = [
       {
         id: "distributed",
         title: "4. Distributed Systems Essentials",
+        summary: "서버를 늘리고 메시지로 나눌 때 생기는 일관성·중복 문제",
+        why: "서버를 여러 대로 늘리고 작업을 메시지로 나누는 순간, 같은 요청이 두 번 처리되거나 노드마다 데이터가 달라질 수 있습니다. 확장 방식부터 메시징, 멱등성, 일관성 모델 순으로 보면 장애 원인을 좁히기 쉽습니다.",
+        flow: "확장 → 앱 상태 → 메시징·이벤트 → 멱등성·일관성·분산 처리",
         docs: [
           { slug: "stateless-stateful", title: "Stateless vs Stateful" },
           { slug: "scale-up-scale-out", title: "Scale up / Scale out" },
-          { slug: "consistency-model", title: "Consistency models (Strong / Eventual)" },
-          { slug: "distributed-transaction-lock", title: "분산 트랜잭션 · 분산 락" },
           { slug: "queue-vs-pubsub", title: "Queue vs Pub/Sub" },
-          { slug: "idempotency", title: "Idempotency" },
-          { slug: "cap-theorem", title: "CAP Theorem" },
           { slug: "event-driven-arch", title: "Event-driven Architecture" },
-        ],
-      },
-      {
-        id: "containers-orchestration",
-        title: "6. Containers & Orchestration",
-        docs: [
-          { slug: "container-image", title: "Container Image (레이어 · 태그 · 불변성)" },
-          { slug: "container-registry", title: "Container Registry (이미지 저장·배포)" },
-          { slug: "container-runtime", title: "Container Runtime (노드 · CRI · OCI)" },
-          { slug: "container-orchestration", title: "Container Orchestration (스케줄링 · Service · 단일/멀티 클러스터)" },
-          {
-            slug: "container-service-endpoint",
-            title: "Service Endpoint (LB · Service)",
-          },
+          { slug: "idempotency", title: "Idempotency" },
+          { slug: "consistency-model", title: "Consistency models (Strong / Eventual)" },
+          { slug: "cap-theorem", title: "CAP Theorem" },
+          { slug: "distributed-transaction-lock", title: "분산 트랜잭션 · 분산 락" },
         ],
       },
       {
         id: "reliability-operations",
         title: "5. Reliability & Operations",
+        summary: "장애를 보고, 완화하고, 복구하고, 목표를 정하는 SRE 흐름",
+        why: "운영은 장애를 보는 것(관측)에서 시작해, 재시도·쓰로틀링으로 번지지 않게 막고(완화), 백업·복제로 되살리고(복구), HA·DR·SLO로 목표를 정하는 순서로 이어집니다. RPO·RTO는 백업과 DR 전략을 고르는 기준입니다.",
+        flow: "관측 → 완화 → 복구(백업·복제·RPO/RTO) → 운영 목표(HA·DR·SLO)",
         docs: [
           { slug: "observability", title: "Observability (logs / metrics / traces)" },
           { slug: "retry-backoff", title: "Failure modes: timeout / retry / backoff / jitter" },
@@ -114,8 +122,28 @@ export const HANDBOOK_LAYERS: HandbookLayer[] = [
         ],
       },
       {
+        id: "containers-orchestration",
+        title: "6. Containers & Orchestration",
+        summary: "이미지를 만들고, 노드에서 실행하고, 오케스트레이터로 관리하기",
+        why: "Kubernetes·ECS 설정은 이미지, 런타임, 오케스트레이션의 세 층을 알고 나면 읽힙니다. 이미지가 어디에 저장되고, 노드에서 무엇이 실행하며, 누가 배치와 서비스 노출을 맡는지 구분합니다.",
+        flow: "이미지·레지스트리 → 런타임 → 오케스트레이션·서비스 엔드포인트",
+        docs: [
+          { slug: "container-image", title: "Container Image (레이어 · 태그 · 불변성)" },
+          { slug: "container-registry", title: "Container Registry (이미지 저장·배포)" },
+          { slug: "container-runtime", title: "Container Runtime (노드 · CRI · OCI)" },
+          { slug: "container-orchestration", title: "Container Orchestration (스케줄링 · Service · 단일/멀티 클러스터)" },
+          {
+            slug: "container-service-endpoint",
+            title: "Service Endpoint (LB · Service)",
+          },
+        ],
+      },
+      {
         id: "cicd",
         title: "7. CI/CD",
+        summary: "소스에서 배포까지, 검증과 보안을 파이프라인에 넣기",
+        why: "빌드·테스트·보안 검증·배포를 사람 손이 아닌 파이프라인에 맡겨야 같은 결과를 반복할 수 있습니다. 배포 자동화 다음 단계인 GitOps는 Git을 배포의 기준으로 두고 클러스터가 스스로 맞춰 가는 방식입니다.",
+        flow: "소스 → 빌드 → 테스트 → 보안 스캔 → 아티팩트 → 배포 → GitOps",
         docs: [
           { slug: "source-control", title: "소스 관리 (버전 관리 · 브랜치 · 트리거)" },
           { slug: "build", title: "빌드 (컴파일 · 패키징 · 재현성)" },
@@ -130,6 +158,9 @@ export const HANDBOOK_LAYERS: HandbookLayer[] = [
       {
         id: "cost-finops",
         title: "8. Cost & FinOps",
+        summary: "비용이 생기는 곳, 구매 옵션, 관측과 예산, 최적화",
+        why: "클라우드 비용은 컴퓨트·스토리지·트래픽에서 생기고, 같은 자원이라도 구매 방식에 따라 값이 크게 달라집니다. 어디서 얼마나 쓰는지 먼저 보이게 만든 뒤 예산과 최적화를 정합니다.",
+        flow: "비용 발생 → 구매 옵션 → 비용 관측·예산 → 최적화",
         docs: [
           { slug: "cost-compute", title: "컴퓨트 비용" },
           { slug: "cost-storage", title: "스토리지 비용" },
@@ -143,12 +174,36 @@ export const HANDBOOK_LAYERS: HandbookLayer[] = [
         ],
       },
       {
-        id: "ai-agent",
-        title: "9. AI & Agent",
+        id: "ai-basics",
+        title: "9. AI 기초",
+        summary: "LLM의 동작 원리, 외부 지식을 붙이는 RAG, 스스로 행동하는 Agent의 개요",
+        why: "LLM이 토큰 단위로 다음 말을 예측한다는 점을 알면, 왜 RAG로 외부 지식을 넣어야 하고 왜 Agent에 도구와 루프가 필요한지가 이어집니다.",
+        flow: "LLM 기초 → RAG(외부 지식 연동) → AI Agent(자율 수행)",
         docs: [
           { slug: "llm-basics", title: "LLM 기초 (Transformer · 토큰 · 프롬프트 · 구조화 출력 · MCP)" },
-          { slug: "ai-agent", title: "AI Agent (ReAct · 도구 · MCP · 거버넌스 · 멀티에이전트)" },
           { slug: "rag", title: "RAG (검색 증강 · 고급 파이프라인 · 평가 · 보안)" },
+          { slug: "ai-agent", title: "AI Agent (ReAct · 도구 · MCP · 프로덕션 개요)" },
+        ],
+      },
+      {
+        id: "agent-engineering",
+        title: "10. Agent Engineering",
+        summary: "모델을 감싸는 런타임부터 컨텍스트·상태·루프·도구, 그리고 운영에 필요한 통제까지",
+        why: "Agent의 품질은 모델 자체보다 모델을 감싼 실행 환경과 모델에 넣는 컨텍스트에서 더 많이 갈립니다. 모델에서 실제 행동까지 스택을 위에서 아래로 따라간 뒤, 권한·평가·관측·신뢰성처럼 스택 전체에 걸치는 관심사를 봅니다.",
+        flow: "Harness → Context → State & Memory → Loop → Tools → Orchestration · Model Strategy → HITL · Guardrails · Eval · Tracing · Reliability",
+        docs: [
+          { slug: "agent-harness", title: "Agent Harness / Runtime" },
+          { slug: "context-engineering", title: "Context Engineering" },
+          { slug: "agent-state-memory", title: "State & Memory Architecture" },
+          { slug: "agent-loop", title: "Agent Loop (Observe → Plan → Act → Stop)" },
+          { slug: "agent-tool-use", title: "Tool Use (Function Calling · MCP)" },
+          { slug: "agent-orchestration", title: "Orchestration (Router · Supervisor · Sub-agent · Graph)" },
+          { slug: "model-routing", title: "Model Strategy / Routing" },
+          { slug: "agent-hitl", title: "Human-in-the-Loop" },
+          { slug: "agent-guardrails-authz", title: "Guardrails / Identity / Authorization" },
+          { slug: "agent-eval", title: "Agent Evaluation" },
+          { slug: "agent-observability", title: "Observability & Tracing" },
+          { slug: "agent-reliability", title: "Reliability / Production Engineering" },
         ],
       },
     ],
@@ -437,4 +492,50 @@ export function getHandbookDoc(
     if (doc) return { layer, doc, section };
   }
   return null;
+}
+
+export function getHandbookSection(
+  layerId: string,
+  sectionId: string
+): { layer: HandbookLayer; section: HandbookSection; index: number } | null {
+  const layer = getHandbookLayer(layerId);
+  if (!layer) return null;
+  const index = layer.sections.findIndex((s) => s.id === sectionId);
+  if (index < 0) return null;
+  return { layer, section: layer.sections[index], index };
+}
+
+export function getSectionOfDoc(layerId: string, slug: string): HandbookSection | null {
+  return getHandbookDoc(layerId, slug)?.section ?? null;
+}
+
+export function getAdjacentSections(
+  layerId: string,
+  sectionId: string
+): { prev: HandbookSection | null; next: HandbookSection | null } {
+  const found = getHandbookSection(layerId, sectionId);
+  if (!found) return { prev: null, next: null };
+  const { sections } = found.layer;
+  return {
+    prev: sections[found.index - 1] ?? null,
+    next: sections[found.index + 1] ?? null,
+  };
+}
+
+/** 같은 섹션 안에서 학습 순서상 앞뒤 문서 */
+export function getAdjacentDocs(
+  layerId: string,
+  slug: string
+): { prev: HandbookDoc | null; next: HandbookDoc | null } {
+  const section = getSectionOfDoc(layerId, slug);
+  if (!section) return { prev: null, next: null };
+  const i = section.docs.findIndex((d) => d.slug === slug);
+  return {
+    prev: section.docs[i - 1] ?? null,
+    next: section.docs[i + 1] ?? null,
+  };
+}
+
+export function handbookSectionPath(layerId: string, sectionId: string): string {
+  return `/handbook/${layerId}/section/${sectionId}`;
 }

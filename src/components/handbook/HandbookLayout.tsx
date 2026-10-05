@@ -10,11 +10,14 @@ export interface HandbookTocItem {
 
 interface HandbookLayoutProps {
   layerTitle?: string;
+  /** 있으면 브레드크럼의 레이어 제목을 링크로 */
+  layerHref?: string;
   sectionTitle?: string;
   docTitle?: string;
   showBackToListLink?: boolean;
   backToListHref?: string;
   backToDiagramHref?: string;
+  backLabel?: string;
   tocItems?: HandbookTocItem[];
   className?: string;
   /** 문서 헤더·본문을 max-w-4xl 블록으로 묶어 그리드 칸 안에서 가운데 정렬 */
@@ -24,11 +27,13 @@ interface HandbookLayoutProps {
 
 export function HandbookLayout({
   layerTitle,
+  layerHref,
   sectionTitle,
   docTitle,
   showBackToListLink = true,
   backToListHref = "/handbook",
   backToDiagramHref,
+  backLabel = "다이어그램으로 돌아가기",
   tocItems,
   className,
   centerReadingColumn = false,
@@ -60,7 +65,13 @@ export function HandbookLayout({
                   {layerTitle && (
                     <>
                       <span className="mx-1.5 text-muted-foreground/70">/</span>
-                      <span className="text-foreground/80">{layerTitle}</span>
+                      {layerHref ? (
+                        <Link to={layerHref} className="text-foreground/80 hover:text-foreground">
+                          {layerTitle}
+                        </Link>
+                      ) : (
+                        <span className="text-foreground/80">{layerTitle}</span>
+                      )}
                     </>
                   )}
                 </>
@@ -80,7 +91,7 @@ export function HandbookLayout({
                         to={backToDiagramHref}
                         className="text-xs text-primary hover:underline"
                       >
-                        다이어그램으로 돌아가기
+                        {backLabel}
                       </Link>
                     </>
                   )}

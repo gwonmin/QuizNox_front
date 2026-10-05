@@ -1,0 +1,20 @@
+import { MermaidDiagramWithLinks } from "@/components/handbook/MermaidDiagramWithLinks";
+
+<MermaidDiagramWithLinks
+  diagramIndex={0}
+  code={`flowchart LR
+  subgraph addr [주소와 경로]
+    direction TB
+    IP["IP / CIDR / Subnet"] ~~~ RT["Routing"] ~~~ N["NAT"]
+  end
+  subgraph protocol [프로토콜]
+    direction TB
+    D["DNS"] ~~~ P["TCP / UDP"] ~~~ T["HTTP / TLS"]
+  end
+  subgraph lb [로드밸런싱]
+    direction TB
+    L4["L4 LB"] ~~~ L7["L7 LB"]
+  end
+  E["컴퓨트"]
+  addr --> protocol --> lb --> E`}
+/>

@@ -158,10 +158,24 @@ export const REAL_SYSTEM_DIAGRAM_LINKS: Record<string, string> = {
   Budgets: "/handbook/core-cs/cost-budgets",
   "비용 최적화": "/handbook/core-cs/cost-optimization",
 
-  // ---- 9. AI & Agent ----
+  // ---- 9. AI 기초 ----
   "LLM 기초": "/handbook/core-cs/llm-basics",
   LLM: "/handbook/core-cs/llm-basics",
   "AI Agent": "/handbook/core-cs/ai-agent",
   Agent: "/handbook/core-cs/ai-agent",
   RAG: "/handbook/core-cs/rag",
+
+  // ---- 10. Agent Engineering (노드 라벨에 "Agent"·"Routing"·"Observability"를 넣으면 위 키에 걸리므로 피함) ----
+  "Agent Harness": "/handbook/core-cs/agent-harness",
+  "Context Engineering": "/handbook/core-cs/context-engineering",
+  "State & Memory": "/handbook/core-cs/agent-state-memory",
+  "Agent Loop": "/handbook/core-cs/agent-loop",
+  "Tool Use": "/handbook/core-cs/agent-tool-use",
+  Orchestration: "/handbook/core-cs/agent-orchestration",
+  "Model Strategy": "/handbook/core-cs/model-routing",
+  HITL: "/handbook/core-cs/agent-hitl",
+  "Guardrails · AuthZ": "/handbook/core-cs/agent-guardrails-authz",
+  Evaluation: "/handbook/core-cs/agent-eval",
+  Tracing: "/handbook/core-cs/agent-observability",
+  Reliability: "/handbook/core-cs/agent-reliability",
 };

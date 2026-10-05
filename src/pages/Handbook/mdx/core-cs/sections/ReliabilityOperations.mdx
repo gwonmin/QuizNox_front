@@ -1,0 +1,33 @@
+import { MermaidDiagramWithLinks } from "@/components/handbook/MermaidDiagramWithLinks";
+
+<MermaidDiagramWithLinks
+  diagramIndex={4}
+  code={`flowchart TB
+  subgraph observe [관측]
+    O["Logs / Metrics / Traces"]
+  end
+  subgraph mitigate [완화]
+    direction LR
+    RB["Retry / Backoff / Jitter"] ~~~ TH["Throttling / Rate limit"]
+  end
+  subgraph recover [복구]
+    direction LR
+    B["백업"]
+    REP["복제"]
+    RR["RTO / RPO"]
+    B --> RR
+    REP --> RR
+  end
+  subgraph target [운영 목표]
+    direction LR
+    HA["HA / active-active"]
+    DR["DR 전략"]
+    SLO["SLI / SLO"]
+    LT["부하 테스트"]
+    AI["AIOps"]
+    HA --> SLO
+    DR --> SLO
+    SLO --> LT --> AI
+  end
+  observe --> mitigate --> recover --> target`}
+/>

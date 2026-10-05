@@ -17,6 +17,7 @@ const QuizPlayPage = lazy(() => import("./pages/Quiz/Play"));
 const Handbook = lazy(() => import("./pages/Handbook/Handbook"));
 const HandbookLayer = lazy(() => import("./pages/Handbook/HandbookLayer"));
 const HandbookView = lazy(() => import("./pages/Handbook/HandbookView"));
+const HandbookSectionPage = lazy(() => import("./pages/Handbook/HandbookSectionPage"));
 const Login = lazy(() => import("./pages/Auth/Login"));
 const Register = lazy(() => import("./pages/Auth/Register"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -135,6 +136,14 @@ function AppContent() {
                       element={
                         <ProtectedRoute>
                           <HandbookLayer />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/handbook/:layerId/section/:sectionId"
+                      element={
+                        <ProtectedRoute>
+                          <HandbookSectionPage />
                         </ProtectedRoute>
                       }
                     />
