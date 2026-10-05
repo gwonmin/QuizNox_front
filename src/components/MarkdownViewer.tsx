@@ -6,7 +6,7 @@ import rehypeSanitize from "rehype-sanitize";
 import "github-markdown-css/github-markdown.css";
 import "../styles/markdown-theme.css";
 import { injectDiagramLinks } from "@/utils/injectDiagramLinks";
-import { loadMermaid } from "@/utils/loadMermaid";
+import { loadMermaid, renderMermaid } from "@/utils/loadMermaid";
 
 const MERMAID_RENDER_DELAY_MS = 400;
 
@@ -55,7 +55,6 @@ export function MarkdownViewer({
             }
 
             const code = codeBlock.textContent ?? "";
-            const uniqueId = `mermaid-${i}-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 
             const wrapper = document.createElement("div");
             wrapper.className = "mermaid-wrapper my-4";
@@ -63,15 +62,13 @@ export function MarkdownViewer({
 
             const mermaidDiv = document.createElement("div");
             mermaidDiv.className = "mermaid";
-            mermaidDiv.id = uniqueId;
-            mermaidDiv.textContent = code;
             wrapper.appendChild(mermaidDiv);
 
             const pre = codeBlock.parentElement;
             if (pre) {
               pre.replaceWith(wrapper);
               try {
-                await mermaid.run({ nodes: [mermaidDiv] });
+                await renderMermaid(mermaid, mermaidDiv, code);
               } catch (err) {
                 console.warn("Mermaid render error:", err);
               }

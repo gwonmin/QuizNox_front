@@ -68,7 +68,10 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
 - 문서 청크·질의를 임베딩해 저장·조회. 유사 청크 Top-K를 맥락으로 사용.
 
 <MermaidDiagram
-  code={`flowchart LR
+  code={`---
+config: { layout: dagre }
+---
+flowchart LR
   subgraph query [쿼리]
     Q[질의 텍스트]
     Q --> E[임베딩]

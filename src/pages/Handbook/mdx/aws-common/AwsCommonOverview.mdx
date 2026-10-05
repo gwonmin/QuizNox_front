@@ -15,7 +15,10 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
 ## 1. Networking (VPC · 서브넷 · 보안)
 
 <MermaidDiagram
-  code={`flowchart TB
+  code={`---
+config: { layout: dagre }
+---
+flowchart TB
   subgraph vpc [VPC_서브넷_보안]
     SUB["Public / Private subnet"]
     RT["Route Table"]
@@ -30,7 +33,10 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
 ## 2. Identity & Access (IAM)
 
 <MermaidDiagram
-  code={`flowchart TB
+  code={`---
+config: { layout: dagre }
+---
+flowchart TB
   subgraph iam [IAM]
     UR["User vs Role"]
     P["Policy Evaluation"]
@@ -45,7 +51,10 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
 ## 3. Storage & Data (S3 · EBS · EFS · RDS · DynamoDB · ElastiCache)
 
 <MermaidDiagram
-  code={`flowchart TB
+  code={`---
+config: { layout: dagre }
+---
+flowchart TB
   subgraph stor [Storage_Data]
     S3["S3"]
     EBS["EBS 기본"]
@@ -59,7 +68,10 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
 ## 4. Compute & Scaling (EC2 · Lambda · ECS · EKS · ELB · ASG)
 
 <MermaidDiagram
-  code={`flowchart TB
+  code={`---
+config: { layout: dagre }
+---
+flowchart TB
   subgraph comp [Compute_Scaling]
     EC2["EC2 개요"]
     LB["Lambda"]
@@ -77,7 +89,10 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
 ## 5. Monitoring & Logging (CloudWatch · 감사)
 
 <MermaidDiagram
-  code={`flowchart TB
+  code={`---
+config: { layout: dagre }
+---
+flowchart TB
   subgraph mon [CloudWatch_감사]
     CW["CloudWatch Metrics / Logs"]
     DB["Dashboard"]
@@ -89,7 +104,10 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
 ## 6. Security & Secrets (KMS · Secrets Manager · Parameter Store)
 
 <MermaidDiagram
-  code={`flowchart TB
+  code={`---
+config: { layout: dagre }
+---
+flowchart TB
   subgraph sec [Security_Secrets]
     KMS["KMS"]
     SM["Secrets Manager"]

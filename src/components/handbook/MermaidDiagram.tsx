@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useHandbookAsyncHold } from "@/contexts/HandbookContentReadyContext";
-import { loadMermaid } from "@/utils/loadMermaid";
+import { loadMermaid, renderMermaid } from "@/utils/loadMermaid";
 
 const RENDER_DELAY_MS = 200;
 
@@ -29,20 +29,14 @@ export function MermaidDiagram({ code, className }: MermaidDiagramProps) {
             return;
           }
 
-          const uniqueId = `mdx-mermaid-${Date.now().toString(36)}-${Math.random()
-            .toString(36)
-            .slice(2, 8)}`;
-
           const node = document.createElement("div");
           node.className = "mermaid";
-          node.id = uniqueId;
-          node.textContent = code;
 
           el.innerHTML = "";
           el.appendChild(node);
 
           try {
-            await mermaid.run({ nodes: [node] });
+            await renderMermaid(mermaid, node, code);
           } catch (err) {
             console.warn("MermaidDiagram render error:", err);
           }

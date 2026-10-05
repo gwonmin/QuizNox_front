@@ -77,14 +77,14 @@ import { DocLink } from "@/components/handbook/DocLink";
 MCP는 Agent 앱(호스트)과 도구 제공자(서버) 사이의 표준 프로토콜이다. 2024.11에 Anthropic이 공개했고, 이후 여러 Agent 제품과 프레임워크가 지원한다. 명세는 [modelcontextprotocol.io](https://modelcontextprotocol.io)에 있다.
 
 <MermaidDiagram
-  code={`flowchart LR
+  code={`flowchart TB
   subgraph host [Agent 앱 = MCP 호스트]
-    direction TB
     M["Model"] <--> CL["MCP 클라이언트"]
   end
   subgraph servers [MCP 서버]
-    direction TB
-    S1["코드 저장소 서버"] ~~~ S2["DB 서버"] ~~~ S3["파일시스템 서버"]
+    S1["코드 저장소 서버"]
+    S2["DB 서버"]
+    S3["파일시스템 서버"]
   end
   CL <-->|"표준 프로토콜"| servers`}
 />

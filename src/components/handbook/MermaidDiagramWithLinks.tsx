@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { useHandbookAsyncHold } from "@/contexts/HandbookContentReadyContext";
 import { useDiagramLinks } from "@/contexts/DiagramLinksContext";
 import { injectDiagramLinks } from "@/utils/injectDiagramLinks";
-import { loadMermaid } from "@/utils/loadMermaid";
+import { loadMermaid, renderMermaid } from "@/utils/loadMermaid";
 
 const RENDER_DELAY_MS = 200;
 
@@ -42,17 +42,14 @@ export function MermaidDiagramWithLinks({
             return;
           }
 
-          const uniqueId = `core-cs-mermaid-${diagramIndex}-${Date.now().toString(36)}`;
           const node = document.createElement("div");
           node.className = "mermaid";
-          node.id = uniqueId;
-          node.textContent = code;
 
           el.innerHTML = "";
           el.appendChild(node);
 
           try {
-            await mermaid.run({ nodes: [node] });
+            await renderMermaid(mermaid, node, code);
             if (cancelled) {
               return;
             }
