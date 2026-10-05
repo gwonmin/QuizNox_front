@@ -1,5 +1,7 @@
 import { SectionSummary } from "@/components/handbook/SectionSummary";
 import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+import { DocLink } from "@/components/handbook/DocLink";
 
 <SectionSummary
   lead="아티팩트는 빌드와 테스트를 통과한 배포 가능한 산출물입니다. 버전이 부여되어 저장소·레지스트리에 보관되고, 배포 단계에서 동일한 버전을 반복해서 배포할 수 있다."
@@ -9,6 +11,20 @@ import { KeyTable } from "@/components/handbook/KeyTable";
     "같은 아티팩트를 스테이징·프로덕션에 동일하게 배포하면 '배포된 것이 빌드된 것과 같다'는 재현성이 보장된다.",
   ]}
 />
+
+## 한 번 만들어 여러 환경에
+
+<MermaidDiagram
+  code={`flowchart LR
+  B["빌드 · 테스트 · 스캔 통과"] --> A["아티팩트 v1.4.2<br/>(불변 · 체크섬)"]
+  A --> REG[("저장소 · 레지스트리")]
+  REG -->|"같은 버전"| DEV["개발"]
+  REG -->|"같은 버전"| STG["스테이징"]
+  REG -->|"같은 버전"| PRD["프로덕션"]
+  PRD -.->|"롤백: v1.4.1 재배포"| REG`}
+/>
+
+환경마다 다시 빌드하면 "스테이징에서 본 것"과 "프로덕션에 올라간 것"이 같다는 보장이 사라진다. 아티팩트를 한 번 만들어 저장소에 두고 모든 환경이 **같은 버전을 꺼내 쓰면**, 검증과 롤백이 모두 저장소의 버전 하나를 가리키는 일이 된다.
 
 ## 아티팩트 유형
 
@@ -37,3 +53,10 @@ import { KeyTable } from "@/components/handbook/KeyTable";
 
 - 빌드 → 테스트 통과 후 **아티팩트 생성·푸시**가 이루어진다.
 - 배포 단계는 이 **저장된 아티팩트**를 참조해 각 환경에 배포한다. 빌드와 배포가 분리되므로, 같은 아티팩트를 여러 환경에 반복 배포할 수 있다.
+
+## 관련 문서
+
+- 앞뒤 단계: <DocLink slug="build">빌드</DocLink> · <DocLink slug="devsecops">DevSecOps</DocLink> · <DocLink slug="deploy">배포 자동화</DocLink>
+- 가장 흔한 아티팩트와 저장소: <DocLink slug="container-image">컨테이너 이미지</DocLink> · <DocLink slug="container-registry">컨테이너 레지스트리</DocLink>
+- 버전을 Git에 기록하는 방식: <DocLink slug="gitops">GitOps</DocLink>
+

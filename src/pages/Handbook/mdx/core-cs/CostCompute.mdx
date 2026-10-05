@@ -1,21 +1,70 @@
 import { SectionSummary } from "@/components/handbook/SectionSummary";
 import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+import { Callout } from "@/components/handbook/Callout";
+import { DocLink } from "@/components/handbook/DocLink";
 
 <SectionSummary
-  lead="컴퓨트 비용은 서버·가상 머신·컨테이너·함수 실행 등 연산 리소스를 사용할 때 발생합니다. 사용 시간·vCPU·메모리·동시 실행 수 등에 따라 과금되며, FinOps에서는 사용량 가시화와 구매 옵션(온디맨드·예약·스팟) 선택으로 비용을 관리합니다."
+  lead="컴퓨트 비용은 서버·가상 머신·컨테이너·함수 실행 등 연산 리소스를 켜 둔 시간과 크기에 비례해 발생합니다. 청구서에서 가장 큰 항목인 경우가 많고, 켜 두기만 해도 과금되는 리소스와 실행한 만큼만 과금되는 리소스를 구분하는 것이 관리의 출발점입니다."
   bullets={[
-    "과금 단위: 사용 시간(초·시간), vCPU·메모리 크기, 동시 실행 수 등.",
-    "구매 옵션에 따라 단가가 달라짐: 온디맨드(표준 단가), 예약(할인), 스팟(중단 가능 시 할인).",
-    "적정 사이징: 사용률이 낮으면 작은 인스턴스·오토 스케일로 조정해 비용 절감.",
+    "과금 단위: 인스턴스는 켜 둔 시간 × 크기, 컨테이너는 할당한 vCPU·메모리 × 시간, 함수는 호출 수 × 실행 시간 × 메모리.",
+    "단가는 구매 옵션으로 달라진다: 온디맨드(표준) · 예약·Savings Plans(약정 할인) · 스팟(중단 허용 할인).",
+    "줄이는 순서: 안 쓰는 것 끄기 → 크기 맞추기(적정 사이징) → 사용 패턴에 맞는 구매 옵션 고르기.",
   ]}
 />
 
-## 요약
+## 비용이 생기는 구조
+
+<MermaidDiagram
+  code={`flowchart LR
+  subgraph unit [과금 단위]
+    T["켜 둔 시간"]
+    S["크기 (vCPU · 메모리)"]
+    N["실행 횟수 · 동시 실행"]
+  end
+  subgraph price [단가]
+    OD["온디맨드"]
+    RI["예약 · Savings Plans"]
+    SP["스팟"]
+  end
+  unit --> COST["컴퓨트 비용"]
+  price --> COST`}
+/>
+
+같은 워크로드라도 **왼쪽(사용량)** 과 **오른쪽(단가)** 두 축을 따로 줄일 수 있다. 적정 사이징과 오토 스케일은 사용량을, 구매 옵션은 단가를 줄인다.
+
+## 리소스 유형별 과금 방식
 
 <KeyTable
-  columns={["항목", "설명"]}
+  columns={["유형", "과금 기준", "AWS 예시", "주의할 점"]}
   rows={[
-    ["발생 요인", "사용 시간, vCPU·메모리, 동시 실행 수"],
-    ["관리 포인트", "구매 옵션 선택, 적정 사이징, 사용량 모니터링"],
+    ["가상 머신", "켜 둔 시간(초 단위) × 인스턴스 타입 단가", "EC2", "중지(stop)하면 컴퓨트 과금은 멈추지만 붙어 있는 EBS 볼륨은 계속 과금"],
+    ["관리형 컨테이너", "할당한 vCPU·메모리 × 실행 시간", "ECS/EKS on Fargate", "태스크 정의에 적은 크기대로 과금. 실제 사용률이 낮아도 할당량 기준"],
+    ["함수", "호출 수 + (실행 시간 × 메모리)", "Lambda", "메모리를 늘리면 CPU도 늘어 실행 시간이 줄 수 있다. 단가 × 시간을 함께 본다"],
+    ["관리형 DB·캐시의 컴퓨트", "인스턴스 클래스 × 시간", "RDS, ElastiCache", "스토리지 · I/O · 백업은 별도 항목"],
   ]}
 />
+
+## 줄이는 방법
+
+<KeyTable
+  columns={["방법", "무엇을 줄이나", "구체적인 행동"]}
+  rows={[
+    ["미사용 자원 정리", "사용량", "CPU 사용률이 며칠째 한 자릿수인 인스턴스, 개발·테스트 환경의 야간·주말 가동. 스케줄로 끄거나 삭제"],
+    ["적정 사이징", "사용량", "CloudWatch 지표(CPU · 메모리 · 네트워크)를 2주 이상 보고 한 단계 작은 타입으로. Compute Optimizer 권고 참고"],
+    ["오토 스케일", "사용량", "피크에 맞춰 상시 가동하는 대신 부하에 따라 늘리고 줄인다. 상세는 Scale-up vs Scale-out"],
+    ["구매 옵션", "단가", "24시간 안정적으로 쓰는 기준선은 예약·Savings Plans, 변동분은 온디맨드, 중단 허용 작업은 스팟"],
+    ["아키텍처 전환", "둘 다", "간헐적 요청은 상시 서버 대신 함수로, 배치는 스팟 기반 큐 워커로"],
+  ]}
+/>
+
+<Callout variant="info" title="먼저 사용량을 줄이고, 그다음 단가를 깎는다">
+  <p>크기가 과한 인스턴스를 예약으로 묶으면 과한 크기 그대로 1~3년을 약정하게 된다. 적정 사이징을 끝낸 뒤에 구매 옵션을 결정해야 할인 효과가 그대로 남는다.</p>
+</Callout>
+
+## 관련 문서
+
+- 구매 옵션 상세: <DocLink slug="cost-on-demand">온디맨드</DocLink> · <DocLink slug="cost-reserved">예약</DocLink> · <DocLink slug="cost-spot">스팟</DocLink>
+- 용량을 늘리고 줄이는 방식: <DocLink slug="scale-up-scale-out">Scale-up vs Scale-out</DocLink>
+- AWS 서비스별 기본: <DocLink layer="aws-common" slug="ec2-overview">EC2 개요</DocLink> · <DocLink layer="aws-common" slug="lambda-basics">Lambda</DocLink> · <DocLink layer="aws-common" slug="asg-basics">ASG</DocLink>
+- 시험 관점 비교: <DocLink layer="saa" slug="compute-tradeoff">컴퓨트 트레이드오프</DocLink>

@@ -1,23 +1,64 @@
 import { SectionSummary } from "@/components/handbook/SectionSummary";
 import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+import { Callout } from "@/components/handbook/Callout";
+import { DocLink } from "@/components/handbook/DocLink";
 
 <SectionSummary
-  lead="MFA(Multi-Factor Authentication)는 비밀번호 외에 두 번째 요소(OTP·하드웨어 키)로 본인 확인을 요구하는 보안 기능입니다. Root 계정과 권한이 큰 IAM 사용자에는 MFA 활성화를 권장합니다."
+  lead="MFA(Multi-Factor Authentication)는 비밀번호(아는 것) 외에 기기나 키(가진 것)를 하나 더 요구하는 인증입니다. 비밀번호가 새어도 두 번째 요소가 없으면 로그인할 수 없으므로, 계정 탈취를 막는 가장 효과적인 단일 조치입니다. AWS에서는 Root 계정에 필수이고, IAM 정책의 Condition으로 'MFA 없이는 이 작업 불가'를 강제할 수 있습니다."
   bullets={[
-    "Root 계정: MFA 설정 시 콘솔 로그인·결제 변경 등에 MFA 입력 필요.",
-    "IAM User: MFA 디바이스(Virtual MFA, 하드웨어) 연결 가능. 콘솔 로그인 시 비밀번호 + MFA 코드. CLI/API에서 MFA가 있으면 AssumeRole 시 MFA 코드 요구 가능(정책으로 설정).",
-    "Root·관리자 계정 탈취 방지, 중요 작업 전 재인증, 규정 준수 요구사항 충족.",
+    "요소 종류: Virtual MFA(인증 앱 OTP), FIDO2 보안 키 · 패스키, 하드웨어 TOTP 토큰. 피싱 저항은 FIDO2가 가장 높다.",
+    "Root 계정: 반드시 MFA. 결제 · 계정 설정 등 Root만 할 수 있는 작업이 있어 탈취 피해가 가장 크다.",
+    "정책 강제: Condition 키 aws:MultiFactorAuthPresent로 MFA 세션에만 Allow하거나 MFA 없는 세션을 Deny한다. CLI는 GetSessionToken · AssumeRole에 MFA 코드를 넘겨 MFA 세션을 만든다.",
   ]}
 />
 
-## 요약
+## 로그인과 정책 평가에서의 위치
+
+<MermaidDiagram
+  code={`flowchart TB
+  U["사용자"] -->|"비밀번호"| C1["1차 인증"]
+  C1 -->|"OTP · 보안 키"| C2["2차 인증 (MFA)"]
+  C2 --> S["세션<br/>aws:MultiFactorAuthPresent = true"]
+  S --> P{"정책 Condition<br/>MFA 필요?"}
+  P -->|"필요 · 충족"| OK["허용"]
+  P -->|"필요 · 미충족"| NO["거부"]
+  P -->|"불필요"| OK`}
+/>
+
+MFA는 로그인에서 끝나지 않는다. 세션에 **MFA 여부가 기록**되고, 정책은 그 값을 조건으로 읽는다. 그래서 "읽기는 MFA 없이, 삭제는 MFA 있어야"처럼 작업 단위로 강제할 수 있다.
+
+## MFA 요소 비교
 
 <KeyTable
-  columns={["항목", "설명"]}
+  columns={["요소", "방식", "장점", "한계"]}
   rows={[
-    ["MFA", "비밀번호 + 두 번째 요소(OTP 등)"],
-    ["Root", "MFA 활성화 강력 권장"],
-    ["IAM User", "Virtual MFA 또는 하드웨어 MFA 연결"],
-    ["용도", "Root·관리자 탈취 방지, 중요 작업 재인증, 규정 준수"],
+    ["Virtual MFA", "인증 앱(TOTP)의 6자리 코드", "무료, 바로 시작", "피싱 사이트에 코드를 입력하면 뚫린다. 폰 분실 시 복구 절차 필요"],
+    ["FIDO2 보안 키 · 패스키", "USB · NFC 키 또는 기기 생체 인증", "피싱 저항(도메인에 묶임), 코드 입력 없음", "기기 구매 · 배포, 분실 대비 예비 키"],
+    ["하드웨어 TOTP 토큰", "전용 기기의 OTP", "폰 없이 사용", "Virtual MFA와 같은 피싱 한계"],
   ]}
 />
+
+## 어디에 적용하나
+
+<KeyTable
+  columns={["대상", "방법", "비고"]}
+  rows={[
+    ["Root 계정", "콘솔에서 MFA 등록. 여러 기기 등록 가능", "Root 자격은 금고에, 일상 작업은 IAM · SSO로"],
+    ["IAM User (콘솔)", "사용자별 MFA 등록 + MFA 없는 세션을 Deny하는 정책", "사용자가 스스로 MFA를 등록할 수 있게 자기 관리 권한만 예외로 둔다"],
+    ["IAM User (CLI · API)", "sts get-session-token 또는 assume-role에 --serial-number · --token-code", "받은 임시 자격으로 작업. 장기 키 자체는 MFA 조건을 통과하지 못한다"],
+    ["SSO (Identity Center)", "Identity Center 또는 외부 IdP에서 MFA 정책 설정", "사람 접근은 이 경로가 기본. IAM User를 줄인다"],
+    ["민감 작업", "삭제 · 정책 변경 · KMS 키 관리 등에 MFA Condition", "S3 MFA Delete는 버저닝 버킷에서 Root MFA로만 설정"],
+  ]}
+/>
+
+<Callout variant="info" title="MFA는 사람의 자격에 거는 것이다">
+  <p>EC2 · Lambda 같은 서비스가 쓰는 Role에는 MFA를 걸 수 없고 걸 필요도 없다. 서비스 자격의 보안은 Role의 임시 자격과 최소 권한으로 확보한다. MFA 강제 정책을 서비스 Role에 적용하면 서비스가 멈춘다.</p>
+</Callout>
+
+## 관련 문서
+
+- MFA 조건을 거는 정책 구조: <DocLink layer="aws-common" slug="explicit-deny">Explicit Deny 우선</DocLink> · <DocLink layer="aws-common" slug="policy-evaluation">Policy Evaluation Logic</DocLink>
+- CLI에서 MFA 세션 만들기: <DocLink layer="aws-common" slug="sts-assumerole">STS / AssumeRole</DocLink>
+- 사람 vs 서비스 자격: <DocLink layer="aws-common" slug="iam-user-vs-role">IAM User vs Role</DocLink>
+- 개념: <DocLink slug="authn-vs-authz">인증 vs 인가</DocLink> · <DocLink slug="hash-vs-encryption">해시 vs 암호화</DocLink>

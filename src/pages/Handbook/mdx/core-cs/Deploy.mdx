@@ -1,5 +1,7 @@
 import { SectionSummary } from "@/components/handbook/SectionSummary";
 import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+import { DocLink } from "@/components/handbook/DocLink";
 
 <SectionSummary
   lead="배포는 아티팩트를 스테이징·프로덕션 등 목표 환경에 반영하는 단계입니다. CI 파이프라인에서 아티팩트를 받아 kubectl·API·배포 도구로 환경에 넣는 것이 배포 자동화의 기본 형태다."
@@ -9,6 +11,23 @@ import { KeyTable } from "@/components/handbook/KeyTable";
     "배포 직후 헬스체크와 모니터링으로 정상 여부를 확인하고, Observability·SLI/SLO와 맞춘다.",
   ]}
 />
+
+## 세 가지 전략이 트래픽을 옮기는 방식
+
+<MermaidDiagram
+  code={`flowchart TB
+  subgraph rolling [롤링]
+    R1["v1 v1 v1 v1"] --> R2["v2 v1 v1 v1"] --> R3["v2 v2 v2 v2"]
+  end
+  subgraph bg [블루 / 그린]
+    B1["Blue v1 100%<br/>Green v2 0%"] -->|"한 번에 전환"| B2["Blue v1 0%<br/>Green v2 100%"]
+  end
+  subgraph canary [카나리]
+    C1["v2 5%"] -->|"지표 정상"| C2["v2 25%"] -->|"지표 정상"| C3["v2 100%"]
+  end`}
+/>
+
+롤링은 인스턴스를 **하나씩 바꾸고**, 블루/그린은 전체 복제본을 만들어 **트래픽을 한 번에 돌리며**, 카나리는 **일부 사용자에게 먼저** 보내고 지표를 보며 늘린다. 되돌리는 방법도 다르다. 롤링은 다시 롤링, 블루/그린은 트래픽을 되돌리기만, 카나리는 비율을 0으로.
 
 ## 배포 전략
 
@@ -73,3 +92,11 @@ import { KeyTable } from "@/components/handbook/KeyTable";
     ["모니터링 연동", "Observability·SLI/SLO로 배포 후 이상 감지.", "임계치 초과 시 알림·자동 롤백 실행."],
   ]}
 />
+
+## 관련 문서
+
+- 배포할 것: <DocLink slug="artifact">아티팩트</DocLink>
+- 선언적으로 배포 상태를 관리하는 방식: <DocLink slug="gitops">GitOps</DocLink>
+- 배포 후 정상 판단의 기준: <DocLink slug="observability">Observability</DocLink> · <DocLink slug="sli-slo">SLI · SLO</DocLink>
+- 트래픽을 옮기는 장치: <DocLink slug="l4-vs-l7-lb">L4 vs L7 LB</DocLink> · <DocLink layer="aws-common" slug="target-group">Target Group</DocLink>
+- AWS 구현: <DocLink layer="dva" slug="codepipeline">CodePipeline</DocLink> · <DocLink layer="aws-common" slug="ecs-basics">ECS</DocLink>

@@ -1,21 +1,74 @@
 import { SectionSummary } from "@/components/handbook/SectionSummary";
 import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+import { Callout } from "@/components/handbook/Callout";
+import { DocLink } from "@/components/handbook/DocLink";
 
 <SectionSummary
-  lead="스팟(Spot)은 남는 용량을 할인된 단가로 제공하는 구매 방식입니다. 공급에 따라 중단될 수 있어 중단을 허용할 수 있는 워크로드(배치·플렉시블 처리)에 적합하며, 온디맨드·예약 대비 큰 할인을 받을 수 있습니다."
+  lead="스팟(Spot)은 클라우드 사업자가 남는 용량을 큰 할인으로 빌려주되, 용량이 필요해지면 짧은 통지 후 회수하는 구매 방식입니다. 할인 폭은 가장 크지만 언제든 중단될 수 있으므로, 중단을 전제로 설계된 워크로드에만 씁니다. 중단을 견디는 설계가 곧 스팟을 쓸 수 있는 조건입니다."
   bullets={[
-    "특징: 할인된 단가, 공급 상황에 따라 중단 가능.",
-    "적합: 배치 작업, 중단 후 재시작 가능한 워크로드.",
-    "주의: 장애 시 즉시 복구가 필요한 서비스에는 부적합.",
+    "특징: 온디맨드 대비 큰 할인, 단가는 수요에 따라 변동. 회수 시 2분 전 중단 통지(AWS 기준).",
+    "맞는 곳: 배치 · 데이터 처리 · CI 빌드 · 렌더링 · 무상태 웹 워커처럼 끊겨도 다시 하면 되는 작업.",
+    "견디는 설계: 작업을 작게 쪼개고 진행 상태를 저장(checkpoint), 큐에서 꺼낸 작업은 실패 시 다시 큐로, 여러 인스턴스 타입 · 가용 영역에 분산.",
   ]}
 />
 
-## 요약
+## 중단을 견디는 구조
+
+<MermaidDiagram
+  code={`flowchart LR
+  Q["작업 큐"] --> W1["스팟 워커 A"]
+  Q --> W2["스팟 워커 B"]
+  W1 -->|"완료"| OUT["결과 저장소"]
+  W2 -->|"중단 통지 (2분)"| CK["checkpoint 저장"]
+  CK -->|"작업 되돌림"| Q
+  W2 -.->|"회수"| X["종료"]`}
+/>
+
+워커가 사라져도 **작업은 큐에, 진행 상태는 저장소에** 남아 있으면 다른 워커가 이어받는다. 이 구조가 없으면 스팟은 쓸 수 없다.
+
+## 비교
 
 <KeyTable
-  columns={["항목", "설명"]}
+  columns={["항목", "스팟", "온디맨드", "예약"]}
   rows={[
-    ["의미", "남는 용량 할인, 필요 시 인스턴스 회수(중단) 가능"],
-    ["적합", "중단 허용 워크로드(배치·플렉시블)"],
+    ["단가", "큰 할인 (변동)", "기준", "할인 (고정)"],
+    ["중단", "용량 회수 시 중단", "없음", "없음"],
+    ["용량 보장", "없음. 특정 타입이 품절일 수 있음", "있음", "있음 (용량 예약 시)"],
+    ["맞는 워크로드", "중단 허용 · 재시도 가능", "변동 · 단기", "24시간 기준선"],
   ]}
 />
+
+## 스팟을 써도 되는지 판단하기
+
+<KeyTable
+  columns={["질문", "예", "아니오"]}
+  rows={[
+    ["중간에 끊겨도 처음부터 또는 저장 지점부터 다시 할 수 있나", "스팟 후보", "온디맨드 · 예약"],
+    ["작업 완료 시각이 몇 분 ~ 몇 시간 늦어져도 되나", "스팟 후보", "온디맨드 · 예약"],
+    ["여러 인스턴스 타입 · 가용 영역 중 아무거나 써도 되나", "스팟 안정성 높음", "특정 타입만 되면 품절 리스크"],
+    ["상태(세션 · 로컬 디스크)를 인스턴스 안에만 두나", "먼저 외부로 빼야 함", "스팟 가능"],
+  ]}
+/>
+
+## AWS에서 쓰는 방법
+
+<KeyTable
+  columns={["방법", "설명"]}
+  rows={[
+    ["다양화", "ASG · EC2 Fleet에서 인스턴스 타입과 가용 영역을 여러 개 지정한다. 한 풀이 회수돼도 다른 풀에서 채운다. 할당 전략은 price-capacity-optimized"],
+    ["혼합", "ASG에서 기준선은 온디맨드(또는 예약 적용분), 그 위는 스팟으로 비율을 정한다"],
+    ["중단 처리", "인스턴스 메타데이터 · EventBridge의 중단 통지를 받아 작업을 큐로 되돌리고 종료 준비(draining)를 한다"],
+    ["관리형 통합", "ECS · EKS 노드 그룹, EMR, Batch, SageMaker 학습은 스팟 옵션을 기본으로 지원한다"],
+  ]}
+/>
+
+<Callout variant="warning" title="DB와 단일 인스턴스 서비스에는 쓰지 않는다">
+  <p>데이터베이스, 상태를 가진 단일 서버, 중단 시 사용자에게 바로 오류가 보이는 서비스는 스팟 대상이 아니다. 할인보다 복구 비용이 크다.</p>
+</Callout>
+
+## 관련 문서
+
+- 다른 구매 옵션: <DocLink slug="cost-on-demand">온디맨드</DocLink> · <DocLink slug="cost-reserved">예약</DocLink>
+- 중단을 견디는 설계: <DocLink slug="stateless-stateful">Stateless vs Stateful</DocLink> · <DocLink slug="queue-vs-pubsub">Queue vs Pub/Sub</DocLink> · <DocLink slug="idempotency">멱등성</DocLink>
+- AWS 구성 요소: <DocLink layer="aws-common" slug="asg-basics">ASG</DocLink> · <DocLink layer="aws-common" slug="scaling-policy">Scaling Policy</DocLink>

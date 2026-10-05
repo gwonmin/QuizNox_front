@@ -1,21 +1,71 @@
 import { SectionSummary } from "@/components/handbook/SectionSummary";
 import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+import { Callout } from "@/components/handbook/Callout";
+import { DocLink } from "@/components/handbook/DocLink";
 
 <SectionSummary
-  lead="트래픽 비용은 데이터 전송(인바운드·아웃바운드, 리전 간·인터넷)에 따라 발생합니다. 아웃바운드·리전 간 전송이 과금되는 경우가 많고, 프라이빗 경로·엣지 캐시·같은 리전 통신으로 전송량을 줄여 비용을 관리합니다."
+  lead="트래픽 비용은 데이터가 어느 경계를 넘느냐로 결정됩니다. 들어오는 트래픽은 대부분 무료이고, 인터넷으로 나가는 트래픽 · 리전 사이 · 가용 영역 사이 · NAT 게이트웨이를 지나는 트래픽에 요금이 붙습니다. 경로를 바꾸는 것만으로 줄어드는 비용이라 아키텍처 단계에서 결정하는 것이 가장 쌉니다."
   bullets={[
-    "인바운드: 대부분 무료. 아웃바운드(인터넷·다른 리전)가 과금 대상인 경우가 많음.",
-    "리전 간 전송: 같은 클라우드 내 리전 간에도 전송 비용이 발생할 수 있음.",
-    "절감: VPC 엔드포인트로 같은 리전 내 통신, CDN·캐시로 아웃바운드 감소.",
+    "경계별 요금: 인터넷 아웃바운드 > 리전 간 > 가용 영역 간 > 같은 가용 영역(무료). 인바운드는 무료.",
+    "처리 요금: NAT 게이트웨이 · 로드밸런서 · VPC 엔드포인트(인터페이스형)는 지나가는 GB마다 처리 비용이 추가된다.",
+    "줄이는 원칙: 같은 가용 영역 · 리전에서 처리, 프라이빗 경로(엔드포인트)로 NAT 우회, CDN · 캐시로 원본 아웃바운드 감소.",
   ]}
 />
 
-## 요약
+## 어디를 넘을 때 과금되나
+
+<MermaidDiagram
+  code={`flowchart TB
+  subgraph az1 [가용 영역 A]
+    APP["앱 서버"]
+    DB["DB"]
+  end
+  subgraph az2 [가용 영역 B]
+    RR["읽기 복제본"]
+  end
+  APP -->|"무료"| DB
+  APP -->|"AZ 간 요금"| RR
+  APP -->|"NAT 처리 + 아웃바운드"| NAT["NAT 게이트웨이"] --> NET["인터넷"]
+  APP -->|"엔드포인트 처리 요금"| EP["VPC 엔드포인트"] --> S3["S3 (같은 리전)"]
+  APP -->|"리전 간 요금"| R2["다른 리전"]`}
+/>
+
+같은 S3 버킷에 가더라도 **NAT 게이트웨이를 지나면** NAT 처리 요금이 붙고, **게이트웨이 엔드포인트**로 가면 무료다. 경로가 비용을 정한다.
+
+## 흔한 패턴과 비용
 
 <KeyTable
-  columns={["항목", "설명"]}
+  columns={["패턴", "비용이 붙는 지점", "대안"]}
   rows={[
-    ["발생 요인", "아웃바운드·리전 간 전송량"],
-    ["관리 포인트", "같은 리전 통신, 캐시·CDN, 불필요한 전송 최소화"],
+    ["프라이빗 서브넷의 서버가 S3 · DynamoDB에 접근", "NAT 게이트웨이 처리 요금 (GB당)", "게이트웨이 엔드포인트(무료)로 라우팅"],
+    ["프라이빗 서브넷에서 다른 AWS API 호출", "NAT 처리 요금", "인터페이스 엔드포인트. 트래픽이 많을 때만 이득(시간당 요금이 있음)"],
+    ["여러 가용 영역에 퍼진 서비스 간 호출", "AZ 간 전송 요금 (양방향)", "같은 AZ 우선 라우팅, 캐시로 호출 수 감소. 단 HA는 포기하지 않는다"],
+    ["정적 파일 · API 응답을 원본 서버가 직접 인터넷에 전송", "인터넷 아웃바운드 (가장 비쌈)", "CloudFront 등 CDN. 엣지에서 캐시 적중분은 원본 아웃바운드가 0"],
+    ["리전 간 복제 · 데이터 동기화", "리전 간 전송 요금", "꼭 필요한 데이터만 복제, 압축, 변경분만 전송"],
+    ["로그 · 메트릭을 외부 SaaS로 전송", "인터넷 아웃바운드", "샘플링 · 집계 후 전송, 전송 전 압축"],
   ]}
 />
+
+## 줄이는 방법
+
+<KeyTable
+  columns={["방법", "효과"]}
+  rows={[
+    ["경로 설계", "엔드포인트 · 같은 AZ · 같은 리전으로 경계를 넘지 않게 한다. 설계 단계가 가장 싸다"],
+    ["캐시 · CDN", "원본에서 나가는 바이트 자체를 줄인다. 캐시 적중률이 곧 절감률"],
+    ["압축 · 포맷", "HTTP 압축, 바이너리 포맷, 페이지네이션으로 응답 크기를 줄인다"],
+    ["관측", "Cost Explorer에서 사용 유형(DataTransfer-Out · Regional · NatGateway-Bytes)으로 쪼개 어느 경계가 비싼지 본다. VPC Flow Logs로 발신지를 찾는다"],
+  ]}
+/>
+
+<Callout variant="info" title="NAT 게이트웨이는 비용 항목의 단골">
+  <p>NAT 게이트웨이는 시간당 요금과 GB당 처리 요금이 둘 다 있다. 프라이빗 서브넷의 서버가 S3 백업이나 패키지 다운로드를 NAT로 보내면 그 전부가 처리 요금이 된다. 청구서에서 NAT 항목이 크면 먼저 엔드포인트로 돌릴 수 있는 트래픽이 있는지 본다.</p>
+</Callout>
+
+## 관련 문서
+
+- 경로가 정해지는 원리: <DocLink slug="routing-table">라우팅 테이블</DocLink> · <DocLink slug="nat">NAT</DocLink>
+- 원본 부하를 줄이는 캐시: <DocLink slug="caching">캐싱</DocLink>
+- AWS 구성 요소: <DocLink layer="aws-common" slug="igw-vs-nat">IGW vs NAT</DocLink> · <DocLink layer="aws-common" slug="vpc-endpoint">VPC Endpoint</DocLink>
+- 시험 관점: <DocLink layer="saa" slug="cloudfront-integration">CloudFront 연계</DocLink>

@@ -1,21 +1,73 @@
 import { SectionSummary } from "@/components/handbook/SectionSummary";
 import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+import { Callout } from "@/components/handbook/Callout";
+import { DocLink } from "@/components/handbook/DocLink";
 
 <SectionSummary
-  lead="스토리지 비용은 저장 용량(GB)·요청 수(GET/PUT)·데이터 전송 등에 따라 발생합니다. 저장 유형(블록·파일·객체)·접근 빈도·보관 기간에 따라 단가가 달라지므로, 수명 주기·클래스 전환·미사용 데이터 정리로 비용을 최적화합니다."
+  lead="스토리지 비용은 저장한 용량(GB-월)을 기본으로, 요청 수 · 데이터 조회량 · 프로비저닝한 성능(IOPS · 처리량)이 더해져 발생합니다. 데이터는 지우지 않으면 매달 누적되므로, 접근 빈도에 따라 싼 티어로 옮기고 안 쓰는 것을 지우는 수명 주기 관리가 핵심입니다."
   bullets={[
-    "과금 요소: 저장 용량, 요청 수, 아웃바운드 전송 등.",
-    "저장 클래스·수명 주기: 자주 접근하는 데이터는 고성능, 드물게 접근하는 데이터는 저비용 티어로 전환.",
-    "미사용 볼륨·스냅샷·오래된 로그 정리로 불필요한 비용을 줄인다.",
+    "과금 요소: 저장 용량, 요청 수(PUT · GET), 조회 · 전송량, 프로비저닝 성능(IOPS · 처리량), 스냅샷 · 백업.",
+    "접근 빈도별 티어: 자주 쓰는 데이터는 표준, 드문 데이터는 저빈도 · 아카이브 티어. 저장 단가는 싸지지만 조회 단가는 비싸진다.",
+    "누적을 막는 장치: 수명 주기 규칙(전환 · 만료), 미사용 볼륨 · 오래된 스냅샷 · 불완전 멀티파트 업로드 정리.",
   ]}
 />
 
-## 요약
+## 비용이 생기는 구조
+
+<MermaidDiagram
+  code={`flowchart LR
+  subgraph store [저장]
+    CAP["용량 (GB-월)"]
+    PERF["프로비저닝 성능 (IOPS · 처리량)"]
+  end
+  subgraph access [접근]
+    REQ["요청 수"]
+    RET["조회 · 전송량"]
+  end
+  subgraph copy [복제본]
+    SNAP["스냅샷 · 백업"]
+  end
+  store --> COST["스토리지 비용"]
+  access --> COST
+  copy --> COST`}
+/>
+
+저장 티어를 낮추면 **저장** 비용은 줄지만 **접근** 비용은 늘어난다. 접근 빈도를 모르는 채 티어를 바꾸면 오히려 비싸질 수 있다.
+
+## 저장 유형별 과금 방식
 
 <KeyTable
-  columns={["항목", "설명"]}
+  columns={["유형", "과금 기준", "AWS 예시", "자주 새는 곳"]}
   rows={[
-    ["발생 요인", "저장 용량, 요청 수, 전송량"],
-    ["관리 포인트", "저장 클래스·수명 주기, 미사용 데이터 정리"],
+    ["객체", "용량 × 티어 단가 + 요청 수 + 조회량", "S3", "불완전 멀티파트 업로드, 버전 관리로 쌓인 옛 버전, 만료 규칙 없는 로그 버킷"],
+    ["블록", "프로비저닝한 용량 × 시간 (+ 프로비저닝 IOPS)", "EBS", "인스턴스를 지웠는데 남은 볼륨, 오래된 스냅샷, 쓰는 용량보다 크게 잡은 볼륨"],
+    ["파일", "실제 사용량 × 티어 단가 (+ 프로비저닝 처리량)", "EFS", "IA 티어로 옮기지 않은 드문 접근 파일"],
+    ["DB 스토리지", "할당 · 사용 용량 + 백업 보존분", "RDS, DynamoDB", "보존 기간이 긴 자동 백업, 삭제한 DB의 수동 스냅샷"],
   ]}
 />
+
+## 줄이는 방법
+
+<KeyTable
+  columns={["방법", "구체적인 행동"]}
+  rows={[
+    ["접근 빈도 파악", "S3 Storage Lens · Storage Class Analysis로 객체별 접근 패턴을 본다. 모르면 Intelligent-Tiering에 맡긴다"],
+    ["수명 주기 규칙", "30일 뒤 저빈도 티어 → 90일 뒤 아카이브 → N년 뒤 만료. 로그 · 백업 버킷에 특히 필요"],
+    ["복제본 정리", "오래된 EBS 스냅샷은 Data Lifecycle Manager로 세대 관리. 삭제한 리소스의 스냅샷 · 백업은 보존 사유를 확인하고 지운다"],
+    ["크기 맞추기", "EBS는 사용률을 보고 축소(새 볼륨으로 마이그레이션). gp2 → gp3로 바꾸면 같은 성능에 단가가 낮다"],
+    ["압축 · 포맷", "분석용 데이터는 Parquet 같은 컬럼 포맷 + 압축으로 용량과 조회량을 동시에 줄인다"],
+  ]}
+/>
+
+<Callout variant="warning" title="아카이브 티어의 숨은 비용">
+  <p>Glacier 계열은 저장 단가가 매우 낮지만 최소 보관 기간(90 · 180일)과 조회 요청 비용, 복원 대기 시간이 있다. 몇 주 안에 다시 꺼낼 데이터를 넣으면 표준 티어보다 비싸진다.</p>
+</Callout>
+
+## 관련 문서
+
+- 저장 유형의 차이: <DocLink slug="block-file-object">Block · File · Object</DocLink>
+- 성능 단위: <DocLink slug="latency-throughput-iops">Latency · Throughput · IOPS</DocLink>
+- 백업 보존 설계: <DocLink slug="backup">백업</DocLink>
+- AWS 서비스별 기본: <DocLink layer="aws-common" slug="s3-overview">S3</DocLink> · <DocLink layer="aws-common" slug="ebs-basics">EBS</DocLink> · <DocLink layer="aws-common" slug="efs-basics">EFS</DocLink>
+- 시험 관점 비교: <DocLink layer="saa" slug="ebs-vs-efs-fsx">EBS vs EFS vs FSx</DocLink>

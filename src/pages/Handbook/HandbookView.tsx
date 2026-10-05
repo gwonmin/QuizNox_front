@@ -14,9 +14,6 @@ import {
 import { HandbookLayout } from "../../components/handbook/HandbookLayout";
 import { HandbookContentReadyProvider } from "@/contexts/HandbookContentReadyContext";
 import QueueVsPubsubMdx from "./mdx/core-cs/QueueVsPubsub.mdx";
-import SoaOverviewMdx from "./mdx/soa/SoaOverview.mdx";
-import DvaOverviewMdx from "./mdx/dva/DvaOverview.mdx";
-import AwsCommonOverviewMdx from "./mdx/aws-common/AwsCommonOverview.mdx";
 import PublicPrivateSubnetMdx from "./mdx/aws-common/PublicPrivateSubnet.mdx";
 import VpcRouteTableMdx from "./mdx/aws-common/VpcRouteTable.mdx";
 import IgwVsNatMdx from "./mdx/aws-common/IgwVsNat.mdx";
@@ -383,9 +380,6 @@ const HandbookView = memo(function HandbookView() {
     if (layerId === "core-cs" && slug === "agent-eval") return true;
     if (layerId === "core-cs" && slug === "agent-observability") return true;
     if (layerId === "core-cs" && slug === "agent-reliability") return true;
-    if (layerId === "soa" && slug === "overview") return true;
-    if (layerId === "dva" && slug === "overview") return true;
-    if (layerId === "aws-common" && slug === "overview") return true;
     if (layerId === "aws-common" && slug === "public-private-subnet") return true;
     if (layerId === "aws-common" && slug === "vpc-route-table") return true;
     if (layerId === "aws-common" && slug === "igw-vs-nat") return true;
@@ -702,9 +696,6 @@ const HandbookView = memo(function HandbookView() {
     if (layerId === "core-cs" && slug === "agent-eval") return <AgentEvalMdx />;
     if (layerId === "core-cs" && slug === "agent-observability") return <AgentObservabilityMdx />;
     if (layerId === "core-cs" && slug === "agent-reliability") return <AgentReliabilityMdx />;
-    if (layerId === "soa" && slug === "overview") return <SoaOverviewMdx />;
-    if (layerId === "dva" && slug === "overview") return <DvaOverviewMdx />;
-    if (layerId === "aws-common" && slug === "overview") return <AwsCommonOverviewMdx />;
     if (layerId === "aws-common" && slug === "public-private-subnet") return <PublicPrivateSubnetMdx />;
     if (layerId === "aws-common" && slug === "vpc-route-table") return <VpcRouteTableMdx />;
     if (layerId === "aws-common" && slug === "igw-vs-nat") return <IgwVsNatMdx />;

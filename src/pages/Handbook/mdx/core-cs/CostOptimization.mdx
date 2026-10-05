@@ -1,22 +1,72 @@
 import { SectionSummary } from "@/components/handbook/SectionSummary";
 import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+import { Callout } from "@/components/handbook/Callout";
+import { DocLink } from "@/components/handbook/DocLink";
 
 <SectionSummary
-  lead="비용 최적화는 비용 발생(컴퓨트·스토리지·트래픽)을 가시화한 뒤, 구매 옵션·리소스 크기·수명 주기·미사용 자원 정리 등을 통해 불필요한 비용을 줄이는 활동입니다. FinOps는 비용을 운영·설계 결정에 포함시키는 관점입니다."
+  lead="비용 최적화는 한 번 하는 프로젝트가 아니라 '보고 → 줄이고 → 다시 보는' 반복입니다. 줄이는 수단은 컴퓨트 · 스토리지 · 트래픽마다 다르지만 순서는 같습니다. 안 쓰는 것을 끄고, 크기를 맞추고, 그다음에 단가를 깎습니다. FinOps는 이 반복을 엔지니어링 · 재무 · 제품이 함께 하는 운영 방식입니다."
   bullets={[
-    "컴퓨트: 예약·스팟 활용, 적정 사이징, 오토 스케일.",
-    "스토리지: 저장 클래스·수명 주기, 미사용 데이터·스냅샷 정리.",
-    "트래픽: 같은 리전 통신, 캐시·CDN, 불필요한 전송 최소화.",
+    "순서: 낭비 제거(미사용 · 과다 보존) → 적정 사이징 → 아키텍처 전환 → 구매 옵션. 뒤로 갈수록 효과는 크지만 되돌리기 어렵다.",
+    "영역별 수단: 컴퓨트는 사이징 · 스케일 · 구매 옵션, 스토리지는 티어 · 수명 주기 · 복제본 정리, 트래픽은 경로 · 캐시.",
+    "지속 조건: 단위 비용 지표, 팀별 예산, 정기 리뷰. 숫자를 보는 사람이 없으면 몇 달 만에 원위치한다.",
   ]}
 />
 
-## 요약
+## 반복 구조
+
+<MermaidDiagram
+  code={`flowchart LR
+  SEE["보기<br/>비용 관측 · 단위 비용"] --> FIND["찾기<br/>낭비 · 과다 · 비싼 경로"]
+  FIND --> ACT["줄이기<br/>끄기 → 사이징 → 전환 → 구매 옵션"]
+  ACT --> GUARD["지키기<br/>예산 · 알람 · 태그 강제"]
+  GUARD --> SEE`}
+/>
+
+## 줄이는 순서와 수단
 
 <KeyTable
-  columns={["영역", "최적화 포인트"]}
+  columns={["단계", "컴퓨트", "스토리지", "트래픽"]}
   rows={[
-    ["컴퓨트", "예약·스팟, 적정 사이징, 오토 스케일"],
-    ["스토리지", "클래스·수명 주기, 미사용 정리"],
-    ["트래픽", "리전 내 통신, 캐시·CDN"],
+    ["1. 낭비 제거", "유휴 인스턴스 · 미연결 EIP · 쓰지 않는 로드밸런서", "미연결 EBS · 오래된 스냅샷 · 만료 없는 로그 · 불완전 업로드", "불필요한 리전 간 복제 · 외부 전송"],
+    ["2. 크기 맞추기", "사용률 기반 한 단계 축소, 스케줄로 비프로덕션 끄기", "볼륨 축소, gp2 → gp3", "응답 압축 · 페이지네이션"],
+    ["3. 아키텍처 전환", "간헐 작업은 함수로, 배치는 큐 + 스팟으로", "접근 빈도별 티어 · 컬럼 포맷", "엔드포인트 · 같은 AZ · CDN"],
+    ["4. 단가", "예약 · Savings Plans(기준선), 스팟(변동분)", "아카이브 티어 (조회 빈도 확인 후)", "CDN 약정 · 전송 할인 프로그램"],
   ]}
 />
+
+## 우선순위 정하기
+
+<KeyTable
+  columns={["기준", "질문", "높은 우선순위"]}
+  rows={[
+    ["금액", "줄어드는 돈이 얼마나 되나", "청구서 상위 3개 서비스에서 찾은 과제"],
+    ["노력", "바꾸는 데 며칠이 드나", "설정 변경(수명 주기 · 스케줄 · gp3)으로 끝나는 것"],
+    ["리스크", "성능 · 가용성에 영향이 있나", "비프로덕션 · 배치처럼 영향 범위가 좁은 것"],
+    ["되돌리기", "실패하면 돌아올 수 있나", "되돌릴 수 있는 것부터. 약정은 마지막"],
+  ]}
+/>
+
+## 자주 쓰는 AWS 도구
+
+<KeyTable
+  columns={["도구", "알려주는 것"]}
+  rows={[
+    ["Cost Explorer", "서비스 · 태그 · 사용 유형별 추이, 약정 커버리지 · 사용률, 구매 권고"],
+    ["Compute Optimizer", "EC2 · ASG · EBS · Lambda의 과다 · 과소 프로비저닝과 권장 크기"],
+    ["Trusted Advisor", "유휴 · 미연결 리소스, 저사용 인스턴스 등 점검 항목"],
+    ["S3 Storage Lens", "버킷별 용량 · 접근 패턴 · 불완전 업로드 · 옛 버전"],
+    ["Cost Anomaly Detection", "평소 패턴에서 벗어난 급증 감지"],
+  ]}
+/>
+
+<Callout variant="info" title="성능 · 가용성과 바꾸지 않는다">
+  <p>줄인 비용이 장애나 지연으로 돌아오면 손해다. 다중 AZ를 단일 AZ로 줄이거나 DB를 스팟으로 옮기는 식의 절감은 하지 않는다. SLO를 먼저 정하고, 그 안에서 줄인다.</p>
+</Callout>
+
+## 관련 문서
+
+- 영역별 상세: <DocLink slug="cost-compute">컴퓨트 비용</DocLink> · <DocLink slug="cost-storage">스토리지 비용</DocLink> · <DocLink slug="cost-traffic">트래픽 비용</DocLink>
+- 보고 지키기: <DocLink slug="cost-visibility">비용 관측</DocLink> · <DocLink slug="cost-budgets">예산</DocLink>
+- 지켜야 할 목표: <DocLink slug="sli-slo">SLI · SLO</DocLink>
+- 시험 관점: <DocLink layer="saa" slug="cost-optimization">비용 최적화 (SAA)</DocLink>

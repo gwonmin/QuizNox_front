@@ -1,5 +1,7 @@
 import { SectionSummary } from "@/components/handbook/SectionSummary";
 import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+import { DocLink } from "@/components/handbook/DocLink";
 
 <SectionSummary
   lead="GitOps는 Git을 배포 desired state의 단일 소스로 두고, 클러스터·환경이 그 상태와 자동으로 동기화되게 하는 방식입니다. 배포 자동화를 넘어 선언적·감사 가능·롤백 쉬운 배포를 추구한다."
@@ -9,6 +11,25 @@ import { KeyTable } from "@/components/handbook/KeyTable";
     "배포 자동화(파이프라인이 아티팩트를 푸시해 배포)는 기본이고, GitOps는 '어떤 버전이 어디에 배포됐는지'를 Git 이력으로 남기고 재현·롤백을 단순화한다.",
   ]}
 />
+
+## Push 배포와 Pull 동기화
+
+<MermaidDiagram
+  code={`flowchart TB
+  subgraph push ["배포 자동화 (push)"]
+    P1["CI 파이프라인"] -->|"kubectl apply · API 호출"| P2["클러스터"]
+  end
+  subgraph pull ["GitOps (pull)"]
+    G1["Git 레포<br/>desired state"]
+    G2["GitOps 컨트롤러<br/>(Argo CD · Flux)"]
+    G3["클러스터<br/>actual state"]
+    G2 -->|"주기적으로 읽음"| G1
+    G2 -->|"비교 · drift 수정"| G3
+  end
+  CI["CI: 이미지 빌드"] -->|"이미지 태그 커밋"| G1`}
+/>
+
+Push 방식은 파이프라인이 클러스터 자격을 들고 직접 밀어 넣는다. Pull 방식은 클러스터 안의 컨트롤러가 Git을 읽어 스스로 맞춘다. CI는 이미지를 만들고 **Git에 태그만 커밋**하면 끝이라 클러스터 자격이 CI 밖으로 나가지 않고, 누가 손으로 바꾼 것(drift)도 Git 상태로 되돌아간다.
 
 ## 배포 자동화 vs GitOps
 
@@ -45,3 +66,9 @@ import { KeyTable } from "@/components/handbook/KeyTable";
     ["환경별 브랜치·경로", "main=prod, staging 브랜치 또는 디렉터리로 환경을 나누고, 컨트롤러가 해당 경로만 동기화하도록 설정."],
   ]}
 />
+
+## 관련 문서
+
+- GitOps가 전제하는 것: <DocLink slug="source-control">소스 관리</DocLink> · <DocLink slug="artifact">아티팩트</DocLink>
+- Push 방식의 배포: <DocLink slug="deploy">배포 자동화</DocLink>
+- 동기화 대상: <DocLink slug="container-orchestration">컨테이너 오케스트레이션</DocLink> · <DocLink layer="aws-common" slug="eks-basics">EKS</DocLink>

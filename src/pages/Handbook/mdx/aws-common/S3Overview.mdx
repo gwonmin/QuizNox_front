@@ -1,5 +1,7 @@
 import { SectionSummary } from "@/components/handbook/SectionSummary";
 import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+import { DocLink } from "@/components/handbook/DocLink";
 
 <SectionSummary
   lead="S3는 객체 스토리지 서비스로, 일관성·스토리지 클래스·버전·수명 주기·암호화·복제 등으로 비용·내구성·보안을 설정합니다."
@@ -9,6 +11,20 @@ import { KeyTable } from "@/components/handbook/KeyTable";
     "Versioning·Lifecycle·SSE(암호화)·CRR/SRR(복제)로 운영·비용·보안을 관리.",
   ]}
 />
+
+## 객체 하나의 수명
+
+<MermaidDiagram
+  code={`flowchart TB
+  PUT["PUT (SSE 암호화)"] --> STD["Standard"]
+  STD -->|"30일 · Lifecycle"| IA["Standard-IA"]
+  IA -->|"90일 · Lifecycle"| GL["Glacier"]
+  GL -->|"N년 · Expiration"| DEL["삭제"]
+  STD -.->|"CRR / SRR"| REP["다른 버킷의 복제본"]
+  STD -.->|"덮어쓰기 · 삭제"| VER["이전 버전<br/>(Versioning)"]`}
+/>
+
+객체는 올라간 뒤 **접근이 뜸해질수록 싼 클래스로** 옮겨지고 결국 만료된다. 그 사이 복제는 다른 버킷에 사본을, 버저닝은 같은 버킷에 이전 상태를 남긴다. 둘 다 저장 용량을 늘리므로 Lifecycle에 이전 버전 만료 규칙을 함께 둔다.
 
 ## 스토리지 클래스
 
@@ -43,3 +59,11 @@ import { KeyTable } from "@/components/handbook/KeyTable";
     ["감사·제어", "제한적", "상세(CloudTrail 등)"],
   ]}
 />
+
+## 관련 문서
+
+- 객체 스토리지의 자리: <DocLink slug="block-file-object">Block · File · Object</DocLink>
+- 클래스 · Lifecycle이 비용에 미치는 영향: <DocLink slug="cost-storage">스토리지 비용</DocLink>
+- 암호화 키 관리: <DocLink layer="aws-common" slug="kms-basics">KMS</DocLink>
+- 프라이빗 서브넷에서 S3 접근: <DocLink layer="aws-common" slug="vpc-endpoint">VPC Endpoint</DocLink>
+- 시험 관점: <DocLink layer="saa" slug="s3-static-hosting">S3 정적 호스팅</DocLink> · <DocLink layer="saa" slug="ebs-vs-efs-fsx">EBS vs EFS vs FSx</DocLink>

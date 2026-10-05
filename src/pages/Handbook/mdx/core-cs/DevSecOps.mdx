@@ -1,5 +1,7 @@
 import { SectionSummary } from "@/components/handbook/SectionSummary";
 import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+import { DocLink } from "@/components/handbook/DocLink";
 
 <SectionSummary
   lead="DevSecOps는 개발·배포 파이프라인에 보안을 끼워 넣어, 릴리스 전에 취약점·정책 위반을 찾고 막는 접근입니다. 보안 스캔을 테스트 직후·아티팩트 생성 전에 수행해 '통과한 것만 배포'되게 한다."
@@ -9,6 +11,22 @@ import { KeyTable } from "@/components/handbook/KeyTable";
     "정책·컴플라이언스(예: 허용되지 않은 의존성, 이미지 베이스 제한)를 파이프라인에서 자동 검사할 수 있다.",
   ]}
 />
+
+## 스캔이 들어가는 자리
+
+<MermaidDiagram
+  code={`flowchart TB
+  CODE["커밋 · PR"] --> B["빌드"]
+  B --> T["테스트"]
+  T --> SCAN{"보안 스캔<br/>SAST · 의존성 · 시크릿 · 이미지"}
+  SCAN -->|"통과"| ART["아티팩트 푸시"]
+  SCAN -->|"실패"| STOP["파이프라인 중단<br/>결과를 PR에 보고"]
+  ART --> DEP["배포"]
+  DEP --> DAST["DAST · 런타임 모니터링"]
+  DAST -.->|"발견 사항"| CODE`}
+/>
+
+스캔은 **아티팩트가 저장소에 들어가기 전**에 끝나야 한다. 저장소에 들어간 뒤에는 어느 환경에서든 배포될 수 있기 때문이다. 배포 뒤의 DAST · 런타임 탐지는 보완이며, 발견 사항은 다시 커밋으로 돌아온다.
 
 ## 파이프라인에서의 보안 스캔
 
@@ -39,3 +57,10 @@ import { KeyTable } from "@/components/handbook/KeyTable";
 
 - 테스트 통과 후, **아티팩트를 레지스트리·저장소에 푸시하기 전**에 보안 스캔을 실행하는 구성이 일반적이다.
 - 스캔 실패 시 아티팩트 푸시와 배포를 하지 않고, 파이프라인을 실패로 처리해 취약한 버전이 배포되지 않도록 한다.
+
+## 관련 문서
+
+- 앞뒤 단계: <DocLink slug="test">테스트</DocLink> · <DocLink slug="artifact">아티팩트</DocLink>
+- 이미지 스캔의 대상: <DocLink slug="container-image">컨테이너 이미지</DocLink> · <DocLink slug="container-registry">컨테이너 레지스트리</DocLink>
+- 시크릿을 코드 밖에 두는 법: <DocLink layer="aws-common" slug="secrets-manager-basics">Secrets Manager</DocLink> · <DocLink layer="aws-common" slug="ssm-parameter-store">Parameter Store</DocLink>
+- 원칙: <DocLink slug="least-privilege">최소 권한</DocLink>
