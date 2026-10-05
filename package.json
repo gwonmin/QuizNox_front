@@ -3,6 +3,10 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "packageManager": "pnpm@10.28.2",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "dev": "pnpm vite",
     "dev:local": "pnpm vite --mode localdev",
@@ -32,7 +36,7 @@
   "devDependencies": {
     "@eslint/js": "^9.21.0",
     "@mdx-js/rollup": "^3.1.0",
-    "@types/node": "^22.13.11",
+    "@types/node": "^24.19.1",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@types/react-router-dom": "^5.3.3",
