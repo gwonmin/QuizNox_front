@@ -136,9 +136,42 @@ export const SOA_DIAGRAM_LINKS: Record<string, string> = {
   "Cost Explorer / Budgets": `${soaPath}/cost-explorer-budgets`,
 };
 
+const ckaPath = `${BASE}/cka`;
+export const CKA_DIAGRAM_LINKS: Record<string, string> = {
+  "컨텍스트 · dry-run": `${ckaPath}/exam-workflow`,
+  "노드 준비": `${ckaPath}/node-prep`,
+  RBAC: `${ckaPath}/rbac`,
+  Helm: `${ckaPath}/helm`,
+  "CRD · Operator": `${ckaPath}/crd-operator`,
+  "kubeadm 설치": `${ckaPath}/kubeadm-install`,
+  "고가용 컨트롤 플레인": `${ckaPath}/ha-control-plane`,
+  "kubeadm 업그레이드": `${ckaPath}/kubeadm-upgrade`,
+  "인증서 갱신": `${ckaPath}/cert-renewal`,
+  "etcd 백업": `${ckaPath}/etcd-backup`,
+  "Deployment 롤아웃": `${ckaPath}/deployment-rollout`,
+  "ConfigMap · Secret": `${ckaPath}/configmap-secret`,
+  스케줄링: `${ckaPath}/scheduling`,
+  "자기 치유": `${ckaPath}/self-healing`,
+  Kustomize: `${ckaPath}/kustomize`,
+  Service: `${ckaPath}/service-types`,
+  "Gateway API": `${ckaPath}/gateway-api`,
+  Ingress: `${ckaPath}/ingress`,
+  NetworkPolicy: `${ckaPath}/network-policy`,
+  CoreDNS: `${ckaPath}/coredns`,
+  "PV · PVC": `${ckaPath}/pv-pvc`,
+  StorageClass: `${ckaPath}/storageclass`,
+  "Headless · StatefulSet": `${ckaPath}/headless-statefulset`,
+  "파드 장애": `${ckaPath}/pod-failure`,
+  "노드 NotReady": `${ckaPath}/node-notready`,
+  "컨트롤 플레인": `${ckaPath}/control-plane`,
+  "네트워크 장애": `${ckaPath}/network-troubleshooting`,
+  "리소스 사용량": `${ckaPath}/resource-usage`,
+};
+
 const LAYER_DIAGRAM_LINKS: Record<string, Record<string, string>> = {
   "aws-common": AWS_COMMON_DIAGRAM_LINKS,
   saa: SAA_DIAGRAM_LINKS,
   dva: DVA_DIAGRAM_LINKS,
   soa: SOA_DIAGRAM_LINKS,
+  cka: CKA_DIAGRAM_LINKS,
 };

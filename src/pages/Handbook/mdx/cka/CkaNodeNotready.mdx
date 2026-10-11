@@ -1,0 +1,86 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="NotReady 노드의 kubelet, 조건, CNI를 노드 안에서 확인해 Ready로 되돌리는 과제입니다."
+  bullets={[
+    "SchedulingDisabled는 cordon이지 NotReady가 아니다. uncordon으로 푼다.",
+    "NotReady의 다수는 kubelet이 죽었거나 CNI가 없어 NetworkUnavailable인 경우다.",
+    "노드 안에서는 journalctl -u kubelet 과 crictl ps 를 본다. 시험 노드는 docker보다 containerd다.",
+  ]}
+/>
+
+## 과제에서 원하는 상태
+
+<KeyTable
+  columns={["확인", "기준"]}
+  rows={[
+    ["Ready", "kubectl get nodes 에서 STATUS가 Ready"],
+    ["조건", "describe node 의 MemoryPressure, DiskPressure, PIDPressure가 False"],
+    ["스케줄", "과제가 스케줄을 요구하면 SchedulingDisabled가 없다."],
+  ]}
+/>
+
+## 먼저 볼 것
+
+<KeyTable
+  columns={["명령", "보는 것"]}
+  rows={[
+    ["kubectl describe node 노드", "Conditions와 Events"],
+    ["ssh 노드 후 systemctl status kubelet", "active 여부"],
+    ["journalctl -u kubelet --no-pager | tail", "인증서, cgroup, CNI 설정 오류"],
+  ]}
+/>
+
+## 고치는 순서
+
+<KeyTable
+  columns={["순서", "할 일"]}
+  rows={[
+    ["1", "kubelet이 inactive면 설정 오류를 고치고 systemctl restart kubelet && systemctl enable kubelet"],
+    ["2", "DiskPressure면 노드의 이미지와 로그를 지운다. crictl rmi 로 안 쓰는 이미지를 정리한다."],
+    ["3", "NetworkUnavailable이면 CNI 파드가 Running인지 kubectl get pods -n kube-system 으로 보고, 빠져 있으면 CNI를 다시 적용한다."],
+    ["4", "cordon만 된 노드면 kubectl uncordon 노드"],
+  ]}
+/>
+
+## 자주 틀리는 곳
+
+<KeyTable
+  columns={["함정", "이렇게"]}
+  rows={[
+    ["컨트롤 플레인에서만 고침", "kubelet은 그 노드의 서비스다. ssh로 들어간다."],
+    ["delete node", "노드 객체를 지우면 join을 다시 해야 한다. kubelet이 살아 있으면 객체를 지우지 않는다."],
+    ["docker ps", "containerd 노드에서는 crictl ps 다."],
+  ]}
+/>
+
+## 관계
+
+<MermaidDiagram
+  code={`flowchart TB
+  NODE["노드"] --> COND["Conditions"]
+  COND --> KUBELET["kubelet"]
+  COND --> CNI["NetworkUnavailable"]
+  COND --> DISK["DiskPressure"]`}
+/>
+
+## 예시
+
+```bash
+kubectl describe node worker1
+ssh worker1
+sudo systemctl status kubelet
+sudo journalctl -u kubelet --no-pager | tail -n 40
+sudo systemctl restart kubelet
+exit
+kubectl uncordon worker1
+```
+
+## 채점
+
+```bash
+kubectl get nodes
+kubectl get node worker1 -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}{"\n"}'
+```

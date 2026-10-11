@@ -1,0 +1,121 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="PersistentVolume과 PersistentVolumeClaim의 용량, 접근 모드, StorageClass를 맞춰 Pod에 디스크를 붙이는 과제입니다."
+  bullets={[
+    "PVC가 Bound 여야 Pod가 볼륨을 쓴다. Pending이면 용량, accessModes, storageClassName 불일치다.",
+    "ReadWriteOnce는 한 노드에만 마운트된다.",
+    "reclaimPolicy Retain은 PVC를 지워도 PV와 데이터가 남는다. Delete는 같이 지운다.",
+  ]}
+/>
+
+## 과제에서 원하는 상태
+
+<KeyTable
+  columns={["확인", "기준"]}
+  rows={[
+    ["바인딩", "kubectl get pvc,pv 에서 STATUS가 Bound 이고 CLAIM이 과제 PVC"],
+    ["용량과 모드", "PV capacity가 PVC requests보다 크거나 같고 accessModes가 서로 맞다."],
+    ["Pod 마운트", "Pod spec.volumes[].persistentVolumeClaim.claimName 과 volumeMounts.mountPath"],
+  ]}
+/>
+
+## 먼저 볼 것
+
+<KeyTable
+  columns={["명령", "보는 것"]}
+  rows={[
+    ["kubectl get pv,pvc -A", "비어 있는 PV와 Pending PVC"],
+    ["kubectl describe pvc 이름", "Events의 waiting for a volume"],
+    ["kubectl get storageclass", "PVC storageClassName. 빈 문자열은 기본 클래스를 안 쓴다."],
+  ]}
+/>
+
+## 고치는 순서
+
+<KeyTable
+  columns={["순서", "할 일"]}
+  rows={[
+    ["1", "정적 프로비저닝이면 PV에 capacity, accessModes, persistentVolumeReclaimPolicy, hostPath 또는 과제 볼륨, storageClassName을 적는다."],
+    ["2", "PVC에 같은 storageClassName, accessModes, resources.requests.storage."],
+    ["3", "Pod 볼륨 claimName을 PVC 이름으로 하고 mountPath를 과제 경로로 한다."],
+    ["4", "kubectl get pvc 가 Bound 이고 Pod가 Running인지 확인한다."],
+  ]}
+/>
+
+## 자주 틀리는 곳
+
+<KeyTable
+  columns={["함정", "이렇게"]}
+  rows={[
+    ["storageClassName 생략", "기본 StorageClass가 있으면 동적 프로비저닝을 탄다. 정적 PV에 붙이려면 이름을 명시하거나 빈 값으로 기본 클래스를 끈다."],
+    ["노드가 다른 RWO", "이미 다른 노드에 붙은 RWO를 두 번째 Pod가 쓰면 Pending 또는 ContainerCreating에 머문다."],
+    ["claimName 오타", "Pod는 Running처럼 보여도 마운트 이벤트에 claim not found가 있다."],
+  ]}
+/>
+
+## 관계
+
+<MermaidDiagram
+  code={`flowchart TB
+  PV["PV 1Gi RWO"] --> BIND["Bound"]
+  PVC["PVC 요청"] --> BIND
+  BIND --> POD["claimName"]`}
+/>
+
+## 예시
+
+정적 PV는 기본 StorageClass에 뺏기지 않도록 `storageClassName`을 빈 문자열로 둔다. 과제가 클래스 이름을 주면 PV와 PVC에 그 이름을 같이 적는다.
+
+```yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: data-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes: [ReadWriteOnce]
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  hostPath:
+    path: /mnt/data
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data
+  namespace: shop
+spec:
+  storageClassName: ""
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app
+  namespace: shop
+spec:
+  containers:
+  - name: app
+    image: nginx
+    volumeMounts:
+    - name: data
+      mountPath: /usr/share/nginx/html
+  volumes:
+  - name: data
+    persistentVolumeClaim:
+      claimName: data
+```
+
+## 채점
+
+```bash
+kubectl get pv,pvc -n shop
+kubectl get pod app -n shop
+```

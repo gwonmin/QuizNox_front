@@ -1,0 +1,89 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="StorageClass로 동적 프로비저닝의 provisioner, 회수 정책, 바인딩 시점을 정하는 과제입니다."
+  bullets={[
+    "provisioner 이름은 클러스터에 설치된 드라이버와 같아야 한다.",
+    "volumeBindingMode WaitForFirstConsumer 이면 PVC를 쓰는 Pod가 생기기 전에는 Pending이 정상이다.",
+    "reclaimPolicy는 이후 만들어지는 PV에 적용된다. 이미 있는 PV는 바뀌지 않는다.",
+  ]}
+/>
+
+## 과제에서 원하는 상태
+
+<KeyTable
+  columns={["확인", "기준"]}
+  rows={[
+    ["클래스", "kubectl get storageclass 이름 의 PROVISIONER, RECLAIMPOLICY, VOLUMEBINDINGMODE"],
+    ["기본 클래스", "과제가 기본으로 지정하면 annotation storageclass.kubernetes.io/is-default-class=true 가 하나"],
+    ["PVC가 이 클래스를 사용", "kubectl get pvc -o jsonpath='{.items[*].spec.storageClassName}' 에 그 이름"],
+  ]}
+/>
+
+## 먼저 볼 것
+
+<KeyTable
+  columns={["명령", "보는 것"]}
+  rows={[
+    ["kubectl get storageclass", "기존 provisioner 문자열을 복사한다. 추측하지 않는다."],
+    ["kubectl get pvc,pods -n 네임스페이스", "WaitForFirstConsumer 때문에 Pending인 PVC"],
+    ["kubectl describe pvc 이름", "provisioning failed 인지 waiting for first consumer 인지"],
+  ]}
+/>
+
+## 고치는 순서
+
+<KeyTable
+  columns={["순서", "할 일"]}
+  rows={[
+    ["1", "StorageClass YAML에 provisioner, reclaimPolicy, volumeBindingMode, 과제 parameters."],
+    ["2", "PVC spec.storageClassName을 그 이름으로."],
+    ["3", "WaitForFirstConsumer면 그 PVC를 마운트하는 Pod를 만들어야 Bound가 된다."],
+    ["4", "기본 클래스 교체면 이전 클래스의 is-default-class를 false로 내린다."],
+  ]}
+/>
+
+## 자주 틀리는 곳
+
+<KeyTable
+  columns={["함정", "이렇게"]}
+  rows={[
+    ["provisioner를 kubernetes.io/manual로 추측", "시험 클러스터에 이미 있는 이름을 describe로 확인한다."],
+    ["기본 클래스 두 개", "어느 쪽을 쓸지 정해지지 않는다. 별은 하나만 둔다."],
+    ["Immediate에서 노드 경로", "로컬 볼륨은 WaitForFirstConsumer가 아니면 엉뚱한 노드에 PV가 생길 수 있다."],
+  ]}
+/>
+
+## 관계
+
+<MermaidDiagram
+  code={`flowchart TB
+  SC["StorageClass"] --> PVC["PVC Pending"]
+  POD["Pod가 PVC 사용"] --> BIND["Bound"]
+  PVC --> BIND`}
+/>
+
+## 예시
+
+```bash
+kubectl get storageclass -o custom-columns=NAME:.metadata.name,PROVISIONER:.provisioner
+```
+
+```yaml
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: local-wait
+provisioner: <위 목록의 provisioner>
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+```
+
+## 채점
+
+```bash
+kubectl get storageclass local-wait
+kubectl get pvc -A -o custom-columns=NAME:.metadata.name,CLASS:.spec.storageClassName,STATUS:.status.phase
+```

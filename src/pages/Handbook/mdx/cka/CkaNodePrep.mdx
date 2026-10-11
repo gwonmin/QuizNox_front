@@ -1,0 +1,94 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="kubeadm init 전에 호스트의 swap, 브리지 네트필터, 컨테이너 런타임, kubelet이 맞아야 노드가 Ready가 된다."
+  bullets={[
+    "swap이 켜져 있으면 kubelet이 뜨지 않는다.",
+    "시험 노드의 런타임은 containerd다. docker ps 가 아니라 crictl ps 다.",
+    "br_netfilter 와 ip_forward 가 없으면 Pod 네트워크가 끊긴다.",
+  ]}
+/>
+
+## 과제에서 원하는 상태
+
+<KeyTable
+  columns={["확인", "기준"]}
+  rows={[
+    ["swap", "swapon --show 가 비어 있고 fstab에서 swap이 주석이다."],
+    ["런타임", "systemctl is-active containerd 가 active"],
+    ["sysctl", "net.ipv4.ip_forward, net.bridge.bridge-nf-call-iptables, net.bridge.bridge-nf-call-ip6tables 가 1"],
+  ]}
+/>
+
+## 먼저 볼 것
+
+<KeyTable
+  columns={["명령", "보는 것"]}
+  rows={[
+    ["swapon --show; free -h", "swap 사용량"],
+    ["systemctl status containerd kubelet", "무엇이 죽었는지"],
+    ["sysctl net.ipv4.ip_forward net.bridge.bridge-nf-call-iptables net.bridge.bridge-nf-call-ip6tables", "포워딩"],
+  ]}
+/>
+
+## 고치는 순서
+
+<KeyTable
+  columns={["순서", "할 일"]}
+  rows={[
+    ["1", "swapoff -a 후 /etc/fstab 의 swap 줄을 주석"],
+    ["2", "modprobe br_netfilter overlay. /etc/modules-load.d 에 남겨 재부팅 후에도 올린다."],
+    ["3", "sysctl에 net.bridge.bridge-nf-call-iptables=1, net.bridge.bridge-nf-call-ip6tables=1, net.ipv4.ip_forward=1 을 적고 sysctl --system"],
+    ["4", "containerd를 설치·기동한 뒤 kubeadm, kubelet, kubectl을 같은 버전으로 설치한다. kubelet은 init 전에 enable 만 하고, 아직 클러스터가 없으면 activating이어도 된다."],
+  ]}
+/>
+
+## 자주 틀리는 곳
+
+<KeyTable
+  columns={["함정", "이렇게"]}
+  rows={[
+    ["swapoff만 하고 fstab을 안 고침", "재부팅하면 swap이 돌아온다. 시험 중 재부팅은 드물지만 채점이 파일을 본다."],
+    ["cgroup 드라이버 불일치", "containerd SystemdCgroup = true 와 kubelet의 cgroupDriver가 같아야 한다."],
+    ["패키지 버전 혼선", "kubeadm만 올리고 kubelet은 이전 마이너면 업그레이드 과제와 같은 실패가 난다."],
+  ]}
+/>
+
+## 관계
+
+<MermaidDiagram
+  code={`flowchart TB
+  SWAP["swap off"] --> MOD["br_netfilter"]
+  MOD --> SYS["ip_forward=1"]
+  SYS --> RT["containerd"]
+  RT --> PKG["kubeadm kubelet kubectl"]`}
+/>
+
+## 예시
+
+```bash
+sudo swapoff -a
+sudo sed -i '/ swap / s/^/#/' /etc/fstab
+sudo modprobe br_netfilter overlay
+cat <<'EOF' | sudo tee /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-iptables = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.ipv4.ip_forward = 1
+EOF
+sudo sysctl --system
+sudo mkdir -p /etc/containerd
+containerd config default | sudo tee /etc/containerd/config.toml >/dev/null
+sudo sed -i 's/SystemdCgroup = false/SystemdCgroup = true/' /etc/containerd/config.toml
+sudo systemctl enable --now containerd
+sudo systemctl restart containerd
+```
+
+## 채점
+
+```bash
+swapon --show
+sysctl net.ipv4.ip_forward net.bridge.bridge-nf-call-iptables net.bridge.bridge-nf-call-ip6tables
+systemctl is-active containerd
+```

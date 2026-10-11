@@ -1,0 +1,98 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="kustomization.yaml이 있는 디렉터리를 kubectl apply -k 로 빌드해 적용하는 과제입니다. 파일마다 apply -f 를 하면 그 설정이 빠진다."
+  bullets={[
+    "namePrefix, namespace, replicas, images는 원본 이름을 기준으로 붙는다.",
+    "replicas와 patches의 name은 prefix가 붙기 전 이름이다.",
+    "overlay는 resources에 base 경로를 적고, 그 디렉터리에 kubectl apply -k 를 실행한다.",
+  ]}
+/>
+
+## 과제에서 원하는 상태
+
+<KeyTable
+  columns={["확인", "기준"]}
+  rows={[
+    ["이름", "namePrefix가 있으면 클러스터의 리소스 이름이 prefix와 원본 이름을 합친 값"],
+    ["이미지와 개수", "images.newTag와 replicas.count가 과제 값"],
+    ["네임스페이스", "kustomization의 namespace와 kubectl get -n 이 같다."],
+  ]}
+/>
+
+## 먼저 볼 것
+
+<KeyTable
+  columns={["명령", "보는 것"]}
+  rows={[
+    ["find 과제디렉터리 -name kustomization.yaml", "base와 overlay 중 어디에 적용할지"],
+    ["kubectl kustomize 과제디렉터리", "적용 전에 합쳐진 YAML"],
+    ["kubectl get deploy -n 네임스페이스", "prefix가 붙은 이름이 이미 있는지"],
+  ]}
+/>
+
+## 고치는 순서
+
+<KeyTable
+  columns={["순서", "할 일"]}
+  rows={[
+    ["1", "kustomization.yaml의 resources, namespace, namePrefix를 과제에 맞춘다."],
+    ["2", "replicas[].name과 images[].name은 원본 Deployment 이름, 원본 이미지 이름(태그 제외)이다."],
+    ["3", "overlay면 resources에 ../base 를 적고, 패치는 overlays 쪽에 둔다."],
+    ["4", "kubectl apply -k 과제디렉터리. kubectl apply -f kustomization.yaml 은 빌드하지 않는다."],
+  ]}
+/>
+
+## 자주 틀리는 곳
+
+<KeyTable
+  columns={["함정", "이렇게"]}
+  rows={[
+    ["prefix가 붙은 이름으로 replicas를 찾음", "kustomization 안의 name은 prefix 전 이름이다. 클러스터에 생기는 이름만 prefix가 붙는다."],
+    ["commonLabels로 셀렉터를 바꿈", "commonLabels는 selector까지 고친다. 이미 있는 Deployment의 selector는 불변이라 apply가 거부된다."],
+    ["디렉터리 대신 파일에 -f", "kustomization.yaml을 -f 로 적용하면 resources가 합쳐지지 않는다. -k 는 디렉터리에 쓴다."],
+  ]}
+/>
+
+## 관계
+
+<MermaidDiagram
+  code={`flowchart TB
+  BASE["base Deployment web"] --> KUST["kustomization.yaml"]
+  KUST --> PRE["namePrefix prod-"]
+  KUST --> REP["replicas web = 3"]
+  PRE --> OUT["prod-web"]
+  REP --> OUT`}
+/>
+
+## 예시
+
+```yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- deployment.yaml
+namespace: shop
+namePrefix: prod-
+replicas:
+- name: web
+  count: 3
+images:
+- name: nginx
+  newTag: "1.27"
+```
+
+`deployment.yaml`의 Deployment 이름은 `web`, 컨테이너 이미지는 `nginx:1.25`라고 둔다.
+
+```bash
+kubectl kustomize shop
+kubectl apply -k shop
+```
+
+## 채점
+
+```bash
+kubectl get deploy prod-web -n shop -o jsonpath='{.spec.replicas}{" "}{.spec.template.spec.containers[0].image}{"\n"}'
+```

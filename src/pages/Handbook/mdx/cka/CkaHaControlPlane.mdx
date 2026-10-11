@@ -1,0 +1,85 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="고가용 클러스터는 로드밸런서 뒤의 control-plane-endpoint로 init 하고, 추가 컨트롤 플레인은 --control-plane 과 certificate-key로 join 한다."
+  bullets={[
+    "워커 join과 달리 컨트롤 플레인 join에는 --control-plane 과 --certificate-key 가 필요하다.",
+    "stacked etcd는 각 컨트롤 플레인에 etcd 멤버가 붙는다. 외부 etcd는 데이터 저장이 노드 밖에 있다.",
+    "certificate-key는 kubeadm init --upload-certs 당시 출력이다. 만료되면 kubeadm init phase upload-certs --upload-certs 로 다시 올린다.",
+  ]}
+/>
+
+## 과제에서 원하는 상태
+
+<KeyTable
+  columns={["확인", "기준"]}
+  rows={[
+    ["엔드포인트", "kubectl get cm kubeadm-config -n kube-system -o yaml 에 controlPlaneEndpoint"],
+    ["멤버", "kubectl get nodes 에 control-plane 역할이 과제 대수"],
+    ["etcd", "stacked면 etcd Pod가 컨트롤 플레인 수와 같다."],
+  ]}
+/>
+
+## 먼저 볼 것
+
+<KeyTable
+  columns={["명령", "보는 것"]}
+  rows={[
+    ["kubectl get nodes -o wide", "컨트롤 플레인 IP"],
+    ["kubectl get pods -n kube-system -o wide | grep etcd", "stacked 여부"],
+    ["kubeadm token list", "join 토큰이 살아 있는지"],
+  ]}
+/>
+
+## 고치는 순서
+
+<KeyTable
+  columns={["순서", "할 일"]}
+  rows={[
+    ["1", "첫 노드: kubeadm init --control-plane-endpoint lb:6443 --upload-certs --pod-network-cidr=대역"],
+    ["2", "출력의 kubeadm join ... --control-plane --certificate-key 를 추가 컨트롤 플레인에서 root로 실행"],
+    ["3", "키가 없으면 첫 노드에서 kubeadm init phase upload-certs --upload-certs 후 join 명령을 다시 만든다."],
+    ["4", "CNI는 첫 노드에서 한 번만 적용한다. 각 노드가 Ready인지 본다."],
+  ]}
+/>
+
+## 자주 틀리는 곳
+
+<KeyTable
+  columns={["함정", "이렇게"]}
+  rows={[
+    ["워커용 join을 컨트롤 플레인에 실행", "--control-plane 이 없으면 워커가 된다. delete node 후 다시 join 한다."],
+    ["endpoint를 노드 IP로 init", "나중에 노드가 죽으면 API 주소가 사라진다. 과제에 LB가 있으면 그 주소를 쓴다."],
+    ["각 노드마다 CNI apply", "한 번으로 충분하다. 중복 적용은 보통 무해하지만 시간을 쓴다."],
+  ]}
+/>
+
+## 관계
+
+<MermaidDiagram
+  code={`flowchart TB
+  LB["control-plane-endpoint"] --> CP1["첫 컨트롤 플레인"]
+  CP1 --> CERT["upload-certs"]
+  CERT --> CP2["join --control-plane"]
+  CP1 --> ETCD["stacked etcd"]
+  CP2 --> ETCD`}
+/>
+
+## 예시
+
+```bash
+sudo kubeadm init --control-plane-endpoint 10.0.0.20:6443 --upload-certs --pod-network-cidr=10.244.0.0/16
+# 추가 컨트롤 플레인
+sudo kubeadm join 10.0.0.20:6443 --token <token> \
+  --discovery-token-ca-cert-hash sha256:<hash> \
+  --control-plane --certificate-key <key>
+```
+
+## 채점
+
+```bash
+kubectl get nodes
+kubectl get pods -n kube-system -o wide | grep etcd
+```

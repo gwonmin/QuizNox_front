@@ -1,0 +1,125 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="StatefulSet은 Pod 이름과 디스크가 유지된다. Headless Service는 clusterIP가 None이라 Pod DNS가 생기고, volumeClaimTemplates가 순서대로 PVC를 만든다."
+  bullets={[
+    "serviceName은 Headless Service 이름과 같아야 한다.",
+    "Pod 이름은 스테이트풀셋-순서다. DNS는 이름.서비스.네임스페이스.svc.cluster.local.",
+    "volumeClaimTemplates의 볼륨 이름이 volumeMounts.name과 같다. 직접 PVC를 미리 만들지 않는다.",
+  ]}
+/>
+
+## 과제에서 원하는 상태
+
+<KeyTable
+  columns={["확인", "기준"]}
+  rows={[
+    ["Service", "spec.clusterIP 가 None"],
+    ["Pod", "web-0, web-1 이 순서대로 Running"],
+    ["PVC", "data-web-0 처럼 볼륨이름-파드이름 이고 Bound"],
+  ]}
+/>
+
+## 먼저 볼 것
+
+<KeyTable
+  columns={["명령", "보는 것"]}
+  rows={[
+    ["kubectl get svc 이름 -o jsonpath='{.spec.clusterIP}'", "None 인지"],
+    ["kubectl get pods,pvc -n 네임스페이스", "순서와 클레임 이름"],
+    ["kubectl get statefulset 이름 -o yaml | grep serviceName", "Service 연결"],
+  ]}
+/>
+
+## 고치는 순서
+
+<KeyTable
+  columns={["순서", "할 일"]}
+  rows={[
+    ["1", "Service를 clusterIP: None, selector는 Pod 라벨과 같게"],
+    ["2", "StatefulSet spec.serviceName, selector, replicas, template.labels"],
+    ["3", "volumeClaimTemplates에 accessModes와 requests.storage. storageClassName은 kubectl get sc 의 이름이고, 비우면 기본 클래스를 쓴다."],
+    ["4", "Pod가 0번부터 Ready 된 뒤에 nslookup web-0.web.네임스페이스.svc.cluster.local"],
+  ]}
+/>
+
+## 자주 틀리는 곳
+
+<KeyTable
+  columns={["함정", "이렇게"]}
+  rows={[
+    ["ClusterIP Service에 serviceName만 연결", "DNS 이름이 생기지 않는다. clusterIP: None 이 필요하다."],
+    ["replicas를 한 번에 크게", "PVC가 Pending이면 0번에서 멈춘다. StorageClass를 먼저 맞춘다."],
+    ["볼륨 이름 불일치", "volumeMounts.name이 claim template 이름과 다르면 마운트되지 않는다."],
+  ]}
+/>
+
+## 관계
+
+<MermaidDiagram
+  code={`flowchart TB
+  SVC["Service clusterIP None"] --> DNS["web-0.web.ns.svc"]
+  STS["StatefulSet"] --> POD0["web-0"]
+  STS --> POD1["web-1"]
+  STS --> PVC["data-web-0"]
+  PVC --> POD0`}
+/>
+
+## 예시
+
+`storageClassName`을 적지 않으면 기본 StorageClass로 PVC를 만든다. 과제가 이름을 지정하면 그 이름을 `volumeClaimTemplates`에 적는다.
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  namespace: shop
+spec:
+  clusterIP: None
+  selector:
+    app: web
+  ports:
+  - port: 80
+    targetPort: 80
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: web
+  namespace: shop
+spec:
+  serviceName: web
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+      - name: app
+        image: nginx
+        volumeMounts:
+        - name: data
+          mountPath: /usr/share/nginx/html
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 1Gi
+```
+
+## 채점
+
+```bash
+kubectl get svc web -n shop -o jsonpath='{.spec.clusterIP}{"\n"}'
+kubectl get pods,pvc -n shop
+```

@@ -1,0 +1,83 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="kubectl top 은 metrics-server가 모은 현재 CPU와 메모리를 보여 준다. requests와 limits는 스케줄에 쓰는 숫자이고, top의 숫자는 지금 쓰는 양이다."
+  bullets={[
+    "metrics-server Pod가 kube-system에서 Running이어야 top이 된다.",
+    "kubectl top nodes 는 노드, kubectl top pods -n 네임스페이스 는 Pod다.",
+    "HPA도 이 API를 본다. top이 실패하면 HPA는 사용량을 모른다.",
+  ]}
+/>
+
+## 과제에서 원하는 상태
+
+<KeyTable
+  columns={["확인", "기준"]}
+  rows={[
+    ["Metrics API", "kubectl top nodes 가 CPU와 MEMORY 열을 출력"],
+    ["Pod", "kubectl top pods -n 네임스페이스 에 과제 Pod가 있다."],
+    ["metrics-server", "kube-system의 metrics-server Pod가 Running"],
+  ]}
+/>
+
+## 먼저 볼 것
+
+<KeyTable
+  columns={["명령", "보는 것"]}
+  rows={[
+    ["kubectl top nodes", "Metrics API가 사는지"],
+    ["kubectl get pods -n kube-system -l k8s-app=metrics-server", "수집기 Pod"],
+    ["kubectl top pods -n 네임스페이스 --containers", "컨테이너별 사용량"],
+  ]}
+/>
+
+## 고치는 순서
+
+<KeyTable
+  columns={["순서", "할 일"]}
+  rows={[
+    ["1", "top이 Metrics API not available 이면 metrics-server Pod와 로그를 본다."],
+    ["2", "과제가 설치를 요구하면 주어진 매니페스트나 Helm 차트로 metrics-server를 kube-system에 둔다."],
+    ["3", "kubelet TLS 오류가 로그에 있으면 과제 값의 인자만 추가하고 재시작한다."],
+    ["4", "한 분 안에 top nodes 가 숫자를 내는지 확인한다. 직후에는 아직 비어 있을 수 있다."],
+  ]}
+/>
+
+## 자주 틀리는 곳
+
+<KeyTable
+  columns={["함정", "이렇게"]}
+  rows={[
+    ["requests를 사용량으로 보고", "describe의 requests는 예약이다. 현재 사용량은 top 또는 metrics.k8s.io 다."],
+    ["기본 네임스페이스", "top pods 에 -n 이 없으면 default만 본다."],
+    ["메트릭이 바로 안 나옴", "Pod가 방금 Running이면 수집 전이면 <unknown>이다. 잠시 뒤 다시 top 한다."],
+  ]}
+/>
+
+## 관계
+
+<MermaidDiagram
+  code={`flowchart TB
+  KUBELET["kubelet"] --> MS["metrics-server"]
+  MS --> API["metrics.k8s.io"]
+  API --> TOP["kubectl top"]
+  API --> HPA["HPA"]`}
+/>
+
+## 예시
+
+```bash
+kubectl get pods -n kube-system -l k8s-app=metrics-server
+kubectl top nodes
+kubectl top pods -n shop --containers
+kubectl get --raw /apis/metrics.k8s.io/v1beta1/nodes
+```
+
+## 채점
+
+```bash
+kubectl top nodes
+kubectl top pods -n shop
+```

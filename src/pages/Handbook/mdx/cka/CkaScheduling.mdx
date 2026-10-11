@@ -1,0 +1,165 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="요청 자원, nodeSelector와 nodeAffinity, taint, LimitRange와 ResourceQuota로 Pod가 어디에 앉고 얼마까지 요청하는지 정하는 과제입니다."
+  bullets={[
+    "requests를 노드가 감당하지 못하면 Pod는 Pending이다.",
+    "taint가 NoSchedule이면 같은 toleration이 없는 Pod는 그 노드에 안 앉는다.",
+    "nodeSelector는 일치, required nodeAffinity도 일치해야 스케줄된다.",
+  ]}
+/>
+
+## 과제에서 원하는 상태
+
+<KeyTable
+  columns={["확인", "기준"]}
+  rows={[
+    ["지정 노드에 배치", "kubectl get pod -o wide 의 NODE 가 과제 노드"],
+    ["컨트롤 플레인 제외", "컨트롤 플레인의 taint를 유지한 채 워커에만 toleration 없이 스케줄"],
+    ["자원 제한", "컨테이너 resources.requests 와 limits 가 과제 숫자"],
+  ]}
+/>
+
+## 먼저 볼 것
+
+<KeyTable
+  columns={["명령", "보는 것"]}
+  rows={[
+    ["kubectl describe pod 이름 | sed -n '/Events/,$p'", "Insufficient cpu, node affinity, untolerated taint"],
+    ["kubectl describe node 노드 | sed -n '/Taints/,+5p'", "현재 taint"],
+    ["kubectl get node --show-labels", "nodeSelector에 쓸 라벨"],
+  ]}
+/>
+
+## 고치는 순서
+
+<KeyTable
+  columns={["순서", "할 일"]}
+  rows={[
+    ["1", "노드에 라벨이 없으면 kubectl label node 노드 키=값"],
+    ["2", "Pod spec에 nodeSelector 또는 affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution"],
+    ["3", "노드를 더럽힐 때 kubectl taint nodes 노드 키=값:NoSchedule. Pod에는 같은 key, value, effect의 tolerations."],
+    ["4", "taint를 걷을 때는 kubectl taint nodes 노드 키=값:NoSchedule-"],
+    ["5", "네임스페이스 한도는 ResourceQuota, 컨테이너가 값을 빼먹었을 때의 기본값은 LimitRange"],
+  ]}
+/>
+
+## 자주 틀리는 곳
+
+<KeyTable
+  columns={["함정", "이렇게"]}
+  rows={[
+    ["NoExecute와 NoSchedule", "NoExecute는 이미 떠 있는 Pod도 쫓아낸다. 과제 문장의 effect를 그대로 쓴다."],
+    ["control-plane taint 제거", "마스터에 일반 Pod를 앉히라고 한 경우가 아니면 taint를 지우지 않는다."],
+    ["requests와 limits 혼동", "스케줄은 requests를 본다. limits만 있으면 스케줄 계산이 비어 있을 수 있다."],
+    ["Quota 초과", "Forbidden exceeded quota 면 ResourceQuota의 requests 합을 줄이거나 한도를 올린다."],
+  ]}
+/>
+
+## 관계
+
+<MermaidDiagram
+  code={`flowchart TB
+  TAINT["노드 taint"] --> TOL["Pod toleration"]
+  LABEL["노드 라벨"] --> SEL["nodeSelector"]
+  LABEL --> AFF["required nodeAffinity"]
+  REQ["requests"] --> SCHED["스케줄러"]
+  QUOTA["ResourceQuota"] --> REQ
+  TOL --> SCHED
+  SEL --> SCHED
+  AFF --> SCHED`}
+/>
+
+## 예시
+
+```bash
+kubectl label node worker1 disk=ssd
+```
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: batch
+  namespace: shop
+spec:
+  nodeSelector:
+    disk: ssd
+  tolerations:
+  - key: dedicated
+    operator: Equal
+    value: batch
+    effect: NoSchedule
+  containers:
+  - name: app
+    image: nginx
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi
+```
+
+nodeSelector 대신 필수 affinity를 쓸 때다. 라벨이 없으면 이 Pod도 Pending이다.
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: batch-affinity
+  namespace: shop
+spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: disk
+            operator: In
+            values:
+            - ssd
+  containers:
+  - name: app
+    image: nginx
+```
+
+LimitRange의 default는 컨테이너가 limits를 생략했을 때만 채운다. ResourceQuota는 네임스페이스의 requests 합을 넘기면 새 Pod를 거절한다.
+
+```yaml
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: shop-limits
+  namespace: shop
+spec:
+  limits:
+  - type: Container
+    defaultRequest:
+      cpu: 100m
+      memory: 128Mi
+    default:
+      cpu: 200m
+      memory: 256Mi
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: shop-quota
+  namespace: shop
+spec:
+  hard:
+    pods: "10"
+    requests.cpu: "2"
+    requests.memory: 2Gi
+```
+
+## 채점
+
+```bash
+kubectl get pod batch -n shop -o wide
+kubectl describe pod batch -n shop | sed -n '/Events/,$p'
+```

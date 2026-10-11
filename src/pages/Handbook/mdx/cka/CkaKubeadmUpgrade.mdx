@@ -1,0 +1,101 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="한 번에 한 마이너 버전만, 컨트롤 플레인부터 kubeadm으로 올리는 과제입니다."
+  bullets={[
+    "첫 컨트롤 플레인만 kubeadm upgrade apply 를 쓴다. 나머지 컨트롤 플레인과 워커는 kubeadm upgrade node 다.",
+    "kubelet을 올리기 전에 노드를 drain 하고, 끝나면 uncordon 한다.",
+    "kubeadm, kubelet, kubectl 세 패키지 버전이 목표 버전으로 맞아야 한다.",
+  ]}
+/>
+
+## 과제에서 원하는 상태
+
+<KeyTable
+  columns={["확인", "기준"]}
+  rows={[
+    ["모든 노드 버전", "kubectl get nodes 의 VERSION 이 목표 버전"],
+    ["워크로드 유지", "drain 중에 DaemonSet은 남고, 일반 Pod는 다른 노드로 간다."],
+    ["스케줄 재개", "kubectl get nodes 에 SchedulingDisabled 가 남아 있지 않다."],
+  ]}
+/>
+
+## 먼저 볼 것
+
+<KeyTable
+  columns={["명령", "보는 것"]}
+  rows={[
+    ["kubectl get nodes", "지금 버전과 업그레이드 순서. 첫 컨트롤 플레인을 가린다."],
+    ["kubeadm upgrade plan", "적용 가능한 목표 버전"],
+    ["kubectl config current-context", "업그레이드할 클러스터"],
+  ]}
+/>
+
+## 고치는 순서
+
+<KeyTable
+  columns={["순서", "할 일"]}
+  rows={[
+    ["1", "첫 컨트롤 플레인: kubectl drain 노드 --ignore-daemonsets --delete-emptydir-data"],
+    ["2", "패키지 관리자로 kubeadm만 목표 버전으로 올리고 kubeadm upgrade apply vX.Y.Z"],
+    ["3", "같은 노드의 kubelet, kubectl을 목표 버전으로 올린 뒤 systemctl restart kubelet && kubectl uncordon 노드"],
+    ["4", "다른 컨트롤 플레인과 워커는 drain 후 kubeadm upgrade node, kubelet 업그레이드, uncordon. 한 노드가 Ready 된 다음 노드로 간다."],
+  ]}
+/>
+
+## 자주 틀리는 곳
+
+<KeyTable
+  columns={["함정", "이렇게"]}
+  rows={[
+    ["워커에 upgrade apply", "apply는 첫 컨트롤 플레인 한 대만. 워커는 upgrade node."],
+    ["uncordon 누락", "버전은 맞는데 SchedulingDisabled 라 채점에서 감점된다."],
+    ["한 번에 여러 마이너", "plan이 보여주는 다음 버전만 적용한다."],
+  ]}
+/>
+
+## 관계
+
+<MermaidDiagram
+  code={`flowchart TB
+  PLAN["kubeadm upgrade plan"] --> FIRST["첫 컨트롤 플레인 apply"]
+  FIRST --> REST["나머지 노드 upgrade node"]
+  REST --> UN["uncordon"]`}
+/>
+
+## 예시
+
+```bash
+kubectl drain cp1 --ignore-daemonsets --delete-emptydir-data
+sudo apt-get update && apt-cache madison kubeadm
+sudo apt-mark unhold kubeadm
+sudo apt-get install -y kubeadm=<madison에 나온 목표 패키지>
+sudo kubeadm upgrade apply v1.35.0
+sudo apt-mark unhold kubelet kubectl
+sudo apt-get install -y kubelet=<같은 버전> kubectl=<같은 버전>
+sudo systemctl daemon-reload && sudo systemctl restart kubelet
+kubectl uncordon cp1
+kubectl drain worker1 --ignore-daemonsets --delete-emptydir-data
+```
+
+`worker1`에 ssh 한 뒤에 실행한다. 이 노드에서는 `upgrade apply`를 쓰지 않는다.
+
+```bash
+sudo apt-mark unhold kubeadm
+sudo apt-get install -y kubeadm=<같은 패키지>
+sudo kubeadm upgrade node
+sudo apt-mark unhold kubelet kubectl
+sudo apt-get install -y kubelet=<같은 패키지> kubectl=<같은 패키지>
+sudo systemctl daemon-reload && sudo systemctl restart kubelet
+```
+
+컨트롤 플레인으로 돌아와 `kubectl uncordon worker1` 을 실행한다.
+
+## 채점
+
+```bash
+kubectl get nodes
+kubectl get nodes -o jsonpath='{range .items[*]}{.metadata.name}{" "}{.status.nodeInfo.kubeletVersion}{"\n"}{end}'
+```

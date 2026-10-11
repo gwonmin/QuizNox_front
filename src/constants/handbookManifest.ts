@@ -473,6 +473,81 @@ export const HANDBOOK_LAYERS: HandbookLayer[] = [
       },
     ],
   },
+  {
+    id: "cka",
+    title: "6. CKA (Administrator)",
+    description: "클러스터를 구성하고, 워크로드·네트워크·스토리지를 운영하며, 장애를 고칩니다",
+    sections: [
+      {
+        id: "exam-workflow",
+        title: "시험 중 작업",
+        summary: "컨텍스트, dry-run, jsonpath",
+        docs: [{ slug: "exam-workflow", title: "컨텍스트 · dry-run" }],
+      },
+      {
+        id: "cluster-setup",
+        title: "1. 클러스터 구성",
+        summary: "노드 준비, kubeadm, 고가용, 인증서, etcd, RBAC, Helm, CRD",
+        docs: [
+          { slug: "node-prep", title: "노드 준비" },
+          { slug: "kubeadm-install", title: "kubeadm 설치" },
+          { slug: "ha-control-plane", title: "고가용 컨트롤 플레인" },
+          { slug: "kubeadm-upgrade", title: "kubeadm 업그레이드" },
+          { slug: "cert-renewal", title: "인증서 갱신" },
+          { slug: "etcd-backup", title: "etcd 백업" },
+          { slug: "rbac", title: "RBAC" },
+          { slug: "helm", title: "Helm" },
+          { slug: "crd-operator", title: "CRD · Operator" },
+        ],
+      },
+      {
+        id: "workloads",
+        title: "2. 워크로드",
+        summary: "롤아웃, 설정, 스케줄링과 admission, 프로브와 DaemonSet·Job, Kustomize",
+        docs: [
+          { slug: "deployment-rollout", title: "Deployment 롤아웃" },
+          { slug: "configmap-secret", title: "ConfigMap · Secret" },
+          { slug: "scheduling", title: "스케줄링" },
+          { slug: "self-healing", title: "자기 치유" },
+          { slug: "kustomize", title: "Kustomize" },
+        ],
+      },
+      {
+        id: "networking",
+        title: "3. 네트워크",
+        summary: "Service, Gateway API, Ingress, NetworkPolicy, CoreDNS",
+        docs: [
+          { slug: "service-types", title: "Service" },
+          { slug: "gateway-api", title: "Gateway API" },
+          { slug: "ingress", title: "Ingress" },
+          { slug: "network-policy", title: "NetworkPolicy" },
+          { slug: "coredns", title: "CoreDNS" },
+        ],
+      },
+      {
+        id: "storage",
+        title: "4. 스토리지",
+        summary: "PV와 PVC, StorageClass, Headless와 StatefulSet",
+        docs: [
+          { slug: "pv-pvc", title: "PV · PVC" },
+          { slug: "storageclass", title: "StorageClass" },
+          { slug: "headless-statefulset", title: "Headless · StatefulSet" },
+        ],
+      },
+      {
+        id: "troubleshooting",
+        title: "5. 트러블슈팅",
+        summary: "파드, 노드, 컨트롤 플레인, 네트워크, 사용량",
+        docs: [
+          { slug: "pod-failure", title: "파드 장애" },
+          { slug: "node-notready", title: "노드 NotReady" },
+          { slug: "control-plane", title: "컨트롤 플레인" },
+          { slug: "network-troubleshooting", title: "네트워크 장애" },
+          { slug: "resource-usage", title: "리소스 사용량" },
+        ],
+      },
+    ],
+  },
 ];
 
 export const HANDBOOK_LAYER_IDS = HANDBOOK_LAYERS.map((l) => l.id);

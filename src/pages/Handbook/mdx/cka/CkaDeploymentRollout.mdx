@@ -1,0 +1,84 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="Deployment 이미지를 바꾸고, 롤아웃 상태를 확인한 뒤 필요하면 이전 리비전으로 되돌리는 과제입니다."
+  bullets={[
+    "kubectl set image 의 컨테이너 이름은 Pod 템플릿의 name과 같아야 한다.",
+    "rollout status 가 끝나기 전에 다음 과제로 가면 채점 시점에 아직 옛 이미지일 수 있다.",
+    "undo 는 직전 리비전으로 돌아간다. history 로 리비전 번호를 확인한다.",
+  ]}
+/>
+
+## 과제에서 원하는 상태
+
+<KeyTable
+  columns={["확인", "기준"]}
+  rows={[
+    ["이미지 교체", "kubectl get deploy 이름 -o jsonpath='{.spec.template.spec.containers[0].image}' 가 목표 이미지"],
+    ["롤백", "rollout undo 이후 이미지가 이전 값이고 AVAILABLE이 원하는 replicas와 같다."],
+    ["스케일", "kubectl scale deploy/이름 --replicas=N 이후 READY가 N"],
+  ]}
+/>
+
+## 먼저 볼 것
+
+<KeyTable
+  columns={["명령", "보는 것"]}
+  rows={[
+    ["kubectl get deploy,rs -n 네임스페이스", "Deployment와 현재 ReplicaSet"],
+    ["kubectl rollout history deploy/이름 -n 네임스페이스", "리비전"],
+    ["kubectl config current-context", "과제 클러스터와 네임스페이스. -n 을 빼먹으면 default에 만든다."],
+  ]}
+/>
+
+## 고치는 순서
+
+<KeyTable
+  columns={["순서", "할 일"]}
+  rows={[
+    ["1", "kubectl set image deploy/이름 컨테이너명=이미지:태그 -n 네임스페이스"],
+    ["2", "kubectl rollout status deploy/이름 -n 네임스페이스"],
+    ["3", "실패하면 kubectl rollout undo deploy/이름 -n 네임스페이스"],
+    ["4", "특정 리비전이면 kubectl rollout undo deploy/이름 --to-revision=번호"],
+    ["5", "개수는 kubectl scale deploy/이름 --replicas=N -n 네임스페이스. rollout status 로 READY를 확인한다."],
+  ]}
+/>
+
+## 자주 틀리는 곳
+
+<KeyTable
+  columns={["함정", "이렇게"]}
+  rows={[
+    ["컨테이너 이름을 이미지 이름으로 착각", "set image 첫 인자는 컨테이너 name이다. describe로 확인한다."],
+    ["레코드 플래그", "최신 kubectl은 --record 없이도 history가 남는다. 플래그 오류로 명령을 버리지 않는다."],
+    ["maxUnavailable", "과제가 전략을 지정하면 strategy.rollingUpdate.maxUnavailable 과 maxSurge를 매니페스트에 적는다."],
+  ]}
+/>
+
+## 관계
+
+<MermaidDiagram
+  code={`flowchart TB
+  DEPLOY["Deployment web"] --> RS["ReplicaSet"]
+  RS --> POD["Pod image"]
+  DEPLOY --> HIST["rollout history"]`}
+/>
+
+## 예시
+
+```bash
+kubectl set image deploy/web app=nginx:1.27 -n shop
+kubectl rollout status deploy/web -n shop
+kubectl rollout history deploy/web -n shop
+kubectl rollout undo deploy/web -n shop
+kubectl scale deploy/web --replicas=3 -n shop
+```
+
+## 채점
+
+```bash
+kubectl get deploy web -n shop -o jsonpath='{.spec.template.spec.containers[0].image}{"\n"}'
+kubectl rollout status deploy/web -n shop
+```

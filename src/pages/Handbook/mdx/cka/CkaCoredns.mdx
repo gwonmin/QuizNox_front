@@ -1,0 +1,104 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="kube-system의 CoreDNS ConfigMap을 고쳐 클러스터 DNS와 스텁 도메인을 맞추는 과제입니다."
+  bullets={[
+    "설정은 ConfigMap coredns 의 Corefile 이다.",
+    "고친 뒤에는 CoreDNS Deployment를 재시작해야 Pod가 새 설정을 읽는다.",
+    "Corefile 문법이 깨지면 CoreDNS가 CrashLoopBackOff가 되고 클러스터 이름 해석이 멈춘다.",
+  ]}
+/>
+
+## 과제에서 원하는 상태
+
+<KeyTable
+  columns={["확인", "기준"]}
+  rows={[
+    ["스텁 도메인", "Corefile에 과제 도메인의 forward 또는 rewrite가 있다."],
+    ["Pod 상태", "kubectl get pods -n kube-system -l k8s-app=kube-dns 가 Running"],
+    ["해석", "아무 Pod에서 nslookup kubernetes.default 가 CoreDNS IP를 반환한다."],
+  ]}
+/>
+
+## 먼저 볼 것
+
+<KeyTable
+  columns={["명령", "보는 것"]}
+  rows={[
+    ["kubectl get configmap coredns -n kube-system -o yaml", "현재 Corefile"],
+    ["kubectl logs -n kube-system -l k8s-app=kube-dns --tail=50", "문법 오류"],
+    ["kubectl get svc -n kube-system kube-dns", "클러스터 DNS IP. Pod의 nameserver와 비교한다."],
+  ]}
+/>
+
+## 고치는 순서
+
+<KeyTable
+  columns={["순서", "할 일"]}
+  rows={[
+    ["1", "kubectl edit configmap coredns -n kube-system. 과제 도메인 블록만 추가한다. .:53 안의 ready는 8181 /ready 준비 검사라 지우지 않는다."],
+    ["2", "kubectl rollout restart deploy/coredns -n kube-system"],
+    ["3", "kubectl rollout status deploy/coredns -n kube-system"],
+    ["4", "디버그 Pod에서 nslookup 과제이름 과 nslookup 과제이름.네임스페이스.svc.cluster.local"],
+  ]}
+/>
+
+## 자주 틀리는 곳
+
+<KeyTable
+  columns={["함정", "이렇게"]}
+  rows={[
+    ["ConfigMap만 고치고 재시작을 안 함", "CoreDNS는 파일을 즉시 다시 읽지 않는 구성일 수 있다. rollout restart까지 한다."],
+    ["중괄호 누락", "Corefile 블록의 중괄호가 빠지면 재시작 직후 CrashLoop다. logs로 확인한다."],
+    ["ready를 지움", "kubeadm CoreDNS는 8181의 /ready 로 준비 상태를 본다. ready가 없으면 Pod가 Ready가 되지 않는다."],
+    ["노드 /etc/resolv.conf만 수정", "Pod DNS는 서비스 kube-dns를 본다. 노드 리졸버만 고치면 Pod 과제는 통과하지 못한다."],
+  ]}
+/>
+
+## 관계
+
+<MermaidDiagram
+  code={`flowchart TB
+  CM["ConfigMap coredns"] --> FILE["Corefile"]
+  FILE --> DEPLOY["Deployment 재시작"]
+  DEPLOY --> POD["nslookup"]`}
+/>
+
+## 예시
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coredns
+  namespace: kube-system
+data:
+  Corefile: |
+    example.org:53 {
+        errors
+        forward . 10.0.0.53
+    }
+    .:53 {
+        errors
+        health
+        ready
+        kubernetes cluster.local in-addr.arpa ip6.arpa {
+          pods insecure
+          fallthrough in-addr.arpa ip6.arpa
+        }
+        forward . /etc/resolv.conf
+        cache 30
+        loop
+        reload
+        loadbalance
+    }
+```
+
+## 채점
+
+```bash
+kubectl rollout status deploy/coredns -n kube-system
+kubectl get pods -n kube-system -l k8s-app=kube-dns
+```

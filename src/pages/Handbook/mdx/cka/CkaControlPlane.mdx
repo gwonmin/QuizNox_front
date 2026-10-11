@@ -1,0 +1,81 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="API 서버, scheduler, controller-manager, etcd는 대부분 static Pod다. 매니페스트를 고치면 kubelet이 다시 띄운다."
+  bullets={[
+    "매니페스트 경로는 /etc/kubernetes/manifests 다.",
+    "API 서버가 죽으면 kubectl이 안 된다. 그 노드에서 crictl ps 와 crictl logs 로 본다.",
+    "etcd가 죽으면 API 서버도 따라 죽는다. etcd 로그를 먼저 본다.",
+  ]}
+/>
+
+## 과제에서 원하는 상태
+
+<KeyTable
+  columns={["확인", "기준"]}
+  rows={[
+    ["시스템 Pod", "kubectl get pods -n kube-system 에서 kube-apiserver, etcd, kube-scheduler, kube-controller-manager 가 Running"],
+    ["static Pod", "노드 이름이 접미사로 붙는다. 예: kube-apiserver-controlplane"],
+    ["kubectl", "kubectl get nodes 가 응답한다."],
+  ]}
+/>
+
+## 먼저 볼 것
+
+<KeyTable
+  columns={["명령", "보는 것"]}
+  rows={[
+    ["kubectl get pods -n kube-system -o wide", "어느 컨트롤 플레인에 떠 있는지"],
+    ["ssh 후 crictl ps | grep -E 'apiserver|etcd|scheduler|controller'", "API가 죽어도 컨테이너 목록은 보인다."],
+    ["crictl logs 컨테이너ID", "인증서 경로, advertise-address, etcd 연결 오류"],
+  ]}
+/>
+
+## 고치는 순서
+
+<KeyTable
+  columns={["순서", "할 일"]}
+  rows={[
+    ["1", "죽은 구성요소의 YAML을 /etc/kubernetes/manifests 에서 연다."],
+    ["2", "과제 값과 다른 인자, 볼륨 경로, 이미지 태그를 고친다. YAML을 저장하면 kubelet이 재생성한다."],
+    ["3", "etcd 장애면 백업 문서의 인증서와 data-dir를 먼저 맞춘다."],
+    ["4", "crictl ps 에 다시 나타난 뒤, kubectl get pods -n kube-system 이 응답할 때까지 기다린다."],
+  ]}
+/>
+
+## 자주 틀리는 곳
+
+<KeyTable
+  columns={["함정", "이렇게"]}
+  rows={[
+    ["kubectl delete pod 로 static Pod를 고침", "지워도 매니페스트가 잘못됐으면 같은 오류로 돌아온다. 파일을 고친다."],
+    ["매니페스트를 다른 디렉터리에 복사", "kubelet이 보는 staticPodPath는 보통 /etc/kubernetes/manifests 하나다."],
+    ["여러 컨트롤 플레인의 주소", "advertise-address와 etcd endpoints가 그 노드 IP인지 확인한다."],
+  ]}
+/>
+
+## 관계
+
+<MermaidDiagram
+  code={`flowchart TB
+  FILE["/etc/kubernetes/manifests"] --> KL["kubelet"]
+  KL --> API["kube-apiserver"]
+  KL --> ETCD["etcd"]
+  ETCD --> API`}
+/>
+
+## 예시
+
+```bash
+sudo crictl ps | grep -E 'kube-apiserver|etcd|kube-scheduler|kube-controller'
+sudo crictl logs "$(sudo crictl ps -a --name kube-apiserver -q | head -n 1)" | tail
+sudo vi /etc/kubernetes/manifests/kube-apiserver.yaml
+```
+
+## 채점
+
+```bash
+kubectl get pods -n kube-system -o wide | grep -E 'kube-apiserver|etcd|kube-scheduler|kube-controller'
+```

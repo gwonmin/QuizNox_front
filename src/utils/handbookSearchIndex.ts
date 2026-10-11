@@ -43,6 +43,26 @@ const HANDBOOK_SEARCH_ALIASES: Record<string, string[]> = {
   rds: ["rds", "aurora", "관계형 데이터베이스 서비스"],
   "rds basics": ["rds basics", "rds 기본"],
   "rds vs aurora": ["rds vs aurora", "rds 대 aurora", "rds와 aurora"],
+
+  // CKA
+  rbac: ["권한", "rolebinding", "clusterrole"],
+  kubeadm: ["쿠버네티스 설치", "클러스터 업그레이드"],
+  etcd: ["스냅샷", "snapshot"],
+  "network policy": ["네트워크 정책", "네트워크폴리시"],
+  ingress: ["인그레스"],
+  coredns: ["클러스터 dns", "코어디엔에스"],
+  "exam workflow": ["컨텍스트", "jsonpath", "dry-run", "드라이런"],
+  "node prep": ["스왑", "containerd", "컨테이너 런타임"],
+  "ha control plane": ["고가용", "컨트롤 플레인 추가"],
+  "cert renewal": ["인증서", "kubeadm certs"],
+  "self healing": ["프로브", "daemonset", "cronjob", "hpa"],
+  kustomize: ["apply -k", "overlay", "쿠스토마이즈"],
+  helm: ["헬름", "차트", "helm upgrade"],
+  "gateway api": ["httproute", "게이트웨이"],
+  "crd operator": ["커스텀 리소스", "오퍼레이터"],
+  crd: ["커스텀 리소스", "오퍼레이터"],
+  "resource usage": ["kubectl top", "metrics-server", "메트릭"],
+  "headless statefulset": ["headless", "statefulset", "볼륨클레임"],
 };
 
 const normalizeToken = (value: string): string =>

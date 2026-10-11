@@ -9,7 +9,7 @@ import { LayerDiagramPage } from "./LayerDiagramPage";
 
 const MAIN_CLASS = "flex flex-col items-center p-4 max-w-3xl mx-auto";
 
-const LAYERS_WITH_DIAGRAM = ["aws-common", "saa", "dva", "soa"];
+const LAYERS_WITH_DIAGRAM = ["aws-common", "saa", "dva", "soa", "cka"];
 
 function HandbookLayer() {
   const { layerId } = useParams<{ layerId: string }>();

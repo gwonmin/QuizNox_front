@@ -1,0 +1,87 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="스택된 etcd의 스냅샷을 인증서로 저장하고, 복원은 새 데이터 디렉터리로 돌리는 과제입니다."
+  bullets={[
+    "스냅샷은 etcd가 떠 있는 컨트롤 플레인에서 찍는다.",
+    "ETCDCTL_API=3 과 CA, 서버 인증서, 키가 없으면 연결이 거부된다.",
+    "restore는 실행 중인 데이터 디렉터리를 덮어쓰지 않고 새 경로에 푼 뒤, static Pod 매니페스트의 data-dir를 그 경로로 바꾼다.",
+  ]}
+/>
+
+## 과제에서 원하는 상태
+
+<KeyTable
+  columns={["확인", "기준"]}
+  rows={[
+    ["스냅샷 파일", "과제가 지정한 경로에 snapshot.db 가 있고 etcdctl snapshot status 가 해시를 출력한다."],
+    ["복원 과제", "새 data-dir로 기동한 etcd에서 기존 리소스가 다시 보인다."],
+    ["인증", "https://127.0.0.1:2379 와 /etc/kubernetes/pki/etcd/ 의 ca.crt, server.crt, server.key"],
+  ]}
+/>
+
+## 먼저 볼 것
+
+<KeyTable
+  columns={["명령", "보는 것"]}
+  rows={[
+    ["kubectl get pods -n kube-system | grep etcd", "어떤 컨트롤 플레인에 etcd가 있는지. 그 노드로 ssh 한다."],
+    ["which etcdctl || crictl ps | grep etcd", "호스트에 etcdctl이 없으면 etcd Pod 안에서 실행한다."],
+    ["kubectl config current-context", "백업 대상 클러스터"],
+  ]}
+/>
+
+## 고치는 순서
+
+<KeyTable
+  columns={["순서", "할 일"]}
+  rows={[
+    ["1", "ETCDCTL_API=3 etcdctl snapshot save /경로/snapshot.db --endpoints=https://127.0.0.1:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key"],
+    ["2", "같은 인증서로 etcdctl snapshot status /경로/snapshot.db"],
+    ["3", "복원: etcdctl snapshot restore /경로/snapshot.db --data-dir=/var/lib/etcd-restore"],
+    ["4", "/etc/kubernetes/manifests/etcd.yaml 의 data-dir 볼륨을 새 경로로 바꾼다. kubelet이 static Pod를 재기동한다."],
+  ]}
+/>
+
+## 자주 틀리는 곳
+
+<KeyTable
+  columns={["함정", "이렇게"]}
+  rows={[
+    ["워커에서 스냅샷", "etcd 인증서와 포트는 컨트롤 플레인에 있다."],
+    ["기존 디렉터리에 restore", "실행 중인 디렉터리에 풀면 etcd가 깨진다. 빈 새 경로를 쓴다."],
+    ["ETCDCTL_API 누락", "기본값이 2인 환경에서는 3 명령이 실패한다."],
+  ]}
+/>
+
+## 관계
+
+<MermaidDiagram
+  code={`flowchart TB
+  HOST["컨트롤 플레인"] --> SAVE["snapshot save"]
+  SAVE --> STATUS["snapshot status"]
+  STATUS --> RESTORE["새 data-dir"]
+  RESTORE --> MANIFEST["etcd.yaml 볼륨"]`}
+/>
+
+## 예시
+
+```bash
+sudo ETCDCTL_API=3 etcdctl snapshot save /opt/etcd-snapshot.db \
+  --endpoints=https://127.0.0.1:2379 \
+  --cacert=/etc/kubernetes/pki/etcd/ca.crt \
+  --cert=/etc/kubernetes/pki/etcd/server.crt \
+  --key=/etc/kubernetes/pki/etcd/server.key
+sudo ETCDCTL_API=3 etcdctl snapshot status /opt/etcd-snapshot.db
+sudo ETCDCTL_API=3 etcdctl snapshot restore /opt/etcd-snapshot.db --data-dir=/var/lib/etcd-restore
+sudo sed -i 's#/var/lib/etcd#/var/lib/etcd-restore#g' /etc/kubernetes/manifests/etcd.yaml
+```
+
+## 채점
+
+```bash
+sudo ETCDCTL_API=3 etcdctl snapshot status /opt/etcd-snapshot.db
+grep data-dir /etc/kubernetes/manifests/etcd.yaml
+```

@@ -1,0 +1,85 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="CKA는 클러스터가 여러 개다. 컨텍스트를 맞추고, dry-run으로 YAML을 만든 뒤, jsonpath로 채점 상태를 확인하는 순서가 시간을 가른다."
+  bullets={[
+    "과제 문장에 context 또는 kubectl config use-context 가 있으면 그 클러스터에서만 작업한다.",
+    "kubectl create ... --dry-run=client -o yaml 로 뼈대를 만들고 필요한 칸만 고친다.",
+    "공식 문서 kubernetes.io/docs 의 Tasks와 kubectl explain 으로 필드 이름을 확인한다.",
+  ]}
+/>
+
+## 과제에서 원하는 상태
+
+<KeyTable
+  columns={["확인", "기준"]}
+  rows={[
+    ["컨텍스트", "kubectl config current-context 가 과제에 적힌 이름"],
+    ["네임스페이스", "모든 kubectl에 -n 이 있거나, 그 컨텍스트의 namespace가 과제와 같다."],
+    ["검증", "과제가 요구한 필드가 jsonpath 한 줄로 출력된다."],
+  ]}
+/>
+
+## 먼저 볼 것
+
+<KeyTable
+  columns={["명령", "보는 것"]}
+  rows={[
+    ["kubectl config get-contexts", "현재 별표와 클러스터 이름"],
+    ["kubectl explain pod.spec.containers.livenessProbe --recursive | head", "필드 이름"],
+    ["과제 맨 위의 퍼센트", "4% 과제에 10분 쓰지 않는다. 막히면 표시만 하고 넘어간다."],
+  ]}
+/>
+
+## 고치는 순서
+
+<KeyTable
+  columns={["순서", "할 일"]}
+  rows={[
+    ["1", "kubectl config use-context 과제이름"],
+    ["2", "kubectl create 하위명령 --dry-run=client -o yaml > 과제.yaml 후 수정하고 apply"],
+    ["3", "kubectl get 대상 -o jsonpath='{...}' 로 요구 값을 출력"],
+    ["4", "다음 과제 전에 컨텍스트를 다시 읽는다. 이전 클러스터에 남지 않는다."],
+  ]}
+/>
+
+## 자주 틀리는 곳
+
+<KeyTable
+  columns={["함정", "이렇게"]}
+  rows={[
+    ["default 컨텍스트", "터미널을 열면 kubernetes-admin 인 경우가 많다. 과제 클러스터가 아니다."],
+    ["dry-run을 빼먹음", "kubectl create 가 객체를 만든다. 뼈대는 --dry-run=client -o yaml 만 쓴다. --dry-run=server 는 검증만 하고 저장하지 않는다."],
+    ["문서를 클러스터 안에서 검색", "허용된 브라우저 탭은 보통 kubernetes.io/docs 와 kubectl explain 이다."],
+  ]}
+/>
+
+## 관계
+
+<MermaidDiagram
+  code={`flowchart TB
+  Q["과제 문장"] --> CTX["use-context"]
+  CTX --> DRY["dry-run=client"]
+  DRY --> APPLY["apply"]
+  APPLY --> PATH["jsonpath"]`}
+/>
+
+## 예시
+
+```bash
+kubectl config get-contexts
+kubectl config use-context cluster1
+kubectl create deployment web --image=nginx -n shop --dry-run=client -o yaml > web.yaml
+kubectl create role pod-reader --verb=get --verb=list --resource=pods -n shop --dry-run=client -o yaml
+kubectl get deploy web -n shop -o jsonpath='{.spec.template.spec.containers[0].image}{"\n"}'
+kubectl explain service.spec.ports --recursive | head
+```
+
+## 채점
+
+```bash
+kubectl config current-context
+kubectl get deploy web -n shop -o jsonpath='{.spec.template.spec.containers[0].image}{"\n"}'
+```

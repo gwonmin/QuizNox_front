@@ -1,0 +1,111 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="Gateway API는 Gateway가 받는 주소와 포트를 정하고, HTTPRoute가 호스트와 경로를 Service로 보낸다. 컨트롤러가 없으면 객체만 남는다."
+  bullets={[
+    "gatewayClassName은 클러스터에 있는 GatewayClass 이름과 같다.",
+    "HTTPRoute의 parentRefs가 Gateway 이름이다. Gateway가 다른 네임스페이스면 parentRefs.namespace를 적는다.",
+    "backendRefs의 Service는 HTTPRoute와 같은 네임스페이스다.",
+  ]}
+/>
+
+## 과제에서 원하는 상태
+
+<KeyTable
+  columns={["확인", "기준"]}
+  rows={[
+    ["Gateway", "kubectl get gateway 의 CLASS가 과제 GatewayClass, PROGRAMMED가 True"],
+    ["HTTPRoute", "kubectl get httproute 의 HOSTNAMES가 과제 호스트. describe의 Parents가 그 Gateway"],
+    ["백엔드", "backendRefs.name과 port가 과제 Service"],
+  ]}
+/>
+
+## 먼저 볼 것
+
+<KeyTable
+  columns={["명령", "보는 것"]}
+  rows={[
+    ["kubectl get gatewayclass", "쓸 수 있는 class 이름"],
+    ["kubectl get gateway -A", "네임스페이스, CLASS, PROGRAMMED"],
+    ["kubectl describe gateway 이름 -n 네임스페이스", "Listeners의 포트와 프로토콜"],
+    ["kubectl describe httproute 이름 -n 네임스페이스", "Parents, Accepted, 백엔드가 있는지"],
+  ]}
+/>
+
+## 고치는 순서
+
+<KeyTable
+  columns={["순서", "할 일"]}
+  rows={[
+    ["1", "Gateway spec.gatewayClassName, listeners[].protocol, port, name"],
+    ["2", "HTTPRoute spec.parentRefs, hostnames, rules[].matches[].path"],
+    ["3", "path.type은 PathPrefix 또는 Exact. backendRefs에 Service 이름과 port."],
+    ["4", "kubectl describe httproute 로 NotAllowedByListeners나 BackendNotFound를 고친다."],
+  ]}
+/>
+
+## 자주 틀리는 곳
+
+<KeyTable
+  columns={["함정", "이렇게"]}
+  rows={[
+    ["Ingress 필드를 복사", "host, path, backend는 HTTPRoute의 hostnames, matches, backendRefs다."],
+    ["class 이름 추측", "nginx로 단정하지 않는다. kubectl get gatewayclass 의 NAME을 쓴다."],
+    ["다른 네임스페이스의 Service", "backendRefs는 같은 네임스페이스다. 과제가 나뉘어 있으면 ReferenceGrant가 필요하다."],
+  ]}
+/>
+
+## 관계
+
+<MermaidDiagram
+  code={`flowchart TB
+  CLASS["GatewayClass"] --> GW["Gateway listeners"]
+  GW --> ROUTE["HTTPRoute"]
+  ROUTE --> SVC["Service web:80"]`}
+/>
+
+## 예시
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: public
+  namespace: shop
+spec:
+  gatewayClassName: nginx
+  listeners:
+  - name: http
+    protocol: HTTP
+    port: 80
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: shop
+  namespace: shop
+spec:
+  parentRefs:
+  - name: public
+  hostnames:
+  - shop.example
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: web
+      port: 80
+```
+
+`gatewayClassName: nginx` 는 자리표시자다. `kubectl get gatewayclass` 에 있는 이름으로 바꾼다.
+
+## 채점
+
+```bash
+kubectl get gateway,httproute -n shop
+kubectl describe httproute shop -n shop
+```

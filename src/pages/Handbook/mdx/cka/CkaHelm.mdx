@@ -1,0 +1,83 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="Helm 릴리스로 차트에 있는 클러스터 구성요소를 설치하고, values를 바꿔 같은 릴리스를 업그레이드하는 과제입니다."
+  bullets={[
+    "릴리스 이름은 네임스페이스 안에서 하나다. 다시 설치할 때는 helm upgrade --install 을 쓴다.",
+    "값은 -f values.yaml 또는 --set 키=값 이다. --reuse-values 는 기존 값을 유지한다.",
+    "차트가 로컬 디렉터리면 helm install 릴리스 ./차트 -n 네임스페이스 다.",
+  ]}
+/>
+
+## 과제에서 원하는 상태
+
+<KeyTable
+  columns={["확인", "기준"]}
+  rows={[
+    ["릴리스", "helm list -n 네임스페이스 에 과제 이름이 deployed"],
+    ["값", "helm get values 릴리스 -n 네임스페이스 에 과제 키가 있다."],
+    ["워크로드", "차트가 만든 Deployment나 DaemonSet이 Running"],
+  ]}
+/>
+
+## 먼저 볼 것
+
+<KeyTable
+  columns={["명령", "보는 것"]}
+  rows={[
+    ["helm list -A", "이미 있는 릴리스와 네임스페이스"],
+    ["helm show values ./차트 | head", "바꿀 수 있는 키"],
+    ["ls 과제디렉터리", "Chart.yaml 이 있는 디렉터리"],
+  ]}
+/>
+
+## 고치는 순서
+
+<KeyTable
+  columns={["순서", "할 일"]}
+  rows={[
+    ["1", "원격 차트면 helm repo add 이름 URL && helm repo update. 로컬이면 디렉터리 경로를 쓴다."],
+    ["2", "helm upgrade --install 릴리스 차트 -n 네임스페이스 --create-namespace -f 과제values.yaml"],
+    ["3", "값만 바꿀 때는 helm upgrade 릴리스 차트 -n 네임스페이스 --reuse-values --set 키=값"],
+    ["4", "직전으로 돌릴 때는 helm history 릴리스 -n 네임스페이스 후 helm rollback 릴리스 번호 -n 네임스페이스"],
+  ]}
+/>
+
+## 자주 틀리는 곳
+
+<KeyTable
+  columns={["함정", "이렇게"]}
+  rows={[
+    ["helm install 을 두 번", "같은 이름이면 거절된다. upgrade --install 은 없으면 설치하고 있으면 올린다."],
+    ["--reset-values", "차트 기본값으로 덮어 과제에서 넣었던 값이 사라진다. 유지하려면 --reuse-values."],
+    ["다른 네임스페이스", "helm list 에 없으면 -A 로 찾고, 이후 명령에 -n 을 고정한다."],
+  ]}
+/>
+
+## 관계
+
+<MermaidDiagram
+  code={`flowchart TB
+  CHART["차트"] --> REL["릴리스 web"]
+  VAL["values.yaml"] --> REL
+  REL --> DEPLOY["Deployment"]`}
+/>
+
+## 예시
+
+```bash
+helm upgrade --install web ./web-chart -n shop --create-namespace -f values.yaml
+helm upgrade web ./web-chart -n shop --reuse-values --set replicaCount=3
+helm history web -n shop
+helm rollback web 1 -n shop
+```
+
+## 채점
+
+```bash
+helm list -n shop
+helm get values web -n shop
+kubectl get deploy -n shop
+```

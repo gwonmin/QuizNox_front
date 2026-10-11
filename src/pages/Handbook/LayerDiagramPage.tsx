@@ -11,6 +11,7 @@ import AwsCommonLayerDiagramMdx from "./mdx/aws-common/AwsCommonLayerDiagram.mdx
 import SaaLayerDiagramMdx from "./mdx/saa/SaaLayerDiagram.mdx";
 import DvaLayerDiagramMdx from "./mdx/dva/DvaLayerDiagram.mdx";
 import SoaLayerDiagramMdx from "./mdx/soa/SoaLayerDiagram.mdx";
+import CkaLayerDiagramMdx from "./mdx/cka/CkaLayerDiagram.mdx";
 
 const MAIN_CLASS = "max-w-4xl mx-auto min-w-0 px-4 py-8";
 const SCROLL_BACK_KEY = "handbookScrollBackHash";
@@ -69,6 +70,7 @@ const LAYER_DIAGRAM_MDX: Record<
   saa: SaaLayerDiagramMdx,
   dva: DvaLayerDiagramMdx,
   soa: SoaLayerDiagramMdx,
+  cka: CkaLayerDiagramMdx,
 };
 
 export function LayerDiagramPage() {
