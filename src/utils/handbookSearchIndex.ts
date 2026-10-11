@@ -1,9 +1,12 @@
 import {
   HANDBOOK_LAYERS,
   type HandbookLayer,
-  type HandbookSection,
   type HandbookDoc,
 } from "@/constants/handbookManifest";
+import {
+  HANDBOOK_DOC_EXCERPTS,
+  type HandbookDocExcerpt,
+} from "@/constants/handbookDocExcerpts";
 
 export interface HandbookSearchItem {
   layerId: string;
@@ -13,7 +16,21 @@ export interface HandbookSearchItem {
   slug: string;
   title: string;
   keywords: string[];
+  excerpt: string;
+  headings: string[];
+  lines: string[];
+  terms: string[];
 }
+
+const EMPTY_EXCERPT: HandbookDocExcerpt = {
+  excerpt: "",
+  headings: [],
+  lines: [],
+  terms: [],
+};
+
+const excerptFor = (layerId: string, slug: string): HandbookDocExcerpt =>
+  HANDBOOK_DOC_EXCERPTS[`${layerId}/${slug}`] ?? EMPTY_EXCERPT;
 
 const HANDBOOK_SEARCH_ALIASES: Record<string, string[]> = {
   // Core CS
@@ -41,22 +58,15 @@ const tokenize = (value: string | undefined | null): string[] => {
   return normalized.split(" ");
 };
 
-const buildKeywordsForDoc = (
-  layer: HandbookLayer,
-  section: HandbookSection,
-  doc: HandbookDoc,
-): string[] => {
-  const baseTokens = [
-    ...tokenize(doc.title),
-    ...tokenize(doc.slug),
-    ...tokenize(section.title),
-    ...tokenize(layer.title),
-  ];
+const buildKeywordsForDoc = (doc: HandbookDoc): string[] => {
+  const baseTokens = [...tokenize(doc.title), ...tokenize(doc.slug)];
 
   const aliasTokens: string[] = [];
 
   const possibleKeys = new Set<string>();
   possibleKeys.add(normalizeToken(doc.slug));
+  possibleKeys.add(normalizeToken(doc.slug.replace(/-/g, " ")));
+  possibleKeys.add(normalizeToken(doc.slug.split("-")[0]));
   possibleKeys.add(normalizeToken(doc.title));
 
   for (const key of possibleKeys) {
@@ -79,6 +89,7 @@ export const buildHandbookSearchIndex = (
   for (const layer of layers) {
     for (const section of layer.sections) {
       for (const doc of section.docs) {
+        const extra = excerptFor(layer.id, doc.slug);
         items.push({
           layerId: layer.id,
           layerTitle: layer.title,
@@ -86,7 +97,11 @@ export const buildHandbookSearchIndex = (
           sectionTitle: section.title,
           slug: doc.slug,
           title: doc.title,
-          keywords: buildKeywordsForDoc(layer, section, doc),
+          keywords: buildKeywordsForDoc(doc),
+          excerpt: extra.excerpt,
+          headings: extra.headings,
+          lines: extra.lines,
+          terms: extra.terms,
         });
       }
     }
@@ -95,45 +110,84 @@ export const buildHandbookSearchIndex = (
   return items;
 };
 
-const scoreMatch = (queryTokens: string[], item: HandbookSearchItem): number => {
+const MIN_TOKEN_LENGTH = 2;
+
+/** 제목·본문·별칭만 봅니다. 섹션 제목에 나열된 형제 주제로는 맞추지 않습니다. */
+const matchText = (item: HandbookSearchItem): string =>
+  normalizeToken(
+    [
+      item.title,
+      item.slug.replace(/-/g, " "),
+      item.excerpt,
+      item.headings.join(" "),
+      item.lines.join(" "),
+      item.terms.join(" "),
+      item.keywords.join(" "),
+    ].join(" "),
+  );
+
+const scoreMatch = (
+  query: string,
+  queryTokens: string[],
+  item: HandbookSearchItem,
+): number => {
   if (queryTokens.length === 0) return 0;
+  if (!queryTokens.every((token) => matchText(item).includes(token))) return 0;
 
   const titleNorm = normalizeToken(item.title);
   const slugNorm = normalizeToken(item.slug);
   const sectionNorm = normalizeToken(item.sectionTitle);
   const layerNorm = normalizeToken(item.layerTitle);
+  const excerptNorm = normalizeToken(item.excerpt);
+  const headingNorm = normalizeToken(item.headings.join(" "));
+  const lineNorm = normalizeToken(item.lines.join(" "));
+  const termNorm = normalizeToken(item.terms.join(" "));
+  const phrase = normalizeToken(query);
 
   let score = 0;
+  if (phrase && titleNorm.includes(phrase)) score += 8;
+  if (phrase && excerptNorm.includes(phrase)) score += 4;
 
   for (const token of queryTokens) {
-    if (!token) continue;
+    if (titleNorm === token) score += 8;
+    else if (titleNorm.includes(token)) score += 5;
 
-    const tokenInTitle = titleNorm.includes(token);
-    const tokenInSlug = slugNorm.includes(token);
-    const tokenInSection = sectionNorm.includes(token);
-    const tokenInLayer = layerNorm.includes(token);
-    const tokenInKeywords = item.keywords.some((k) => k.includes(token));
+    if (slugNorm === token) score += 7;
+    else if (slugNorm.includes(token)) score += 4;
 
-    if (tokenInTitle && titleNorm === token) score += 8;
-    else if (tokenInTitle) score += 5;
-
-    if (tokenInSlug && slugNorm === token) score += 7;
-    else if (tokenInSlug) score += 4;
-
-    if (tokenInSection) score += 3;
-    if (tokenInLayer) score += 2;
-    if (tokenInKeywords) score += 3;
+    if (headingNorm.includes(token)) score += 4;
+    if (lineNorm.includes(token)) score += 3;
+    if (excerptNorm.includes(token)) score += 3;
+    if (termNorm.includes(token)) score += 2;
+    if (sectionNorm.includes(token)) score += 2;
+    if (layerNorm.includes(token)) score += 1;
+    if (item.keywords.some((keyword) => keyword.includes(token))) score += 3;
   }
 
   return score;
 };
 
+const pickSnippet = (item: HandbookSearchItem, queryTokens: string[]): string => {
+  const candidates = [item.excerpt, ...item.headings, ...item.lines].filter(
+    (text) => text.trim().length > 0,
+  );
+  const matched = candidates.filter((text) => {
+    const norm = normalizeToken(text);
+    return queryTokens.every((token) => norm.includes(token));
+  });
+  if (matched.includes(item.excerpt)) return item.excerpt;
+  const shortest = matched.slice().sort((a, b) => a.length - b.length)[0];
+  return shortest ?? item.excerpt;
+};
+
 export interface HandbookSearchOptions {
   limit?: number;
+  layerId?: string | null;
 }
 
 export interface HandbookSearchResult extends HandbookSearchItem {
   score: number;
+  snippet: string;
 }
 
 export const searchHandbook = (
@@ -144,15 +198,22 @@ export const searchHandbook = (
   const trimmed = query.trim();
   if (!trimmed) return [];
 
-  const queryTokens = tokenize(trimmed);
+  const queryTokens = tokenize(trimmed).filter(
+    (token) => token.length >= MIN_TOKEN_LENGTH,
+  );
   if (queryTokens.length === 0) return [];
 
   const scored: HandbookSearchResult[] = [];
 
   for (const item of index) {
-    const score = scoreMatch(queryTokens, item);
+    if (options.layerId && item.layerId !== options.layerId) continue;
+    const score = scoreMatch(trimmed, queryTokens, item);
     if (score <= 0) continue;
-    scored.push({ ...item, score });
+    scored.push({
+      ...item,
+      score,
+      snippet: pickSnippet(item, queryTokens),
+    });
   }
 
   scored.sort((a, b) => b.score - a.score || a.title.localeCompare(b.title));

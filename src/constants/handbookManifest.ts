@@ -536,6 +536,62 @@ export function getAdjacentDocs(
   };
 }
 
+export interface HandbookReadingStep {
+  doc: HandbookDoc;
+  section: HandbookSection;
+  /** 섹션 경계를 넘는 이동이면 true */
+  crossesSection: boolean;
+}
+
+/** 섹션 안 1부터 세는 순서. 헤더의 `3/7`에 씁니다. */
+export function getDocSectionPosition(
+  layerId: string,
+  slug: string
+): { index: number; total: number } | null {
+  const found = getHandbookDoc(layerId, slug);
+  if (!found) return null;
+  const index = found.section.docs.findIndex((doc) => doc.slug === slug);
+  if (index < 0 || found.section.docs.length === 0) return null;
+  return { index: index + 1, total: found.section.docs.length };
+}
+
+/**
+ * 학습 순서상 앞뒤 문서.
+ * 섹션의 끝이면 다음 섹션의 첫 문서, 섹션의 시작이면 이전 섹션의 마지막 문서로 이어집니다.
+ */
+export function getReadingSteps(
+  layerId: string,
+  slug: string
+): { prev: HandbookReadingStep | null; next: HandbookReadingStep | null } {
+  const found = getHandbookDoc(layerId, slug);
+  if (!found) return { prev: null, next: null };
+
+  const sections = found.layer.sections;
+  const sectionIndex = sections.findIndex((section) => section.id === found.section.id);
+  const docIndex = found.section.docs.findIndex((doc) => doc.slug === slug);
+  if (sectionIndex < 0 || docIndex < 0) return { prev: null, next: null };
+
+  const prevDoc = found.section.docs[docIndex - 1];
+  const prevSection = sections[sectionIndex - 1];
+  const prevSectionLast = prevSection?.docs[prevSection.docs.length - 1];
+  const prev: HandbookReadingStep | null = prevDoc
+    ? { doc: prevDoc, section: found.section, crossesSection: false }
+    : prevSection && prevSectionLast
+      ? { doc: prevSectionLast, section: prevSection, crossesSection: true }
+      : null;
+
+  const nextDoc = found.section.docs[docIndex + 1];
+  const nextSection = sections[sectionIndex + 1];
+  const nextSectionFirst = nextSection?.docs[0];
+  const next: HandbookReadingStep | null = nextDoc
+    ? { doc: nextDoc, section: found.section, crossesSection: false }
+    : nextSection && nextSectionFirst
+      ? { doc: nextSectionFirst, section: nextSection, crossesSection: true }
+      : null;
+
+  return { prev, next };
+}
+
 export function handbookSectionPath(layerId: string, sectionId: string): string {
   return `/handbook/${layerId}/section/${sectionId}`;
 }

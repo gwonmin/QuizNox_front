@@ -115,6 +115,8 @@
    Handbook 토픽별 상세 페이지: MDX 스타일 가독성
    ============================================ */
 .handbook-doc-content .markdown-body {
+  min-width: 0;
+  max-width: 100%;
   color: hsl(var(--foreground));
   line-height: 1.75;
 }
@@ -192,6 +194,12 @@
   border-color: hsl(var(--border));
 }
 
+/* 표·그림이 칸의 최소 너비를 밀어 페이지가 가로로 넘치지 않게 */
+.handbook-doc-content {
+  min-width: 0;
+  max-width: 100%;
+}
+
 /* 표: 여백·라운드·헤더 강조 */
 .handbook-doc-content .markdown-body table {
   display: table !important;
@@ -200,7 +208,6 @@
   margin-top: 1rem;
   margin-bottom: 1.5rem;
   border-radius: var(--radius);
-  overflow: hidden;
   border: 1px solid hsl(var(--border));
 }
 
@@ -221,6 +228,14 @@
   background: hsl(var(--muted));
   font-weight: 600;
   color: hsl(var(--foreground));
+  white-space: normal;
+  word-break: break-word;
+}
+
+@media (max-width: 1023px) {
+  .handbook-doc-content .markdown-body table {
+    width: 100% !important;
+  }
 }
 
 
@@ -266,6 +281,8 @@
 
 /* 다이어그램을 축소하지 않고 원래 크기로 두고, 넓으면 가로 스크롤 */
 .mermaid-wrapper {
+  min-width: 0;
+  max-width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }

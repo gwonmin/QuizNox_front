@@ -3,9 +3,11 @@ import { Link, useParams, useNavigate, useLocation } from "react-router-dom";
 import { MarkdownViewer } from "../../components/MarkdownViewer";
 import { LoadingSpinner } from "../../components/LoadingSpinner";
 import {
-  getAdjacentDocs,
+  getDocSectionPosition,
   getHandbookDoc,
+  getReadingSteps,
   handbookSectionPath,
+  type HandbookReadingStep,
 } from "../../constants/handbookManifest";
 import {
   getDiagramConfig,
@@ -229,6 +231,40 @@ function RelatedInSection({
   );
 }
 
+function StepLink({
+  layerId,
+  step,
+  direction,
+}: {
+  layerId: string;
+  step: HandbookReadingStep;
+  direction: "prev" | "next";
+}) {
+  const forward = direction === "next";
+  const label = step.crossesSection
+    ? forward
+      ? "다음 섹션 →"
+      : "← 이전 섹션"
+    : forward
+      ? "다음 →"
+      : "← 이전";
+
+  return (
+    <Link
+      to={`/handbook/${layerId}/${step.doc.slug}`}
+      className={`rounded-lg border border-border px-4 py-3 hover:bg-muted/50 ${
+        forward ? "text-right" : ""
+      }`}
+    >
+      <span className="block text-xs text-muted-foreground">{label}</span>
+      <span className="block text-sm text-foreground">{step.doc.title}</span>
+      {step.crossesSection && (
+        <span className="mt-0.5 block text-xs text-muted-foreground">{step.section.title}</span>
+      )}
+    </Link>
+  );
+}
+
 function DocPager({
   layerId,
   slug,
@@ -240,9 +276,10 @@ function DocPager({
   sectionTitle: string;
   sectionHref: string;
 }) {
-  const { prev, next } = getAdjacentDocs(layerId, slug);
+  const { prev, next } = getReadingSteps(layerId, slug);
 
   useEffect(() => {
+    if (window.location.hash) return;
     window.scrollTo({ top: 0 });
   }, [layerId, slug]);
 
@@ -250,24 +287,12 @@ function DocPager({
     <nav aria-label="문서 이동" className="mt-10 pt-6 border-t border-border">
       <div className="grid gap-3 sm:grid-cols-2">
         {prev ? (
-          <Link
-            to={`/handbook/${layerId}/${prev.slug}`}
-            className="rounded-lg border border-border px-4 py-3 hover:bg-muted/50"
-          >
-            <span className="block text-xs text-muted-foreground">← 이전</span>
-            <span className="block text-sm text-foreground">{prev.title}</span>
-          </Link>
+          <StepLink layerId={layerId} step={prev} direction="prev" />
         ) : (
           <span className="hidden sm:block" />
         )}
         {next ? (
-          <Link
-            to={`/handbook/${layerId}/${next.slug}`}
-            className="rounded-lg border border-border px-4 py-3 text-right hover:bg-muted/50"
-          >
-            <span className="block text-xs text-muted-foreground">다음 →</span>
-            <span className="block text-sm text-foreground">{next.title}</span>
-          </Link>
+          <StepLink layerId={layerId} step={next} direction="next" />
         ) : (
           <Link
             to={sectionHref}
@@ -527,6 +552,12 @@ const HandbookView = memo(function HandbookView() {
 
   useLayoutEffect(() => {
     if (!layerId || !slug) return;
+    const hash = window.location.hash.slice(1);
+    const target = hash ? document.getElementById(decodeURIComponent(hash)) : null;
+    if (target) {
+      target.scrollIntoView({ block: "start" });
+      return;
+    }
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }, [layerId, slug]);
 
@@ -589,6 +620,7 @@ const HandbookView = memo(function HandbookView() {
     );
   }
 
+  const sectionPosition = getDocSectionPosition(meta.layer.id, meta.doc.slug);
   const hasSectionPages = LAYERS_WITH_SECTION_PAGES.includes(meta.layer.id);
   const sectionHref = hasSectionPages
     ? handbookSectionPath(meta.layer.id, meta.section.id)
@@ -807,6 +839,8 @@ const HandbookView = memo(function HandbookView() {
       layerTitle={meta.layer.title}
       layerHref={hasSectionPages ? `/handbook/${meta.layer.id}` : undefined}
       sectionTitle={meta.section.title}
+      sectionIndex={sectionPosition?.index}
+      sectionCount={sectionPosition?.total}
       docTitle={meta.doc.title}
       backToDiagramHref={backToDiagramHref}
       centerReadingColumn

@@ -1,18 +1,65 @@
 import type React from "react";
 import { useEffect, useRef } from "react";
 import { Link, useParams, useNavigate, useLocation } from "react-router-dom";
-import { getHandbookLayer } from "../../constants/handbookManifest";
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
+import { getHandbookLayer, type HandbookLayer } from "../../constants/handbookManifest";
 import { getDiagramConfig } from "../../constants/handbookLayerDiagramConfig";
 import { injectDiagramLinks } from "../../utils/injectDiagramLinks";
+import "../../styles/markdown-theme.css";
 
 import AwsCommonLayerDiagramMdx from "./mdx/aws-common/AwsCommonLayerDiagram.mdx";
 import SaaLayerDiagramMdx from "./mdx/saa/SaaLayerDiagram.mdx";
 import DvaLayerDiagramMdx from "./mdx/dva/DvaLayerDiagram.mdx";
 import SoaLayerDiagramMdx from "./mdx/soa/SoaLayerDiagram.mdx";
 
-const MAIN_CLASS = "max-w-4xl mx-auto px-4 py-8";
+const MAIN_CLASS = "max-w-4xl mx-auto min-w-0 px-4 py-8";
 const SCROLL_BACK_KEY = "handbookScrollBackHash";
 const DIAGRAM_LINKS_INJECT_DELAY_MS = 1500;
+
+function LayerSectionList({ layer }: { layer: HandbookLayer }) {
+  return (
+    <section id="section-list" aria-labelledby="section-list-title" className="mt-10">
+      <h2 id="section-list-title" className="text-base font-semibold text-foreground">
+        섹션 목록
+      </h2>
+      <p className="mt-1 text-sm text-muted-foreground">
+        문서 이름으로 고를 수 있습니다. 위에서부터가 학습 순서입니다.
+      </p>
+      <ol className="mt-4 space-y-3">
+        {layer.sections.map((section) => (
+          <li key={section.id}>
+            <Card>
+              <CardHeader className="pb-2">
+                <div className="flex items-baseline justify-between gap-3">
+                  <CardTitle className="text-base leading-snug text-foreground">
+                    {section.title}
+                  </CardTitle>
+                  <span className="shrink-0 text-xs text-muted-foreground">
+                    문서 {section.docs.length}개
+                  </span>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <ul className="divide-y divide-border">
+                  {section.docs.map((doc) => (
+                    <li key={doc.slug}>
+                      <Link
+                        to={`/handbook/${layer.id}/${doc.slug}`}
+                        className="flex min-h-11 items-center py-2.5 text-sm text-foreground hover:text-primary"
+                      >
+                        {doc.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
 
 const LAYER_DIAGRAM_MDX: Record<
   string,
@@ -106,14 +153,19 @@ export function LayerDiagramPage() {
           <p className="text-sm text-muted-foreground mt-1">{layer.description}</p>
         )}
         <p className="text-sm text-muted-foreground mt-1">
-          아래 다이어그램의 <strong className="font-semibold text-primary">각 박스를 클릭</strong>하면 해당 개념 문서로 이동합니다.
+          다이어그램의 <strong className="font-semibold text-primary">박스</strong>를 누르거나,{" "}
+          <a href="#section-list" className="text-primary hover:underline">
+            아래 섹션 목록
+          </a>
+          에서 문서 이름으로 이동합니다.
         </p>
       </div>
-      <div id="diagram" ref={diagramRef} className="handbook-doc-content">
+      <div id="diagram" ref={diagramRef} className="handbook-doc-content min-w-0">
         <div className="markdown-body">
           <DiagramContent />
         </div>
       </div>
+      <LayerSectionList layer={layer} />
     </main>
   );
 }
