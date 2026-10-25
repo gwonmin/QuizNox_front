@@ -1,9 +1,12 @@
 import { HomeFeatureCards } from "./HomeFeatureCards";
+import { PatchNoteBanner } from "./PatchNoteBanner";
 import ReviewsSection from "../../components/reviews/ReviewsSection";
 
 export function HomeContent() {
   return (
     <article className="space-y-8 sm:space-y-10">
+      <PatchNoteBanner />
+
       <section id="features" className="space-y-4">
         <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
           주요 기능
