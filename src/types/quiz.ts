@@ -22,7 +22,7 @@ interface QuizState {
 }
 
 // 모의고사 관련 타입 추가
-type ExamType = 'associate' | 'professional';
+type ExamType = 'foundational' | 'associate' | 'professional';
 
 interface MockExamConfig {
   associate: {
@@ -39,7 +39,7 @@ interface MockExamConfig {
 
 interface MockExamConfigState {
   examType: ExamType | null;
-  examTypeId: string | null; // AWS_DVA, AWS_SAA, AWS_SOA, AWS_DOP
+  examTypeId: string | null; // AWS_AIF, AWS_DVA, AWS_SAA, AWS_SOA, AWS_DOP
   examName: string | null; // AWS Certified Developer
   examShortName: string | null; // Developer Associate
   timeLimit: number; // 분 단위

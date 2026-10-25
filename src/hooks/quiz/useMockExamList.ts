@@ -23,7 +23,7 @@ export function useMockExamList() {
     () =>
       Object.values(EXAM_TYPES).map((exam) => ({
         id: exam.id,
-        name: `${exam.level}(${exam.id.replace("AWS_", "")}-C02) 모의고사`,
+        name: `${exam.level}(${exam.examCode}) 모의고사`,
         shortName: exam.name,
         timeLimit: exam.timeLimit,
         description: `${exam.timeLimit}분, ${exam.questionCount}문제`,

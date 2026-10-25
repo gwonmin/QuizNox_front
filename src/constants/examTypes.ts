@@ -4,6 +4,7 @@ export interface ExamTypeInfo {
   id: string;
   name: string;
   shortName: string;
+  examCode: string; // 시험 코드 (예: AIF-C01, SAA-C03)
   examType: ExamType;
   timeLimit: number;
   passThreshold: number;
@@ -13,10 +14,22 @@ export interface ExamTypeInfo {
 
 // 각 시험 유형별 기본 설정 (시간/합격 기준/문항 수)
 export const EXAM_TYPES: Record<string, ExamTypeInfo> = {
+  AWS_AIF: {
+    id: "AWS_AIF",
+    name: "AWS Certified AI Practitioner",
+    shortName: "AI Practitioner Foundational",
+    examCode: "AIF-C01",
+    examType: "foundational",
+    timeLimit: 90,
+    passThreshold: 45,
+    questionCount: 65,
+    level: "Foundational",
+  },
   AWS_DVA: {
     id: "AWS_DVA",
     name: "AWS Certified Developer",
     shortName: "Developer Associate",
+    examCode: "DVA-C02",
     examType: "associate",
     timeLimit: 130,
     passThreshold: 45,
@@ -27,6 +40,7 @@ export const EXAM_TYPES: Record<string, ExamTypeInfo> = {
     id: "AWS_SAA",
     name: "AWS Certified Solutions Architect",
     shortName: "Solutions Architect Associate",
+    examCode: "SAA-C03",
     examType: "associate",
     timeLimit: 130,
     passThreshold: 45,
@@ -37,6 +51,7 @@ export const EXAM_TYPES: Record<string, ExamTypeInfo> = {
     id: "AWS_SOA",
     name: "AWS Certified SysOps Administrator",
     shortName: "SysOps Administrator Associate",
+    examCode: "SOA-C02",
     examType: "associate",
     timeLimit: 130,
     passThreshold: 45,
@@ -47,6 +62,7 @@ export const EXAM_TYPES: Record<string, ExamTypeInfo> = {
     id: "AWS_DOP",
     name: "AWS Certified DevOps Engineer",
     shortName: "DevOps Engineer Professional",
+    examCode: "DOP-C02",
     examType: "professional",
     timeLimit: 180,
     passThreshold: 45,

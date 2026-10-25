@@ -9,6 +9,11 @@ export interface QuizTopic {
 
 export const QUIZ_TOPICS: QuizTopic[] = [
   {
+    id: "AWS_AIF",
+    name: "Foundational(AIF-C01)",
+    shortName: "AWS Certified AI Practitioner",
+  },
+  {
     id: "AWS_DVA",
     name: "Associate(DVA-C02)",
     shortName: "AWS Certified Developer",
