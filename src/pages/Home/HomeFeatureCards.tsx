@@ -4,7 +4,7 @@ const FEATURES = [
   {
     title: "핸드북",
     description:
-      "Systems Fundamentals, AWS 공통, SAA, DVA, SOA 자료로 개념을 정리하세요.",
+      "시스템 기초부터 자격증별 핵심 개념까지, 시험 범위에 맞춰 정리된 문서로 개념을 다지세요.",
     to: "/handbook",
   },
   {
