@@ -1,0 +1,68 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { DocLink } from "@/components/handbook/DocLink";
+
+<SectionSummary
+  lead="AIF는 서비스 설정을 묻지 않습니다. 문장에 박힌 조건 단어 하나가 정답을 고릅니다."
+  bullets={[
+    "조건 문구(코딩 없음, 최소 노력, 비용 효율, 실시간, 내부 문서)를 먼저 찾는다.",
+    "같은 문제 유형이 반복된다. 유형별로 정답 서비스·기법을 한 줄로 외운다.",
+    "두 보기가 다 맞아 보이면 더 관리형이고 더 적은 작업인 쪽이 정답이다.",
+  ]}
+/>
+
+## 조건 문구 → 정답
+
+<KeyTable
+  columns={["문장 속 키워드", "정답 방향"]}
+  rows={[
+    ["코딩 경험 없음, ML 지식 없음, 코드 없이", "SageMaker Canvas (예측·분류), PartyRock (생성형 AI 실험), Amazon Q"],
+    ["가장 적은 노력, 가장 적은 개발 작업", "관리형 서비스 또는 프롬프트 조정. 재학습·파인튜닝은 마지막 수단"],
+    ["가장 비용 효율적", "RAG > 파인튜닝, 프롬프트 토큰 줄이기, On-Demand(사용량 적을 때), Batch inference(비실시간)"],
+    ["자주 바뀌는 내부 문서, 최신 정보 반영", "RAG + Knowledge Bases. 파인튜닝은 지식 고정이라 오답"],
+    ["회사 스타일·어조·형식 반영, 레이블 데이터 있음", "파인튜닝 (prompt-completion 쌍)"],
+    ["도메인 문서만 있고 레이블 없음", "Continued pre-training"],
+    ["일관된 답변, 환각 줄이기", "Temperature 낮추기, RAG로 근거 주기"],
+    ["다양하고 창의적인 답변", "Temperature 올리기, Top P 올리기"],
+    ["유해 콘텐츠 차단, 주제 제한, PII 마스킹", "Bedrock Guardrails"],
+    ["API 호출을 인터넷 경유 금지, VPC 안에서만", "AWS PrivateLink (VPC 엔드포인트)"],
+    ["규정 준수 보고서 다운로드", "AWS Artifact"],
+    ["API 호출 기록, 누가 무엇을 했나", "AWS CloudTrail"],
+    ["편향 탐지, 예측 설명", "SageMaker Clarify"],
+    ["모델 품질 저하·드리프트 알림", "SageMaker Model Monitor"],
+    ["모델 용도·한계 문서화, 투명성", "SageMaker Model Cards"],
+    ["사람이 낮은 신뢰도 예측 검토", "Amazon Augmented AI (A2I)"],
+    ["여러 작업 자동 수행, 외부 API 호출", "Bedrock Agents"],
+    ["저지연이 보장돼야 하는 프로덕션 커스텀 모델", "Provisioned Throughput"],
+  ]}
+/>
+
+## 단일 정답 문제의 흔한 함정
+
+<KeyTable
+  columns={["함정", "이렇게"]}
+  rows={[
+    ["서비스 이름이 비슷한 보기", "Comprehend(텍스트 의미) vs Textract(문서에서 글자 추출) vs Kendra(기업 검색). 입력 형태로 구분"],
+    ["개념을 묻는데 서비스로 답하기", "'어떤 ML 유형인가' 문제는 지도·비지도·강화 중 하나. 서비스 보기는 오답"],
+    ["파인튜닝이 만능처럼 보임", "비용·시간이 크고 지식이 고정된다. 최신 정보, 비용 효율 조건이 있으면 RAG"],
+    ["Temperature와 프롬프트 혼동", "출력 형식·길이·어조는 프롬프트, 무작위성은 Temperature"],
+    ["Model Monitor vs Clarify", "시간이 지나며 달라진 것은 Monitor, 편향·설명은 Clarify"],
+  ]}
+/>
+
+## 복수 정답 문제
+
+<KeyTable
+  columns={["패턴", "고르는 법"]}
+  rows={[
+    ["Guardrails 필터 카테고리 2개", "Hate, Insults, Sexual, Violence, Misconduct, Prompt Attack 중 문제가 묘사한 것"],
+    ["책임 있는 AI 실천 2개", "데이터 불균형 탐지 + 모델 행동 평가(투명성). '모델 크기 키우기' 류는 오답"],
+    ["감사·로그 조합", "CloudTrail(기록) + S3 저비용 티어(보관) 또는 Audit Manager + Config"],
+    ["MCP 보안 2개", "서버·CLI 최신화, 신뢰된 소스에서만 설치"],
+  ]}
+/>
+
+## 함께 보기
+
+- 생성형 AI 기본 개념은 <DocLink layer="core-cs" slug="llm-basics">LLM 기초</DocLink>, 검색 증강은 <DocLink layer="core-cs" slug="rag">RAG</DocLink>
+- Bedrock 서비스 구조는 <DocLink layer="aws-common" slug="bedrock-overview">Bedrock 개요</DocLink>

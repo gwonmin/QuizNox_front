@@ -1,0 +1,91 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="데이터에 레이블이 있는지, 보상으로 배우는지로 학습 유형이 갈리고, 출력이 숫자인지 범주인지로 문제 유형이 갈립니다."
+  bullets={[
+    "레이블 있음 → 지도학습. 없음 → 비지도학습. 행동과 보상 → 강화학습.",
+    "숫자 예측은 회귀, 범주 예측은 분류(이진·다중), 그룹 묶기는 클러스터링.",
+    "AI ⊃ ML ⊃ 딥러닝 ⊃ 생성형 AI. 문제에서 '어느 수준인가'를 묻는다.",
+  ]}
+/>
+
+## 학습 유형
+
+<KeyTable
+  columns={["유형", "데이터", "시험 문장", "예"]}
+  rows={[
+    ["지도학습 (Supervised)", "입력 + 정답 레이블", "large dataset of labeled images, historical data with outcomes", "이미지 분류, 수요 예측, 이탈 예측"],
+    ["비지도학습 (Unsupervised)", "레이블 없음", "petabytes of unlabeled data, group customers into tiers", "고객 세분화, 이상 탐지, 차원 축소"],
+    ["강화학습 (Reinforcement)", "행동 → 보상", "learn from feedback, rewards for positive outcome", "게임, 로봇, 추천 피드백 학습"],
+    ["준지도학습 (Semi-supervised)", "레이블 일부", "small labeled + large unlabeled", "레이블 비용이 큰 분류"],
+    ["자기지도학습 (Self-supervised)", "데이터 자체에서 레이블 생성", "pre-training on raw text", "LLM 사전학습"],
+  ]}
+/>
+
+## 문제 유형
+
+<KeyTable
+  columns={["유형", "출력", "시험 문장", "지표"]}
+  rows={[
+    ["회귀 (Regression)", "연속 숫자", "predict price, demand, numeric value", "RMSE, MAE, R²"],
+    ["이진 분류 (Binary)", "두 범주", "fraudulent or not, churn yes/no", "정확도, 정밀도, 재현율, F1, AUC"],
+    ["다중 분류 (Multiclass)", "셋 이상 범주", "classify animal type, product category", "정확도, 혼동 행렬"],
+    ["클러스터링 (Clustering)", "그룹 ID", "segment customers without labels", "실루엣 계수"],
+    ["이상 탐지 (Anomaly detection)", "정상/이상", "detect unusual transactions", "정밀도·재현율"],
+    ["시계열 예측 (Forecasting)", "미래 값", "forecast next quarter demand", "RMSE, MAPE"],
+  ]}
+/>
+
+## AI의 계층
+
+<MermaidDiagram
+  code={`flowchart LR
+  AI["AI<br/>사람처럼 판단하는 시스템 전체"] --> ML["ML<br/>데이터에서 패턴을 학습"]
+  ML --> DL["딥러닝<br/>다층 신경망"]
+  DL --> GEN["생성형 AI<br/>새 콘텐츠를 만드는 FM"]`}
+/>
+
+## 모델 종류
+
+<KeyTable
+  columns={["모델", "하는 일", "시험 문장"]}
+  rows={[
+    ["신경망 · 딥러닝", "이미지·음성 등 비정형 데이터의 복잡한 패턴", "image recognition, speech"],
+    ["CNN", "이미지 특징 추출", "image classification"],
+    ["RNN · LSTM", "순서 데이터", "sequence, time series"],
+    ["Transformer", "어텐션으로 문맥 전체 참조. LLM의 기반", "LLM architecture, attention"],
+    ["GAN", "생성자·판별자 경쟁으로 합성 데이터 생성", "synthetic data based on existing data"],
+    ["Diffusion", "노이즈 제거 과정으로 이미지 생성", "Stable Diffusion, image generation"],
+    ["전이학습 (Transfer learning)", "사전학습 모델을 새 도메인에 적응", "adapt pre-trained model, avoid training from scratch"],
+  ]}
+/>
+
+## 기출빈출
+
+<KeyTable
+  columns={["시나리오", "정답"]}
+  rows={[
+    ["레이블된 동물 이미지 대량 보유, 추가 레이블 안 함", "지도학습"],
+    ["레이블 없는 페타바이트 고객 데이터로 등급 분류", "비지도학습"],
+    ["챗봇이 고객 피드백 보상으로 응답 개선", "강화학습"],
+    ["신용카드 거래를 사기/정상으로 표시", "이진 분류"],
+    ["숫자 값을 예측하는 모델 유형", "회귀"],
+    ["기존 데이터 기반 합성 데이터 생성 모델", "GAN"],
+    ["도메인 모델을 처음부터 만들지 않고 적응", "전이학습"],
+    ["LLM 응답에서 데이터 패턴을 인식하는 기반 기술", "딥러닝 (신경망)"],
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["질문", "답"]}
+  rows={[
+    ["레이블 있나?", "있음 → 지도, 없음 → 비지도"],
+    ["보상으로 배우나?", "강화학습"],
+    ["출력이 숫자?", "회귀. 범주면 분류"],
+    ["새 콘텐츠를 만드나?", "생성형 AI (FM)"],
+  ]}
+/>

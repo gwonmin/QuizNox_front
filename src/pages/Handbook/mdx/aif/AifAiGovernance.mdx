@@ -1,0 +1,89 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { DocLink } from "@/components/handbook/DocLink";
+
+<SectionSummary
+  lead="거버넌스는 '누가 무엇을 했는지 기록(CloudTrail)', '규정에 맞는지 지속 평가(Audit Manager·Config)', '규정 준수 증빙 다운로드(Artifact)' 세 축입니다."
+  bullets={[
+    "컴플라이언스 보고서·인증서 다운로드 → Artifact. 감사 증거 자동 수집·프레임워크 평가 → Audit Manager.",
+    "리소스 구성이 규칙을 지키는지 → Config. API 호출 이력 → CloudTrail. 변조 불가 장기 보관 → CloudTrail Lake.",
+    "데이터 거버넌스: 계보(lineage), 보존 기간, 카탈로그, 품질. 모델 거버넌스: Model Cards, Model Registry.",
+  ]}
+/>
+
+## 요구사항 → 서비스
+
+<KeyTable
+  columns={["요구사항", "서비스", "비고"]}
+  rows={[
+    ["SOC·ISO·PCI 보고서 다운로드, 규제 준수 증빙", "AWS Artifact", "AWS 측 인증 문서. 알림은 Artifact 알림 설정"],
+    ["규제 프레임워크에 맞춰 증거 자동 수집, 감사 준비", "AWS Audit Manager", "GDPR, HIPAA, PCI 등 사전 프레임워크"],
+    ["리소스 설정이 규칙 준수하는지 지속 평가", "AWS Config", "암호화 여부, 퍼블릭 접근 등"],
+    ["Bedrock·SageMaker API 호출 기록, 누가·언제", "AWS CloudTrail", "90일 이벤트 이력, S3로 장기 보관"],
+    ["변조 불가(tamper-proof) 감사 로그 장기 보관·쿼리", "CloudTrail Lake", "SQL 쿼리, 최대 10년"],
+    ["로그를 5년간 가장 저렴하게", "CloudTrail → S3 (Intelligent-Tiering 또는 Glacier)", "수명 주기 규칙"],
+    ["계정 전체 보안·비용 모범 사례 점검", "Trusted Advisor", "-"],
+    ["모델 버전·승인 상태 관리", "SageMaker Model Registry", "모델 거버넌스"],
+    ["모델 문서화·위험 등급", "SageMaker Model Cards", "투명성·거버넌스 보고"],
+    ["역할 기반 ML 권한 관리 (사용자·그룹)", "SageMaker Role Manager", "데이터 과학자·MLOps 역할 템플릿"],
+  ]}
+/>
+
+## 데이터 거버넌스
+
+<KeyTable
+  columns={["개념", "뜻", "AWS"]}
+  rows={[
+    ["데이터 계보 (Lineage)", "데이터가 어디서 와서 어떻게 변환됐나", "SageMaker ML Lineage Tracking, Glue Data Catalog"],
+    ["데이터 카탈로그", "어떤 데이터가 어디 있는지 메타데이터", "Glue Data Catalog, DataZone"],
+    ["데이터 보존·수명 주기", "얼마나 보관하고 언제 삭제", "S3 Lifecycle, 보존 정책"],
+    ["데이터 품질", "정확성·완전성·일관성 검사", "Glue Data Quality"],
+    ["데이터 분류", "민감도에 따라 태깅", "Macie, 태그"],
+    ["데이터 잔류", "특정 국가·리전에만 저장", "리전 선택, SCP"],
+    ["접근 제어", "Lake Formation 세분화 권한", "열·행 수준"],
+  ]}
+/>
+
+## 거버넌스 프레임워크 요소
+
+<KeyTable
+  columns={["요소", "내용"]}
+  rows={[
+    ["정책", "데이터 사용, 책임 있는 AI, 투명성, 컴플라이언스 가이드라인"],
+    ["역할·책임", "모델 소유자, 승인자, 검토자"],
+    ["검토 주기", "정기 모델 평가, 편향 재점검"],
+    ["모니터링", "성능·드리프트·비용 대시보드"],
+    ["문서화", "Model Cards, 데이터시트"],
+    ["규제", "GDPR(EU 개인정보), HIPAA(의료), PCI DSS(카드), EU AI Act, ISO 42001(AI 관리체계)"],
+  ]}
+/>
+
+## 기출빈출
+
+<KeyTable
+  columns={["시나리오", "정답"]}
+  rows={[
+    ["국제 규정 준수 증명 보고서 생성", "Artifact"],
+    ["ISV 평가 관련 컴플라이언스 알림 받기", "Artifact"],
+    ["주식 분석 앱 규정 준수 지속 모니터링 (2개)", "Audit Manager + Config"],
+    ["Bedrock API 모든 요청 로그, 5년 최저 비용 (2개)", "CloudTrail + S3 Intelligent-Tiering"],
+    ["모델 릴리스 변조 불가 감사 기록", "CloudTrail Lake"],
+    ["여러 모델 저장·관리·버전", "Model Registry"],
+    ["ML 인스턴스 데이터 상세 기록, 거버넌스 보고", "Model Cards"],
+    ["AI 거버넌스 프레임워크 특징", "데이터·투명성·책임 AI·컴플라이언스 정책 수립"],
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["키워드", "서비스"]}
+  rows={[
+    ["보고서 다운로드", "Artifact"],
+    ["감사 증거 수집", "Audit Manager"],
+    ["구성 규칙", "Config"],
+    ["API 이력", "CloudTrail"],
+    ["변조 불가 장기", "CloudTrail Lake"],
+    ["둘의 차이", <DocLink layer="aws-common" slug="cloudtrail-vs-config">CloudTrail vs Config</DocLink>],
+  ]}
+/>

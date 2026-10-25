@@ -1,0 +1,115 @@
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+**AWS Certified AI Practitioner (AIF-C01)** 은 코드 없이 개념과 서비스 선택을 묻는 Foundational 시험입니다. 90분, 65문항(채점 50 + 비채점 15), 1000점 만점에 700점이 합격입니다. 도메인별 커트라인은 없고 총점으로 판정합니다.
+
+문제는 거의 전부 시나리오형입니다. "코딩 경험 없음", "가장 적은 노력", "가장 비용 효율적", "실시간", "회사 내부 문서" 같은 조건 문구가 정답을 결정합니다. 아래 노드를 누르면 해당 문서로 이동합니다.
+
+---
+
+## 도메인
+
+<KeyTable
+  columns={["도메인", "비중", "이 레이어에서 보는 것"]}
+  rows={[
+    ["1. Fundamentals of AI and ML", "20%", "학습 유형, ML 라이프사이클, 평가 지표, 과적합과 편향"],
+    ["2. Fundamentals of Generative AI", "24%", "토큰·임베딩·컨텍스트, 추론 파라미터, FM 선택 기준과 Nova 계열"],
+    ["3. Applications of Foundation Models", "28%", "프롬프트 기법, 커스터마이징 단계, RAG, 생성형 AI 지표, Bedrock 기능"],
+    ["4. Guidelines for Responsible AI", "14%", "공정성·설명 가능성·투명성, Clarify·Model Cards·Model Monitor"],
+    ["5. Security, Compliance, and Governance", "14%", "PrivateLink·KMS·Macie·Guardrails, CloudTrail·Audit Manager·Artifact"],
+  ]}
+/>
+
+---
+
+## 시험 전략
+
+<MermaidDiagram
+  code={`flowchart TB
+  STRAT([키워드 → 정답 패턴])`}
+/>
+
+---
+
+## 1. AI·ML 기초 (20%)
+
+<MermaidDiagram
+  code={`flowchart TB
+  subgraph d1 ["AI·ML 기초"]
+    direction TB
+    LT([학습 유형])
+    LC([ML 라이프사이클])
+    MM([ML 평가 지표])
+    OB([과적합 · 편향])
+  end
+  LT --> LC --> MM --> OB`}
+/>
+
+---
+
+## 2. 생성형 AI 기초 (24%)
+
+<MermaidDiagram
+  code={`flowchart TB
+  subgraph d2 ["생성형 AI 기초"]
+    direction TB
+    GC([핵심 개념])
+    IP([추론 파라미터])
+    FS([FM 선택])
+  end
+  GC --> IP --> FS`}
+/>
+
+---
+
+## 3. FM 활용 (28%)
+
+<MermaidDiagram
+  code={`flowchart TB
+  subgraph d3 ["FM 활용"]
+    direction TB
+    PE([프롬프트 엔지니어링])
+    CL([커스터마이징 단계])
+    RAG([RAG · Knowledge Bases])
+    GM([생성형 AI 평가 지표])
+    BF([Bedrock 기능])
+  end
+  PE --> CL --> RAG --> GM --> BF`}
+/>
+
+---
+
+## 4. 책임 있는 AI (14%)
+
+<MermaidDiagram
+  code={`flowchart TB
+  subgraph d4 ["책임 있는 AI"]
+    direction TB
+    RD([책임 있는 AI 차원])
+    ET([설명 가능성 도구])
+  end
+  RD --> ET`}
+/>
+
+---
+
+## 5. 보안 · 컴플라이언스 · 거버넌스 (14%)
+
+<MermaidDiagram
+  code={`flowchart TB
+  subgraph d5 ["보안 · 거버넌스"]
+    direction TB
+    SEC([AI 워크로드 보안])
+    GOV([거버넌스 · 컴플라이언스])
+  end
+  SEC --> GOV`}
+/>
+
+---
+
+## 서비스 치트시트
+
+<MermaidDiagram
+  code={`flowchart TB
+  CS([AI 서비스 치트시트])`}
+/>

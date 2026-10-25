@@ -63,6 +63,26 @@ const HANDBOOK_SEARCH_ALIASES: Record<string, string[]> = {
   crd: ["커스텀 리소스", "오퍼레이터"],
   "resource usage": ["kubectl top", "metrics-server", "메트릭"],
   "headless statefulset": ["headless", "statefulset", "볼륨클레임"],
+
+  // AIF
+  "learning types": ["지도학습", "비지도학습", "강화학습", "분류", "회귀", "클러스터링"],
+  "ml lifecycle": ["데이터 전처리", "피처 엔지니어링", "eda", "탐색적 데이터 분석"],
+  "ml metrics": ["정확도", "정밀도", "재현율", "f1", "confusion matrix", "혼동 행렬", "rmse", "auc"],
+  "overfitting bias": ["과적합", "과소적합", "편향", "샘플링 편향", "정규화", "regularization"],
+  "genai concepts": ["토큰", "임베딩", "컨텍스트 윈도우", "환각", "hallucination", "트랜스포머", "멀티모달"],
+  "inference params": ["temperature", "top k", "top p", "온도", "응답 길이"],
+  "fm selection": ["nova", "모달리티", "모델 크기", "지연 시간", "파운데이션 모델 선택"],
+  "prompt engineering": ["zero-shot", "few-shot", "chain of thought", "프롬프트 인젝션", "negative prompt", "프롬프트 템플릿"],
+  "customization ladder": ["파인튜닝", "fine-tuning", "continued pre-training", "계속 사전학습", "instruction tuning", "rlhf"],
+  "rag knowledge bases": ["knowledge base", "청킹", "chunking", "벡터 db", "opensearch", "pgvector", "검색 증강"],
+  "genai metrics": ["rouge", "bleu", "bertscore", "model evaluation", "모델 평가", "llm-as-a-judge", "faithfulness"],
+  "bedrock features": ["guardrails", "가드레일", "agents", "에이전트", "prompt management", "provisioned throughput", "batch inference", "prompt router"],
+  "responsible ai dimensions": ["공정성", "fairness", "설명 가능성", "explainability", "투명성", "transparency", "거버넌스"],
+  "explainability tools": ["clarify", "model cards", "모델 카드", "model monitor", "shap", "a2i", "augmented ai", "drift", "드리프트"],
+  "ai security": ["privatelink", "kms", "macie", "pii", "프라이빗 연결", "데이터 보호"],
+  "ai governance": ["cloudtrail", "audit manager", "artifact", "aws config", "데이터 보존", "data lifecycle", "iso"],
+  "aws ai services": ["comprehend", "transcribe", "translate", "polly", "rekognition", "textract", "kendra", "personalize", "lex", "q developer", "q business"],
+  "exam strategy": ["시험 전략", "least effort", "most cost-effective", "키워드"],
 };
 
 const normalizeToken = (value: string): string =>

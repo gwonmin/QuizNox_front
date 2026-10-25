@@ -1,0 +1,127 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+
+<SectionSummary
+  lead="관리형 AI 서비스는 입력 형태와 하는 일로 외우면 끝납니다. 시험은 서비스 이름이 비슷한 보기 넷 중 입력·출력이 맞는 하나를 고르게 합니다."
+  bullets={[
+    "텍스트 의미 Comprehend, 문서 글자 추출 Textract, 기업 검색 Kendra, 추천 Personalize.",
+    "음성→텍스트 Transcribe, 텍스트→음성 Polly, 번역 Translate, 이미지·영상 Rekognition.",
+    "챗봇 Lex, 코드 Q Developer, 사내 Q&A Q Business, BI 자연어 Q in QuickSight.",
+  ]}
+/>
+
+## 언어 · 텍스트
+
+<KeyTable
+  columns={["서비스", "입력 → 출력", "시험 문장"]}
+  rows={[
+    ["Amazon Comprehend", "텍스트 → 감성, 엔터티, 키 구문, 언어, PII, 주제", "sentiment analysis, extract entities, detect PII in text"],
+    ["Comprehend Medical", "의료 텍스트 → 질환·약물·검사 엔터티, ICD-10", "medical records, clinical notes"],
+    ["Amazon Textract", "스캔 문서·PDF·이미지 → 텍스트, 표, 폼 필드", "extract text from scanned documents, invoices, forms"],
+    ["Amazon Translate", "텍스트 → 다른 언어 텍스트", "translate into multiple languages, real-time translation"],
+    ["Amazon Kendra", "문서 저장소 → 자연어 기업 검색", "enterprise search, large volumes of documents"],
+    ["Amazon Lex", "음성·텍스트 대화 → 의도·슬롯, 챗봇", "conversational chatbot, IVR, Alexa 기술"],
+  ]}
+/>
+
+## 음성 · 비전
+
+<KeyTable
+  columns={["서비스", "입력 → 출력", "시험 문장"]}
+  rows={[
+    ["Amazon Transcribe", "음성 → 텍스트 (화자 분리, 자막, Call Analytics)", "call recordings, subtitles, speech to text"],
+    ["Amazon Polly", "텍스트 → 자연스러운 음성", "voice-over, text to speech, read aloud"],
+    ["Amazon Rekognition", "이미지·영상 → 객체, 얼굴, 텍스트, 유해 콘텐츠, 커스텀 라벨", "detect objects in images, content moderation, facial analysis"],
+  ]}
+/>
+
+## 예측 · 추천 · 검색
+
+<KeyTable
+  columns={["서비스", "하는 일", "시험 문장"]}
+  rows={[
+    ["Amazon Personalize", "사용자 행동 기반 실시간 개인화 추천", "personalized recommendations, product recommendations"],
+    ["Amazon Forecast (→ SageMaker Canvas)", "시계열 수요 예측", "demand forecasting"],
+    ["Amazon Fraud Detector", "사기 거래·계정 탐지", "fraud detection"],
+    ["Amazon Q in QuickSight", "자연어로 BI 대시보드 질문", "ask questions about sales data in natural language"],
+  ]}
+/>
+
+## 생성형 AI · 어시스턴트
+
+<KeyTable
+  columns={["서비스", "하는 일", "시험 문장"]}
+  rows={[
+    ["Amazon Bedrock", "FM API, Guardrails, Agents, Knowledge Bases, 커스터마이징", "build generative AI application, foundation model"],
+    ["Amazon Q Developer", "코드 생성·설명·보안 스캔, 참조 추적, 라이선스 추적, AWS 콘솔 질문", "developer productivity, code suggestions"],
+    ["Amazon Q Business", "사내 데이터 소스 연결 생성형 Q&A·요약 어시스턴트", "answer employee questions from company data"],
+    ["Amazon Q in Connect", "상담원에게 실시간 추천 답변", "contact center agent assist"],
+    ["PartyRock", "코드 없이 생성형 AI 앱 실험", "learn generative AI, experimental, no cost"],
+    ["Amazon SageMaker JumpStart", "FM·오픈소스 모델 원클릭 배포 (VPC 안)", "deploy FM within VPC, pre-trained models"],
+  ]}
+/>
+
+## SageMaker 기능 요약
+
+<KeyTable
+  columns={["기능", "한 줄"]}
+  rows={[
+    ["Canvas", "노코드 ML (예측·분류·생성형)"],
+    ["Ground Truth", "데이터 레이블링 (Mechanical Turk)"],
+    ["Data Wrangler", "전처리·EDA"],
+    ["Feature Store", "피처 저장·공유"],
+    ["Clarify", "편향·설명"],
+    ["Model Monitor", "드리프트"],
+    ["Model Cards", "문서화"],
+    ["Model Registry", "버전"],
+    ["Pipelines", "MLOps 자동화"],
+    ["Autopilot", "AutoML"],
+    ["Experiments", "실험 추적"],
+  ]}
+/>
+
+## 인프라
+
+<KeyTable
+  columns={["칩 · 인스턴스", "용도"]}
+  rows={[
+    ["AWS Trainium (Trn)", "학습 비용 최적화"],
+    ["AWS Inferentia (Inf)", "추론 비용·지연 최적화"],
+    ["GPU (P, G)", "범용 딥러닝"],
+  ]}
+/>
+
+## 기출빈출
+
+<KeyTable
+  columns={["시나리오", "정답"]}
+  rows={[
+    ["콜센터 통화 녹음에서 인사이트", "Transcribe → Comprehend"],
+    ["다국어 제품 설명 자동 생성", "Translate"],
+    ["영화 자막 + 다국어 음성 (2개)", "Transcribe + Translate / Polly"],
+    ["교육 자료 대량 기업 검색", "Kendra"],
+    ["구조화 환자 기록 추출 후 요약", "Comprehend Medical + Bedrock"],
+    ["12개월 상위 제품 매출 자연어 질의", "Q in QuickSight"],
+    ["Q Developer가 하는 일", "코드 스니펫 생성, 참조 추적, 오픈소스 라이선스 추적"],
+    ["직원 사내 정책 Q&A (최소 노력)", "Q Business 또는 Bedrock KB"],
+    ["항공편·예약 상담 대화 비서", "Lex 또는 Bedrock RAG 에이전트"],
+    ["비개발자 생성형 AI 실험", "PartyRock"],
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["입력", "서비스"]}
+  rows={[
+    ["텍스트 의미", "Comprehend"],
+    ["문서 이미지", "Textract"],
+    ["음성", "Transcribe"],
+    ["텍스트 → 음성", "Polly"],
+    ["이미지·영상", "Rekognition"],
+    ["검색", "Kendra"],
+    ["추천", "Personalize"],
+    ["대화", "Lex"],
+    ["코드", "Q Developer"],
+  ]}
+/>

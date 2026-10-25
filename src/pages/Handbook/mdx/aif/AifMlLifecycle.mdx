@@ -1,0 +1,97 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+<SectionSummary
+  lead="ML 파이프라인의 각 단계에 SageMaker 기능이 하나씩 대응합니다. 시험은 단계 이름과 그 단계의 서비스를 묻습니다."
+  bullets={[
+    "수집 → 준비(EDA·전처리·피처 엔지니어링) → 학습 → 평가 → 배포 → 모니터링 순서다.",
+    "준비는 Data Wrangler·Ground Truth·Feature Store, 배포 후는 Model Monitor·Model Registry.",
+    "MLOps는 이 파이프라인을 자동·반복 가능하게 만드는 것. SageMaker Pipelines가 담당.",
+  ]}
+/>
+
+## 라이프사이클
+
+<MermaidDiagram
+  code={`flowchart LR
+  A["비즈니스 목표"] --> B["데이터 수집"]
+  B --> C["데이터 준비<br/>EDA · 전처리 · 피처"]
+  C --> D["모델 학습<br/>하이퍼파라미터 튜닝"]
+  D --> E["평가"]
+  E --> F["배포"]
+  F --> G["모니터링 · 재학습"]
+  G -.-> B`}
+/>
+
+## 단계별 SageMaker 기능
+
+<KeyTable
+  columns={["단계", "하는 일", "SageMaker 기능"]}
+  rows={[
+    ["데이터 레이블링", "사람이 정답 태그 부착. Mechanical Turk 연동", "Ground Truth"],
+    ["EDA · 전처리", "결측치, 이상치, 분포 확인과 정제", "Data Wrangler"],
+    ["피처 엔지니어링", "학습에 쓸 변수 생성·변환·선택", "Data Wrangler, Feature Store (팀 간 공유·재사용)"],
+    ["학습", "알고리즘 선택, 하이퍼파라미터 튜닝", "Training Jobs, Automatic Model Tuning, Autopilot(AutoML)"],
+    ["노코드 전체", "코드 없이 데이터 → 모델 → 예측", "Canvas"],
+    ["사전학습 모델 가져오기", "FM·오픈소스 모델을 VPC 안에서 바로 배포", "JumpStart"],
+    ["평가", "검증 데이터로 지표 산출, 편향·설명", "Clarify, Experiments"],
+    ["배포", "실시간·서버리스·배치·비동기 엔드포인트", "Endpoints"],
+    ["모델 버전 관리", "승인 상태, 계보, 버전", "Model Registry"],
+    ["모니터링", "데이터·모델 드리프트, 품질 저하 감지", "Model Monitor"],
+    ["파이프라인 자동화", "단계 연결, 재실행, CI/CD", "Pipelines"],
+  ]}
+/>
+
+## 데이터 분할
+
+<KeyTable
+  columns={["세트", "용도", "흔한 비율"]}
+  rows={[
+    ["훈련 (Training)", "가중치 학습", "70~80%"],
+    ["검증 (Validation)", "하이퍼파라미터 선택, 과적합 감지", "10~15%"],
+    ["테스트 (Test)", "최종 성능 1회 측정. 학습에 절대 안 씀", "10~15%"],
+  ]}
+/>
+
+## 배포 옵션
+
+<KeyTable
+  columns={["옵션", "맞는 상황"]}
+  rows={[
+    ["실시간 엔드포인트", "낮은 지연, 지속 트래픽"],
+    ["서버리스 추론", "간헐적 트래픽, 유휴 비용 0"],
+    ["비동기 추론", "큰 페이로드, 긴 처리 시간, 큐 기반"],
+    ["배치 변환", "대량 데이터를 한 번에, 엔드포인트 불필요"],
+  ]}
+/>
+
+## 기출빈출
+
+<KeyTable
+  columns={["시나리오", "정답"]}
+  rows={[
+    ["팀 간 변수(피처) 공유·관리", "Feature Store"],
+    ["코딩 경험 없이 수요 예측 모델", "Canvas"],
+    ["완전 자동 모델 튜닝", "SageMaker (Automatic Model Tuning)"],
+    ["VPC 안에서 FM 빠르게 배포·사용", "JumpStart"],
+    ["여러 모델의 저장·관리·버전", "Model Registry"],
+    ["대량 거래 데이터에 레이블 부착", "Ground Truth + Mechanical Turk"],
+    ["ML 시스템 성능을 확장성 있게 모니터링", "CloudWatch"],
+    ["모델 데이터 계보·메타데이터 기록, 거버넌스 보고", "Model Cards"],
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["묻는 것", "답"]}
+  rows={[
+    ["레이블", "Ground Truth"],
+    ["전처리·피처", "Data Wrangler, Feature Store"],
+    ["노코드", "Canvas"],
+    ["모델 가져오기", "JumpStart"],
+    ["드리프트", "Model Monitor"],
+    ["버전", "Model Registry"],
+  ]}
+/>

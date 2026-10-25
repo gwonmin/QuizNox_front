@@ -1,0 +1,80 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+
+<SectionSummary
+  lead="텍스트 생성 품질은 참조 문장과의 겹침(ROUGE·BLEU)이나 의미 유사도(BERTScore)로 잽니다. 시험은 작업 종류로 지표를 고르게 합니다."
+  bullets={[
+    "요약 → ROUGE, 번역 → BLEU, 의미 유사도 → BERTScore, 언어 모델 자체 → Perplexity.",
+    "Bedrock 모델 평가는 자동(지표)과 사람 평가 두 가지. 사람 평가는 주관적 품질(어조·유용성).",
+    "RAG는 Faithfulness·Answer relevance 같은 별도 지표. 비즈니스 지표(만족도·전환율)는 지표와 분리해 묻는다.",
+  ]}
+/>
+
+## 텍스트 지표
+
+<KeyTable
+  columns={["지표", "재는 것", "맞는 작업", "시험 문장"]}
+  rows={[
+    ["ROUGE", "참조 대비 n-gram 재현율 (참조 내용을 얼마나 담았나)", "요약", "summarization quality, coverage"],
+    ["BLEU", "참조 대비 n-gram 정밀도 (생성이 참조와 얼마나 일치)", "번역", "translation accuracy"],
+    ["BERTScore", "임베딩 기반 의미 유사도. 표현이 달라도 의미 같으면 높음", "요약·패러프레이즈, 의미 비교", "semantic similarity"],
+    ["METEOR", "동의어·어간 고려한 번역 지표", "번역", "-"],
+    ["Perplexity", "모델이 다음 토큰을 얼마나 확신하나. 낮을수록 좋음", "언어 모델 자체 품질", "how well model predicts text"],
+    ["F1 (추출·QA)", "정답 토큰 겹침", "추출형 QA", "-"],
+  ]}
+/>
+
+## 평가 방식
+
+<KeyTable
+  columns={["방식", "내용", "언제"]}
+  rows={[
+    ["자동 평가 (Bedrock)", "내장 또는 자체 데이터셋으로 정확도·견고성·독성 등 산출. ROUGE·BLEU·BERTScore 포함", "여러 모델 빠르게 비교"],
+    ["사람 평가 (Bedrock)", "자체 팀 또는 AWS 관리 팀이 출력 순위·선호 평가", "어조·브랜드·유용성 같은 주관 품질"],
+    ["LLM-as-a-judge", "다른 LLM이 채점", "대량 평가 자동화"],
+    ["벤치마크", "MMLU, HELM, GLUE 등 공개 데이터셋", "일반 능력 비교"],
+    ["RAG 평가", "Faithfulness(근거 충실), Answer relevance, Context precision/recall", "RAG 파이프라인 품질"],
+    ["비즈니스 지표", "사용자 만족도, 전환율, 처리 시간, 비용", "ROI 판단"],
+  ]}
+/>
+
+## 책임 있는 AI 평가 차원
+
+<KeyTable
+  columns={["차원", "뜻"]}
+  rows={[
+    ["독성 (Toxicity)", "유해·공격적 출력 비율"],
+    ["견고성 (Robustness)", "입력 변형에 출력이 흔들리지 않음"],
+    ["정확도 (Accuracy)", "사실 일치"],
+    ["편향", "집단별 출력 차이"],
+  ]}
+/>
+
+## 기출빈출
+
+<KeyTable
+  columns={["시나리오", "정답"]}
+  rows={[
+    ["교육 자료를 영어에서 다른 언어로 번역한 품질", "BLEU"],
+    ["여러 LLM의 텍스트 요약 품질 비교", "ROUGE"],
+    ["요약의 의미 유사도와 핵심 정보 포함 (2개)", "BERTScore + ROUGE"],
+    ["Bedrock 자동 평가에서 의미 기반 요약 지표", "BERTScore"],
+    ["다국어 요약 번역 품질", "BLEU"],
+    ["JumpStart의 LLM 몇 개 중 요약 성능 비교, 최소 노력", "자동 모델 평가"],
+    ["LLM 운영 효율 지표", "평균 응답 시간"],
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["작업", "지표"]}
+  rows={[
+    ["요약", "ROUGE"],
+    ["번역", "BLEU"],
+    ["의미 비교", "BERTScore"],
+    ["언어 모델 자체", "Perplexity"],
+    ["RAG 근거 충실", "Faithfulness"],
+    ["주관 품질", "사람 평가"],
+  ]}
+/>

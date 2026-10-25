@@ -1,0 +1,85 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { DocLink } from "@/components/handbook/DocLink";
+
+<SectionSummary
+  lead="분류는 혼동 행렬에서 나오는 지표, 회귀는 오차 크기 지표입니다. 문제는 '무엇을 놓치면 안 되는가'로 지표를 고르게 합니다."
+  bullets={[
+    "거짓 음성(놓침)이 치명적이면 재현율, 거짓 양성(오탐)이 비싸면 정밀도, 둘 다 보면 F1.",
+    "클래스 불균형에서 정확도는 속는다. F1이나 AUC를 본다.",
+    "회귀는 RMSE·MAE. 생성형 AI 텍스트 지표는 별도 문서.",
+  ]}
+/>
+
+## 혼동 행렬
+
+<KeyTable
+  columns={["", "예측 양성", "예측 음성"]}
+  rows={[
+    ["실제 양성", "TP (맞게 잡음)", "FN (놓침)"],
+    ["실제 음성", "FP (오탐)", "TN (맞게 거름)"],
+  ]}
+/>
+
+## 분류 지표
+
+<KeyTable
+  columns={["지표", "식", "언제", "시험 문장"]}
+  rows={[
+    ["정확도 (Accuracy)", "(TP+TN) / 전체", "클래스 균형, 전체 맞춘 비율", "how many images classified correctly"],
+    ["정밀도 (Precision)", "TP / (TP+FP)", "오탐이 비쌀 때. 스팸 분류, 추천", "minimize false positives"],
+    ["재현율 (Recall)", "TP / (TP+FN)", "놓침이 치명적일 때. 질병, 사기 탐지", "minimize false negatives, catch all"],
+    ["F1", "정밀도·재현율 조화평균", "불균형 데이터, 둘 다 중요", "balance precision and recall, imbalanced"],
+    ["AUC-ROC", "임계값 전체에서 분리 능력", "이진 분류 모델 간 비교", "compare classifiers across thresholds"],
+  ]}
+/>
+
+## 회귀 지표
+
+<KeyTable
+  columns={["지표", "특징"]}
+  rows={[
+    ["MAE", "오차 절대값 평균. 이상치에 덜 민감"],
+    ["MSE · RMSE", "오차 제곱. 큰 오차에 더 큰 벌점. 단위는 RMSE가 원래 단위"],
+    ["R² (결정계수)", "설명된 분산 비율. 1에 가까울수록 좋음"],
+    ["MAPE", "퍼센트 오차. 수요 예측에서 흔함"],
+  ]}
+/>
+
+## 운영 지표
+
+<KeyTable
+  columns={["지표", "뜻"]}
+  rows={[
+    ["평균 응답 시간 · 추론 지연", "모델 실행 효율. 실시간 요구에서 중요"],
+    ["처리량 (Throughput)", "초당 처리 요청 수"],
+    ["비용 지표", "토큰 수(Bedrock), 인스턴스 시간(SageMaker)"],
+  ]}
+/>
+
+## 기출빈출
+
+<KeyTable
+  columns={["시나리오", "정답"]}
+  rows={[
+    ["이미지 중 몇 장을 맞게 분류했는지", "정확도"],
+    ["F1이 측정하는 것", "정밀도와 재현율"],
+    ["이탈 예측 모델이 실제로 얼마나 잘 맞추는지 종합 평가", "F1"],
+    ["AI 모델 운영 효율(런타임) 지표", "평균 응답 시간"],
+    ["LLM 비용을 가늠하는 단위", "소비 토큰 수"],
+    ["이진 분류기 비교", "AUC"],
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["묻는 것", "답"]}
+  rows={[
+    ["놓치면 안 됨", "재현율"],
+    ["오탐이 비쌈", "정밀도"],
+    ["불균형", "F1"],
+    ["숫자 오차", "RMSE · MAE"],
+    ["텍스트 생성 품질", <DocLink layer="aif" slug="genai-metrics">생성형 AI 평가 지표</DocLink>],
+  ]}
+/>

@@ -548,6 +548,76 @@ export const HANDBOOK_LAYERS: HandbookLayer[] = [
       },
     ],
   },
+  {
+    id: "aif",
+    title: "7. AIF (AI Practitioner)",
+    description: "AI·ML·생성형 AI 개념과 AWS AI 서비스 선택. 시나리오에서 맞는 서비스·기법·지표를 고릅니다",
+    sections: [
+      {
+        id: "exam-strategy",
+        title: "시험 전략",
+        summary: "문제 문장의 키워드로 정답 패턴 잡기",
+        docs: [{ slug: "exam-strategy", title: "키워드 → 정답 패턴" }],
+      },
+      {
+        id: "ai-ml-fundamentals",
+        title: "1. AI·ML 기초 (20%)",
+        summary: "학습 유형, ML 라이프사이클, 평가 지표, 과적합과 편향",
+        docs: [
+          { slug: "learning-types", title: "학습 유형 · 문제 유형" },
+          { slug: "ml-lifecycle", title: "ML 라이프사이클" },
+          { slug: "ml-metrics", title: "ML 평가 지표" },
+          { slug: "overfitting-bias", title: "과적합 · 편향" },
+        ],
+      },
+      {
+        id: "genai-fundamentals",
+        title: "2. 생성형 AI 기초 (24%)",
+        summary: "토큰·임베딩·컨텍스트, 추론 파라미터, FM 선택 기준",
+        docs: [
+          { slug: "genai-concepts", title: "생성형 AI 핵심 개념" },
+          { slug: "inference-params", title: "추론 파라미터" },
+          { slug: "fm-selection", title: "FM 선택 · Nova 계열" },
+        ],
+      },
+      {
+        id: "fm-applications",
+        title: "3. FM 활용 (28%)",
+        summary: "프롬프트 엔지니어링, 커스터마이징 단계, RAG, 평가 지표, Bedrock 기능",
+        docs: [
+          { slug: "prompt-engineering", title: "프롬프트 엔지니어링" },
+          { slug: "customization-ladder", title: "커스터마이징 단계" },
+          { slug: "rag-knowledge-bases", title: "RAG · Knowledge Bases" },
+          { slug: "genai-metrics", title: "생성형 AI 평가 지표" },
+          { slug: "bedrock-features", title: "Bedrock 기능 지도" },
+        ],
+      },
+      {
+        id: "responsible-ai",
+        title: "4. 책임 있는 AI (14%)",
+        summary: "공정성·설명 가능성·투명성 차원과 이를 뒷받침하는 도구",
+        docs: [
+          { slug: "responsible-ai-dimensions", title: "책임 있는 AI 차원" },
+          { slug: "explainability-tools", title: "설명 가능성 · 모니터링 도구" },
+        ],
+      },
+      {
+        id: "security-governance",
+        title: "5. 보안 · 컴플라이언스 · 거버넌스 (14%)",
+        summary: "프라이빗 연결, 암호화, 가드레일, 감사와 데이터 거버넌스",
+        docs: [
+          { slug: "ai-security", title: "AI 워크로드 보안" },
+          { slug: "ai-governance", title: "거버넌스 · 컴플라이언스" },
+        ],
+      },
+      {
+        id: "service-cheatsheet",
+        title: "서비스 치트시트",
+        summary: "입력 → 서비스 한 표",
+        docs: [{ slug: "aws-ai-services", title: "AWS AI 서비스 치트시트" }],
+      },
+    ],
+  },
 ];
 
 export const HANDBOOK_LAYER_IDS = HANDBOOK_LAYERS.map((l) => l.id);

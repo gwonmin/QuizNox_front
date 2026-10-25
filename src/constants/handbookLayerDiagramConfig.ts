@@ -168,10 +168,33 @@ export const CKA_DIAGRAM_LINKS: Record<string, string> = {
   "리소스 사용량": `${ckaPath}/resource-usage`,
 };
 
+const aifPath = `${BASE}/aif`;
+export const AIF_DIAGRAM_LINKS: Record<string, string> = {
+  "키워드 → 정답 패턴": `${aifPath}/exam-strategy`,
+  "학습 유형": `${aifPath}/learning-types`,
+  "ML 라이프사이클": `${aifPath}/ml-lifecycle`,
+  "ML 평가 지표": `${aifPath}/ml-metrics`,
+  "과적합 · 편향": `${aifPath}/overfitting-bias`,
+  "핵심 개념": `${aifPath}/genai-concepts`,
+  "추론 파라미터": `${aifPath}/inference-params`,
+  "FM 선택": `${aifPath}/fm-selection`,
+  "프롬프트 엔지니어링": `${aifPath}/prompt-engineering`,
+  "커스터마이징 단계": `${aifPath}/customization-ladder`,
+  "RAG · Knowledge Bases": `${aifPath}/rag-knowledge-bases`,
+  "생성형 AI 평가 지표": `${aifPath}/genai-metrics`,
+  "Bedrock 기능": `${aifPath}/bedrock-features`,
+  "책임 있는 AI 차원": `${aifPath}/responsible-ai-dimensions`,
+  "설명 가능성 도구": `${aifPath}/explainability-tools`,
+  "AI 워크로드 보안": `${aifPath}/ai-security`,
+  "거버넌스 · 컴플라이언스": `${aifPath}/ai-governance`,
+  "AI 서비스 치트시트": `${aifPath}/aws-ai-services`,
+};
+
 const LAYER_DIAGRAM_LINKS: Record<string, Record<string, string>> = {
   "aws-common": AWS_COMMON_DIAGRAM_LINKS,
   saa: SAA_DIAGRAM_LINKS,
   dva: DVA_DIAGRAM_LINKS,
   soa: SOA_DIAGRAM_LINKS,
   cka: CKA_DIAGRAM_LINKS,
+  aif: AIF_DIAGRAM_LINKS,
 };

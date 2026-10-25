@@ -1,0 +1,96 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { DocLink } from "@/components/handbook/DocLink";
+
+<SectionSummary
+  lead="AI 워크로드 보안은 일반 AWS 보안 서비스에 Guardrails가 더해진 것입니다. 시험은 '인터넷 경유 금지', '회사 관리 키', 'PII 발견'을 서비스로 바꾸게 합니다."
+  bullets={[
+    "VPC 안에서만, 인터넷 안 거치고 → PrivateLink(VPC 엔드포인트). 회사 관리 키 → KMS CMK.",
+    "S3의 PII·민감 데이터 발견 → Macie. 출력에서 PII 마스킹 → Guardrails.",
+    "Bedrock은 고객 데이터를 모델 학습에 쓰지 않고, 모델 공급사와 공유하지 않는다.",
+  ]}
+/>
+
+## 요구사항 → 서비스
+
+<KeyTable
+  columns={["요구사항", "서비스", "비고"]}
+  rows={[
+    ["Bedrock·SageMaker API를 인터넷 없이 VPC 안에서 호출", "AWS PrivateLink (인터페이스 VPC 엔드포인트)", "VPC에 IGW 없음, 규제 준수"],
+    ["모델 아티팩트·데이터를 회사 관리 키로 암호화", "AWS KMS (고객 관리 키)", "Bedrock 커스텀 모델, S3, EBS"],
+    ["S3에 저장된 학습 데이터의 PII·민감 정보 발견", "Amazon Macie", "ML 기반 분류"],
+    ["LLM 응답에서 PII 마스킹·차단", "Bedrock Guardrails Sensitive information filter", "출력 단계"],
+    ["파인튜닝 전 학습 데이터 PII 제거", "전처리 (Comprehend PII 탐지 + 마스킹)", "모델에 PII 학습 방지"],
+    ["누가 어떤 모델·API를 쓸 수 있나", "IAM 정책, 역할", "최소 권한"],
+    ["API 키·DB 비밀번호 보관", "Secrets Manager", "에이전트 Lambda에서 참조"],
+    ["보안 상태 종합 점검, 서비스 한도·비용 최적화", "Trusted Advisor", "Comprehend 엔드포인트 미사용 비용 등"],
+    ["위협 탐지", "GuardDuty", "계정·네트워크 이상"],
+    ["프롬프트 인젝션·탈옥 차단", "Guardrails Prompt Attack 필터 + 템플릿", "입력 단계"],
+  ]}
+/>
+
+## 데이터 보호 원칙
+
+<KeyTable
+  columns={["원칙", "AWS에서"]}
+  rows={[
+    ["저장 시 암호화", "S3 SSE-KMS, EBS 암호화, Bedrock 커스텀 모델 KMS"],
+    ["전송 시 암호화", "TLS. 모든 Bedrock API는 HTTPS"],
+    ["데이터 잔류 (Residency)", "리전 선택. Cross-Region inference는 지정 리전 집합 안에서만"],
+    ["데이터 격리", "Bedrock은 고객 프롬프트·응답을 학습에 사용하지 않음. 파인튜닝 모델은 고객 전용 사본"],
+    ["최소 권한", "IAM 역할, 리소스 정책, SCP"],
+    ["로그·감사", "CloudTrail (API), CloudWatch Logs (모델 호출 로깅 옵션)"],
+  ]}
+/>
+
+## 공유 책임 모델 (AI)
+
+<KeyTable
+  columns={["AWS 책임", "고객 책임"]}
+  rows={[
+    ["인프라, 관리형 서비스 보안, FM 호스팅", "데이터 분류·암호화 설정, IAM, 프롬프트·출력 검증, Guardrails 구성, 책임 있는 사용"],
+  ]}
+/>
+
+## 생성형 AI 보안 범위 (Generative AI Security Scoping Matrix)
+
+<KeyTable
+  columns={["범위", "예", "고객 통제"]}
+  rows={[
+    ["1. 소비자 앱", "공개 ChatGPT 사용", "최소. 입력 데이터 정책"],
+    ["2. 엔터프라이즈 앱", "SaaS에 내장된 AI", "계약·데이터 처리 조건"],
+    ["3. 사전학습 모델", "Bedrock FM 그대로", "프롬프트·출력·Guardrails"],
+    ["4. 파인튜닝 모델", "Bedrock 커스텀 모델", "+ 학습 데이터 보호"],
+    ["5. 자체 학습 모델", "SageMaker에서 처음부터", "전체"],
+  ]}
+/>
+
+## 기출빈출
+
+<KeyTable
+  columns={["시나리오", "정답"]}
+  rows={[
+    ["인터넷 없는 VPC에서 Bedrock 사용, 규제 준수", "PrivateLink"],
+    ["전 세계 지사의 FM API 호출이 인터넷을 거치면 안 됨", "PrivateLink"],
+    ["커스텀 모델 아티팩트를 회사 관리 키로 암호화", "KMS"],
+    ["파트너와 공유할 S3 데이터셋의 민감 정보 노출 방지", "Macie"],
+    ["질병 모델 출력에 환자 개인 정보 포함 방지", "Guardrails (+ CloudWatch 알림)"],
+    ["LLM을 Bedrock에서 안전하게 쓰는 법", "명확한 프롬프트 + IAM 역할·정책"],
+    ["Comprehend 커스텀 엔드포인트 미사용 비용 식별", "Trusted Advisor"],
+    ["MCP 서버 보안 (2개)", "서버·CLI 최신화 + 신뢰된 소스에서만 설치"],
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["키워드", "서비스"]}
+  rows={[
+    ["인터넷 경유 금지", "PrivateLink"],
+    ["회사 관리 키", "KMS"],
+    ["S3 PII 발견", "Macie"],
+    ["출력 PII 마스킹", "Guardrails"],
+    ["권한", "IAM"],
+    ["KMS 기본", <DocLink layer="aws-common" slug="kms-basics">KMS 기본</DocLink>],
+  ]}
+/>

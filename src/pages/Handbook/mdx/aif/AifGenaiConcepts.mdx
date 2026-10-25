@@ -1,0 +1,103 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { DocLink } from "@/components/handbook/DocLink";
+
+<SectionSummary
+  lead="FM은 대량 데이터로 사전학습된 범용 모델이고, LLM은 텍스트 FM입니다. 시험은 용어 정의와 생성형 AI의 한계(환각·비결정성)를 묻습니다."
+  bullets={[
+    "토큰이 비용·컨텍스트 윈도우의 단위다. 임베딩은 의미를 숫자 벡터로 바꾼 것.",
+    "환각은 그럴듯하지만 틀린 출력. RAG·Temperature 낮추기·Guardrails로 줄인다.",
+    "같은 입력에 다른 답이 나오는 것은 비결정성. 위험으로 분류된다.",
+  ]}
+/>
+
+## 핵심 용어
+
+<KeyTable
+  columns={["용어", "뜻", "시험 문장"]}
+  rows={[
+    ["파운데이션 모델 (FM)", "대규모 비레이블 데이터로 사전학습, 여러 작업에 적응 가능", "pre-trained on broad data, adapt to many tasks"],
+    ["LLM", "텍스트 FM. Transformer 기반", "generate text, summarize, translate"],
+    ["Transformer", "셀프 어텐션으로 문맥 전체를 참조하는 구조", "attention mechanism"],
+    ["토큰 (Token)", "모델이 처리하는 텍스트 조각. 비용과 길이의 단위", "number of tokens consumed, cost"],
+    ["컨텍스트 윈도우", "한 번에 넣을 수 있는 토큰 수", "how much information can be passed to the model"],
+    ["임베딩 (Embedding)", "텍스트·이미지를 의미 벡터로 변환. 유사도 검색의 기반", "semantic similarity, vector"],
+    ["벡터 DB", "임베딩 저장·근접 검색. OpenSearch, Aurora pgvector, Neptune, DocumentDB, MemoryDB", "store embeddings for RAG"],
+    ["멀티모달", "텍스트·이미지·오디오를 함께 입력·출력", "image and text input"],
+    ["프롬프트", "모델에 주는 입력 지시", "instruction to the model"],
+    ["추론 (Inference)", "학습된 모델로 출력을 만드는 과정", "generate response"],
+    ["확산 모델 (Diffusion)", "노이즈를 제거하며 이미지 생성", "Stable Diffusion, Nova Canvas"],
+  ]}
+/>
+
+## 생성형 AI 사용 사례
+
+<KeyTable
+  columns={["사례", "예"]}
+  rows={[
+    ["텍스트 생성·요약·번역", "마케팅 문구, 문서 요약, 다국어"],
+    ["챗봇·가상 비서", "고객 지원, 사내 Q&A"],
+    ["코드 생성", "Amazon Q Developer"],
+    ["이미지·영상 생성", "Nova Canvas, Nova Reel, Stable Diffusion"],
+    ["검색·추천", "임베딩 기반 시맨틱 검색"],
+    ["에이전트", "도구 호출로 다단계 작업 수행"],
+  ]}
+/>
+
+## 장점과 한계
+
+<KeyTable
+  columns={["구분", "내용"]}
+  rows={[
+    ["장점", "적응성, 반응성, 단순함(프롬프트만으로 작업), 창의성"],
+    ["환각 (Hallucination)", "사실처럼 보이는 틀린 출력. RAG, Temperature ↓, Guardrails, 사람 검토로 완화"],
+    ["비결정성 (Nondeterminism)", "같은 입력에 다른 출력. Temperature ↓로 완화"],
+    ["해석 어려움", "왜 그 답인지 설명 어려움. Model Cards, 평가로 보완"],
+    ["지식 컷오프", "학습 시점 이후 정보 없음. RAG로 보완"],
+    ["표절·저작권·유해 콘텐츠", "책임 있는 AI 과제. Guardrails, 수위 조절"],
+    ["프롬프트 인젝션", "입력으로 지시를 덮어쓰는 공격. 템플릿·Guardrails Prompt Attack 필터"],
+  ]}
+/>
+
+## 생성형 AI 애플리케이션 라이프사이클
+
+<KeyTable
+  columns={["단계", "할 일"]}
+  rows={[
+    ["범위 정의", "사용 사례, 성공 기준"],
+    ["모델 선택", "모달리티·크기·비용·지연·라이선스"],
+    ["적응", "프롬프트 → RAG → 파인튜닝 순으로 가볍게"],
+    ["평가", "자동 지표 + 사람 평가"],
+    ["배포", "Bedrock On-Demand / Provisioned, SageMaker 엔드포인트"],
+    ["모니터링 · 피드백", "품질, 비용, 안전성"],
+  ]}
+/>
+
+## 기출빈출
+
+<KeyTable
+  columns={["시나리오", "정답"]}
+  rows={[
+    ["FM이 한 번에 받을 수 있는 정보량", "컨텍스트 윈도우"],
+    ["그럴듯하지만 틀린 마케팅 문구 생성", "환각"],
+    ["같은 입력에 매번 다른 응답", "비결정성"],
+    ["학생이 생성형 AI 결과를 그대로 복사", "표절"],
+    ["챗봇이 숨은 입력 지시로 조작됨", "프롬프트 인젝션"],
+    ["Bedrock 비용을 좌우하는 것", "소비 토큰 수"],
+    ["FM이 요청을 처리해 출력하는 속도", "추론 지연 (Inference latency)"],
+    ["RAG용 임베딩 저장 벡터 DB", "OpenSearch Service"],
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["묻는 것", "답"]}
+  rows={[
+    ["단위", "토큰"],
+    ["의미 벡터", "임베딩"],
+    ["틀린데 그럴듯", "환각"],
+    ["매번 다름", "비결정성"],
+    ["더 깊이", <DocLink layer="core-cs" slug="llm-basics">LLM 기초</DocLink>],
+  ]}
+/>

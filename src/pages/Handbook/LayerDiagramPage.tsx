@@ -12,6 +12,7 @@ import SaaLayerDiagramMdx from "./mdx/saa/SaaLayerDiagram.mdx";
 import DvaLayerDiagramMdx from "./mdx/dva/DvaLayerDiagram.mdx";
 import SoaLayerDiagramMdx from "./mdx/soa/SoaLayerDiagram.mdx";
 import CkaLayerDiagramMdx from "./mdx/cka/CkaLayerDiagram.mdx";
+import AifLayerDiagramMdx from "./mdx/aif/AifLayerDiagram.mdx";
 
 const MAIN_CLASS = "max-w-4xl mx-auto min-w-0 px-4 py-8";
 const SCROLL_BACK_KEY = "handbookScrollBackHash";
@@ -71,6 +72,7 @@ const LAYER_DIAGRAM_MDX: Record<
   dva: DvaLayerDiagramMdx,
   soa: SoaLayerDiagramMdx,
   cka: CkaLayerDiagramMdx,
+  aif: AifLayerDiagramMdx,
 };
 
 export function LayerDiagramPage() {

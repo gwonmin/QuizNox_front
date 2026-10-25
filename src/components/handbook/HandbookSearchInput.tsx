@@ -13,6 +13,7 @@ const LAYER_SHORT_LABEL: Record<string, string> = {
   dva: "DVA",
   soa: "SOA",
   cka: "CKA",
+  aif: "AIF",
 };
 
 const LAYER_FILTERS: { id: string | null; label: string }[] = [

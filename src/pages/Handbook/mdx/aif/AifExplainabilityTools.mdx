@@ -1,0 +1,88 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+
+<SectionSummary
+  lead="Clarify는 편향과 설명, Model Monitor는 시간에 따른 품질 저하, Model Cards는 문서화, A2I는 사람 검토입니다. 네 서비스가 책임 있는 AI 문제의 대부분을 덮습니다."
+  bullets={[
+    "'편향 탐지', '예측 설명', '피처 기여도' → Clarify.",
+    "'배포 후', '시간 지나며 품질 저하', '드리프트 알림' → Model Monitor.",
+    "'용도·한계 문서화', '투명성', '이해관계자 공유' → Model Cards. '낮은 신뢰도는 사람이' → A2I.",
+  ]}
+/>
+
+## 네 서비스
+
+<KeyTable
+  columns={["서비스", "하는 일", "시점", "시험 문장"]}
+  rows={[
+    ["SageMaker Clarify", "학습 전 데이터 편향, 학습 후 예측 편향 측정. SHAP로 피처 기여도 설명. FM 평가도 지원", "학습 전후", "detect bias, explain predictions, feature importance"],
+    ["SageMaker Model Monitor", "데이터 품질·모델 품질·편향 드리프트·피처 기여도 드리프트 감지, CloudWatch 알림", "배포 후 지속", "quality degraded over time, drift, notification"],
+    ["SageMaker Model Cards", "모델 용도·성능·한계·학습 데이터·위험 등급 표준 문서화", "전 주기", "document intended use, transparency, governance reporting"],
+    ["Amazon Augmented AI (A2I)", "신뢰도 임계값 이하 예측을 사람 검토 워크플로로", "추론 시", "human review, confidence threshold"],
+  ]}
+/>
+
+## 설명 기법
+
+<KeyTable
+  columns={["기법", "뜻", "범위"]}
+  rows={[
+    ["SHAP (Shapley values)", "각 피처가 예측에 기여한 정도", "개별 예측 + 전체"],
+    ["PDP (Partial Dependence Plot)", "한 피처 값이 변할 때 예측이 어떻게 변하는지", "전체 모델"],
+    ["Feature importance", "피처별 중요도 순위", "전체"],
+    ["LIME", "개별 예측 주변을 단순 모델로 근사", "개별 예측"],
+    ["해석 가능 모델", "결정 트리, 선형 회귀처럼 구조 자체가 설명", "모델 선택"],
+  ]}
+/>
+
+## 투명성 문서
+
+<KeyTable
+  columns={["문서", "대상", "내용"]}
+  rows={[
+    ["SageMaker Model Cards", "내가 만든 모델", "용도, 평가 결과, 한계, 윤리 고려, 승인 상태"],
+    ["AWS AI Service Cards", "AWS 관리형 AI 서비스 (Rekognition, Textract, Titan 등)", "서비스의 의도된 사용, 한계, 책임 AI 설계 선택"],
+    ["Model Registry", "모델 버전·승인", "계보·배포 상태 (문서가 아니라 레지스트리)"],
+  ]}
+/>
+
+## 드리프트 종류
+
+<KeyTable
+  columns={["종류", "뜻", "대응"]}
+  rows={[
+    ["데이터 드리프트", "입력 분포가 학습 때와 달라짐", "Model Monitor 데이터 품질"],
+    ["개념 드리프트", "입력-출력 관계 자체가 바뀜", "재학습"],
+    ["편향 드리프트", "배포 후 집단별 결과 차이 증가", "Model Monitor + Clarify"],
+  ]}
+/>
+
+## 기출빈출
+
+<KeyTable
+  columns={["시나리오", "정답"]}
+  rows={[
+    ["대출 승인 모델의 편향 탐지 + 예측 설명", "Clarify"],
+    ["고객·이해관계자에게 예측 설명 제공", "Clarify"],
+    ["입력 피처가 예측에 어떻게 영향 주는지", "Clarify (SHAP)"],
+    ["한 피처 변화에 따른 예측 변화 시각화", "PDP"],
+    ["배포 4개월 후 품질 저하, 알림 받기", "Model Monitor"],
+    ["여러 모델의 원래 품질 대비 변화 식별", "Model Monitor"],
+    ["모델 용도·학습·추론 세부를 다른 팀에 공유", "Model Cards"],
+    ["모델 목적·성능·한계 표준화", "Model Cards"],
+    ["신뢰도 임계값 정의하고 사람 검토 워크플로", "A2I"],
+  ]}
+/>
+
+## 요약
+
+<KeyTable
+  columns={["키워드", "서비스"]}
+  rows={[
+    ["편향·설명", "Clarify"],
+    ["배포 후 저하·드리프트", "Model Monitor"],
+    ["문서화·투명성", "Model Cards"],
+    ["사람 검토", "A2I"],
+    ["AWS 서비스 자체 설명", "AI Service Cards"],
+  ]}
+/>
