@@ -6,9 +6,10 @@ export default function AifBedrockFeatures() {
   return (
     <>
       <SectionSummary
-        lead="Bedrock은 FM 호출뿐 아니라 Guardrails·Agents·Knowledge Bases·모델 평가·커스터마이징·배포 옵션을 한 서비스로 묶습니다. 시험은 요구사항 한 줄에 기능 하나를 대응시킵니다."
+        lead="Bedrock은 FM 호출뿐 아니라 Guardrails·Agents·Knowledge Bases·모델 평가·커스터마이징·배포 옵션을 한 서비스로 묶는다. 제어 영역(bedrock)으로 기능을 구성하고, 데이터 영역(bedrock-runtime)으로 추론한다."
         bullets={[
           "안전 → Guardrails, 작업 수행 → Agents, 사내 지식 → Knowledge Bases, 모델 비교 → 모델 평가.",
+          "제어(bedrock): 리소스·모델 액세스 관리. 데이터(bedrock-runtime): InvokeModel·Converse 추론.",
           "처리량: 간헐·낮은 사용 → On-Demand, 보장 지연·커스텀 모델 → Provisioned, 대량 비실시간 → Batch inference.",
           "Guardrails 필터 카테고리: Hate, Insults, Sexual, Violence, Misconduct, Prompt Attack.",
         ]}
@@ -19,6 +20,12 @@ export default function AifBedrockFeatures() {
       <KeyTable
         columns={["요구사항", "기능", "비고"]}
         rows={[
+          ["모델 목록·액세스 관리 vs 실시간 추론 호출", "제어 영역 vs 데이터 영역", <>
+              bedrock vs bedrock-runtime.{" "}
+              <DocLink layer="aws-common" slug="bedrock-apis">
+                Bedrock APIs
+              </DocLink>
+            </>],
           ["유해 입력·출력 차단, 주제 제한, PII 마스킹, 환각(근거 없는 답) 차단", "Guardrails", "모델·에이전트·KB에 공통 적용. Contextual grounding check로 근거 검사"],
           ["여러 단계 작업 자동 수행, API(Lambda) 호출, 예약·조회", "Agents", "Action Group(Lambda/OpenAPI) + KB + 메모리. Advanced prompts로 단계 조정"],
           ["사내 문서로 답변, 출처 표시", "Knowledge Bases", "관리형 RAG"],
@@ -104,6 +111,8 @@ export default function AifBedrockFeatures() {
           ["에이전트에 추가 컨텍스트·도구 표준 연결", "MCP"],
           ["단일 엔드포인트, 요청별 최적 모델", "Prompt Router"],
           ["표준 템플릿 재사용", "Prompt Management"],
+          ["사용 가능 모델 목록을 조회한다", "제어 영역 (bedrock)"],
+          ["Lambda가 매 요청 Converse로 답한다", "데이터 영역 (bedrock-runtime)"],
         ]}
       />
 
@@ -115,6 +124,8 @@ export default function AifBedrockFeatures() {
           ["차단·마스킹", "Guardrails"],
           ["작업 수행·API 호출", "Agents"],
           ["사내 문서", "Knowledge Bases"],
+          ["bedrock · 제어 영역", "모델·KB·Agent·Guardrails 관리"],
+          ["bedrock-runtime · 데이터 영역", "InvokeModel · Converse 추론"],
           ["저지연 보장·커스텀 모델", "Provisioned Throughput"],
           ["대량 비동기", "Batch inference"],
           ["교차 리전", "Inference Profile"],

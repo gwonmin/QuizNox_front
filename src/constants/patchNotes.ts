@@ -8,6 +8,15 @@ export interface PatchNote {
 /** 최신순. 릴리즈 때 맨 앞에 하나 추가한다 */
 export const PATCH_NOTES: PatchNote[] = [
   {
+    date: "2026-11-11",
+    title: "핸드북이 모바일에서도 읽기 편해졌어요",
+    items: [
+      "모든 핸드북 문서를 새 형식으로 전환하고 표·목차·다이어그램 모바일 표시를 개선했어요",
+      "AIF 추론 파라미터에 Prompt strength·Diffusion·Generation steps·Seed를 보강했어요",
+      "Bedrock 제어 영역(bedrock)과 데이터 영역(bedrock-runtime)·Converse API 설명을 정리했어요",
+    ],
+  },
+  {
     date: "2026-10-25",
     title: "AWS AI Practitioner(AIF-C01) 기출 329문항과 핸드북 레이어가 추가됐어요",
     items: [

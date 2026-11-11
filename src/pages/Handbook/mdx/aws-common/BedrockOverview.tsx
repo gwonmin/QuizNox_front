@@ -9,9 +9,30 @@ export default function BedrockOverview() {
       <SectionSummary
         lead="Amazon Bedrock은 여러 제공사의 Foundation Model(FM)을 API로 쓰는 관리형 서비스다. 모델 ID·지역·가격은 수시로 바뀌므로 콘솔·문서의 지원 목록을 기준으로 한다."
         bullets={[
+          "제어 영역(bedrock)은 모델·KB·Agent·Guardrails 관리, 데이터 영역(bedrock-runtime)은 InvokeModel·Converse 추론이다.",
           "InvokeModel·Converse 등 API로 텍스트·멀티모달·임베딩을 통합 호출할 수 있다(모델별 지원 상이). 세부 스키마는 Bedrock APIs 문서를 본다.",
           "서버리스 과금(토큰·이미지 단위 등)이 기본이며, 배치·프롬프트 캐시 등 비용 최적화 옵션을 검토한다.",
           "Agent, Knowledge Base, Guardrails, 평가·모델 커스터마이징(지원 모델 한정)으로 엔터프라이즈 구성을 맞출 수 있다.",
+        ]}
+      />
+
+      <h2>제어 영역 vs 데이터 영역</h2>
+
+      <p>
+        Bedrock API는 <strong>제어 영역(Control plane, <code>bedrock</code>)</strong>과{" "}
+        <strong>데이터 영역(Data plane, <code>bedrock-runtime</code>)</strong>으로 나뉜다. 앱의
+        매 요청 추론은 runtime, 리소스·모델 설정은 bedrock 클라이언트다. 상세 API·IAM은{" "}
+        <DocLink layer="aws-common" slug="bedrock-apis">
+          Bedrock APIs
+        </DocLink>
+        를 본다.
+      </p>
+
+      <KeyTable
+        columns={["영역", "클라이언트", "역할", "예"]}
+        rows={[
+          ["제어 영역", "bedrock", "모델·리소스 관리", "ListFoundationModels, KB·Agent·Guardrails CRUD"],
+          ["데이터 영역", "bedrock-runtime", "실시간·스트리밍 추론", "InvokeModel, Converse, ConverseStream"],
         ]}
       />
 
@@ -174,7 +195,9 @@ export default function BedrockOverview() {
           [
             "Model Access",
             <>
-              콘솔에서 모델 액세스를 켠 뒤 InvokeModel·Converse·배치 추론 등으로 호출. 멀티턴·툴 호출은 Converse 쪽이 단순한 경우가 많다. 상세:{" "}
+              제어 영역에서 모델 액세스를 켠 뒤, 데이터 영역(bedrock-runtime)의
+              InvokeModel·Converse·배치 추론 등으로 호출. 멀티턴·툴 호출은 Converse 쪽이 단순한
+              경우가 많다. 상세:{" "}
               <DocLink layer="aws-common" slug="bedrock-apis">
                 Bedrock APIs
               </DocLink>
@@ -226,6 +249,10 @@ export default function BedrockOverview() {
           [
             "Bedrock = 관리형 FM API",
             "인프라 없이 여러 제공사의 Foundation Model을 서버리스로 사용한다.",
+          ],
+          [
+            "bedrock vs bedrock-runtime",
+            "제어 영역(관리) vs 데이터 영역(추론). 핫패스는 runtime.",
           ],
           [
             "모델 선택이 핵심",
