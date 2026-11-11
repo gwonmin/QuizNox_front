@@ -1,0 +1,72 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+import { Callout } from "@/components/handbook/Callout";
+import { DocLink } from "@/components/handbook/DocLink";
+
+export default function ExplicitDeny() {
+  return (
+    <>
+      <SectionSummary
+        lead="IAM 정책 평가에서 명시적 Deny(Effect: Deny)는 어떤 Allow보다 우선합니다. 적용되는 정책 중 하나라도 그 요청을 Deny하면, 다른 정책이 아무리 넓게 Allow해도 거부됩니다. 그래서 Deny는 '넓은 Allow에 구멍을 내지 않고 울타리를 치는' 도구로 쓰입니다. 특정 버킷 보호, 특정 리전 밖 차단, 조직 전체의 금지 규칙이 전형적인 사례입니다."
+        bullets={[
+          "우선순위: 명시적 Deny > 명시적 Allow > 기본 거부. 정책이 하나도 없으면 거부(Deny by default).",
+          "어디서든 적용: Identity 정책 · Resource 정책 · SCP · Permissions Boundary · 세션 정책 중 어느 하나의 Deny도 최종 결과를 거부로 만든다.",
+          "쓰임: 예외 만들기(이 버킷만 불가), 조건부 차단(MFA 없으면 · 특정 IP 밖이면 · 특정 리전이면 거부), 조직 단위 금지(SCP).",
+        ]}
+      />
+
+      <h2>평가 흐름에서 Deny의 위치</h2>
+
+      <MermaidDiagram
+        code={`flowchart TB
+        REQ["요청"] --> COLLECT["적용되는 모든 정책 수집<br/>SCP · Identity · Resource · Boundary · 세션"]
+        COLLECT --> D{"어느 하나라도<br/>명시적 Deny?"}
+        D -->|"예"| DENY["거부"]
+        D -->|"아니오"| A{"어느 하나라도<br/>명시적 Allow?"}
+        A -->|"예"| ALLOW["허용"]
+        A -->|"아니오"| DEF["거부 (기본값)"]`}
+      />
+
+      <p>Deny 검사가 <strong>먼저</strong> 끝난다. Allow가 열 개 있어도 Deny 하나면 끝이므로, Deny 문장은 적을수록 그리고 조건이 분명할수록 좋다.</p>
+
+      <h2>Deny를 쓰는 패턴</h2>
+
+      <KeyTable
+        columns={["패턴", "예시 조건", "효과"]}
+        rows={[
+          ["예외 만들기", "s3:* Allow + 특정 버킷 ARN에 Deny", "넓은 권한을 유지하면서 민감한 버킷만 보호"],
+          ["MFA 강제", "Deny + Condition: aws:MultiFactorAuthPresent = false", "MFA 없이 로그인한 세션은 어떤 Allow가 있어도 거부"],
+          ["리전 제한", "Deny + Condition: aws:RequestedRegion NotEquals 허용 리전", "허용하지 않은 리전에 리소스 생성 차단"],
+          ["네트워크 제한", "Deny + Condition: aws:SourceIp NotIpAddress 사내 대역", "사내망 밖에서 온 요청 거부"],
+          ["조직 가드레일 (SCP)", "조직 루트에 Deny: CloudTrail 중지 · 특정 서비스 사용", "하위 계정의 관리자도 풀 수 없는 금지 규칙"],
+          ["권한 상한 (Boundary)", "Boundary에 없는 액션은 암묵 거부", "개발자가 자기보다 큰 권한의 Role을 만들지 못하게"],
+        ]}
+      />
+
+      <h2>명시적 Deny vs 암묵적 거부</h2>
+
+      <KeyTable
+        columns={["구분", "명시적 Deny", "암묵적 거부 (Deny by default)"]}
+        rows={[
+          ["어떻게 생기나", "정책에 Effect: Deny를 적음", "어떤 정책도 Allow하지 않음"],
+          ["Allow로 뒤집히나", "아니오. 어떤 Allow도 이기지 못함", "예. 어느 정책이든 Allow를 추가하면 허용"],
+          ["쓰임", "절대 허용하면 안 되는 것", "기본 상태. 필요한 것만 Allow로 연다"],
+        ]}
+      />
+
+      <Callout variant="warning" title="Deny는 되돌리기 어렵다">
+        <p>조건을 잘못 쓴 Deny는 관리자까지 잠글 수 있다. 특히 SCP의 Deny는 하위 계정의 루트 사용자도 우회할 수 없다. 넓은 Deny를 넣기 전에 IAM Policy Simulator로 관리자 역할의 핵심 액션이 막히지 않는지 확인하고, 관리자 Role은 Condition으로 Deny에서 제외한다.</p>
+      </Callout>
+
+      <h2>관련 문서</h2>
+
+      <ul>
+        <li>전체 평가 순서: <DocLink layer="aws-common" slug="policy-evaluation">Policy Evaluation Logic</DocLink></li>
+        <li>어떤 정책들이 함께 평가되나: <DocLink layer="aws-common" slug="identity-vs-resource-policy">Identity-based vs Resource-based</DocLink></li>
+        <li>Deny 조건으로 자주 쓰는 요소: <DocLink layer="aws-common" slug="mfa">MFA</DocLink></li>
+        <li>원칙: <DocLink slug="least-privilege">최소 권한</DocLink></li>
+      </ul>
+    </>
+  );
+}

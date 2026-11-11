@@ -1,0 +1,297 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+import { DocLink } from "@/components/handbook/DocLink";
+
+export default function BedrockAgent() {
+  return (
+    <>
+      <SectionSummary
+        lead="Bedrock Agent는 FM + 도구(Action Group · KB · Code Interpreter) + 메모리로 다단계 작업을 수행하는 관리형 서비스다. 루프는 분해 → 행동 → 관찰 → 답변이다."
+        bullets={[
+          "Action Group(OpenAPI + Lambda)으로 주문 조회·티켓 생성 등 부수 효과가 있는 작업을 도구로 노출한다.",
+          "Knowledge Base로 S3·Confluence 등 소스를 동기화해 RAG를 붙이고, Code Interpreter로 코드 실행·분석을 한다.",
+          "Guardrails로 PII·주제 거부·그라운딩 등을 건다. 임의 프레임워크 호스팅은 AgentCore를 본다.",
+        ]}
+      />
+
+      <h2>Bedrock Agent 아키텍처</h2>
+
+      <MermaidDiagram
+        code={`flowchart TB
+        USER["사용자"]
+        AGENT["Bedrock Agent"]
+
+        subgraph brain ["추론 엔진"]
+          FM["Foundation Model\n(Claude 등)"]
+          INST["지시 (Instruction)\n에이전트 역할 · 행동 규칙"]
+          FM ~~~ INST
+        end
+
+        subgraph tools ["도구"]
+          AG1["Action Group 1\n(주문 조회)"]
+          AG2["Action Group 2\n(결제 처리)"]
+          L1["Lambda 함수"]
+          L2["Lambda 함수"]
+          AG1 --> L1
+          L1 ~~~ AG2
+          AG2 --> L2
+        end
+
+        subgraph knowledge ["지식"]
+          KB["Knowledge Base"]
+          S3["S3\n(문서 소스)"]
+          VDB["벡터 DB\n(OpenSearch)"]
+          S3 --> KB
+          KB --> VDB
+        end
+
+        subgraph safety ["안전장치"]
+          GR["Guardrails"]
+        end
+
+        USER --> GR --> AGENT
+        AGENT --> brain
+        AGENT --> tools
+        AGENT --> knowledge
+        AGENT --> GR --> USER`}
+      />
+
+      <h2>도구: Action Group · Knowledge Base · Code Interpreter</h2>
+
+      <p>Agent가 쓰는 도구는 크게 세 갈래다.</p>
+
+      <KeyTable
+        columns={["도구", "역할"]}
+        rows={[
+          ["Action Group", "OpenAPI + Lambda로 외부 API·업무 로직 호출"],
+          ["Knowledge Base", "사내 문서 RAG 검색·인용"],
+          ["Code Interpreter", "샌드박스에서 코드 실행 · 계산 · 데이터 분석"],
+        ]}
+      />
+
+      <h3>Action Group</h3>
+
+      <p>Action Group은 Agent가 <strong>외부 세계와 상호작용</strong>하기 위한 도구 세트이다. 각 Action Group은 Lambda 함수와 연결되어 실제 작업을 수행한다.</p>
+
+      <KeyTable
+        columns={["구성 요소", "설명"]}
+        rows={[
+          [
+            "API Schema (OpenAPI)",
+            "Agent가 호출할 수 있는 API를 OpenAPI 스펙으로 정의한다. 파라미터·응답 형식을 명시.",
+          ],
+          [
+            "Lambda 함수",
+            "실제 로직을 실행하는 백엔드. API 호출, DB CRUD, 외부 서비스 연동 등을 처리.",
+          ],
+          [
+            "Agent의 선택",
+            "FM이 사용자 요청을 분석하여 어떤 Action Group의 어떤 API를 호출할지 자율적으로 결정한다.",
+          ],
+        ]}
+      />
+
+      <MermaidDiagram
+        code={`flowchart TB
+        REQ["사용자: 최근 주문 상태 알려줘"]
+        AGENT["Agent\n(FM이 추론)"]
+        THINK["Thought: 주문 조회\nAPI를 호출해야 한다"]
+        ACTION["Action: GetOrderStatus\n(order_id: 12345)"]
+        LAMBDA["Lambda\n(DynamoDB 조회)"]
+        OBS["Observation:\n배송 중, 3/16 도착 예정"]
+        ANS["Agent 답변:\n주문 #12345는 현재 배송 중이며\n3/16 도착 예정입니다."]
+
+        REQ --> AGENT --> THINK --> ACTION --> LAMBDA --> OBS --> ANS`}
+      />
+
+      <h2>Knowledge Base</h2>
+
+      <p>Knowledge Base는 <strong>S3에 저장된 문서를 자동으로 RAG 파이프라인으로 구성</strong>해주는 관리형 서비스이다.</p>
+
+      <MermaidDiagram
+        code={`flowchart TB
+        subgraph setup ["설정 (1회)"]
+          S3["S3 버킷\n(PDF, HTML, TXT 등)"]
+          SYNC["자동 동기화\n(청킹 · 임베딩)"]
+          VDB["벡터 DB\n(OpenSearch Serverless\n/ Pinecone / Aurora)"]
+          S3 --> SYNC --> VDB
+        end
+
+        subgraph query ["질의 (매 요청)"]
+          Q["사용자 질문"]
+          EMB["질문 임베딩"]
+          SEARCH["벡터 검색"]
+          CTX["관련 문서 + 질문"]
+          FM["FM 생성"]
+          ANS["근거 기반 답변\n+ 출처"]
+          Q --> EMB --> SEARCH --> CTX --> FM --> ANS
+        end
+
+        VDB -.-> SEARCH`}
+      />
+
+      <KeyTable
+        columns={["기능", "설명"]}
+        rows={[
+          [
+            "자동 청킹",
+            "문서를 자동으로 적절한 크기로 분할. 고정 크기, 시맨틱, 계층적 청킹 전략 선택 가능.",
+          ],
+          [
+            "임베딩",
+            "Amazon Titan Embeddings 또는 Cohere Embed 모델로 자동 벡터화.",
+          ],
+          [
+            "벡터 DB 연동",
+            "OpenSearch Serverless, Pinecone, Aurora pgvector, Redis 등 선택 가능.",
+          ],
+          [
+            "동기화 · 증분",
+            "소스 변경 시 재인덱싱·증분 동기화로 최신성을 유지. 대규모 문서는 동기화 주기·비용을 함께 설계한다.",
+          ],
+          [
+            "출처 인용",
+            "답변에 사용된 원본 문서의 S3 위치와 관련 문장을 함께 반환.",
+          ],
+        ]}
+      />
+
+      <h2>Guardrails</h2>
+
+      <p>Guardrails는 Agent의 <strong>입출력에 안전장치</strong>를 적용하여 부적절한 콘텐츠를 차단하고 규정을 준수하게 한다.</p>
+
+      <KeyTable
+        columns={["기능", "설명", "예시"]}
+        rows={[
+          [
+            "콘텐츠 필터",
+            "유해 콘텐츠(폭력, 혐오, 성적 등)를 감지하고 차단한다. 카테고리별 강도 조절 가능.",
+            "욕설이 포함된 응답 차단",
+          ],
+          [
+            "주제 제한 (Denied Topics)",
+            "Agent가 다루면 안 되는 주제를 정의한다.",
+            "투자 조언, 의료 진단 등 금지 주제 설정",
+          ],
+          [
+            "PII 마스킹",
+            "개인정보(이름, 전화번호, 주민번호 등)를 자동으로 감지하고 마스킹한다.",
+            "홍길동 → [NAME], 010-1234-5678 → [PHONE]",
+          ],
+          [
+            "Grounding Check",
+            "답변이 Knowledge Base 검색 결과에 근거하는지 검증한다. 근거 없는 환각을 차단.",
+            "검색 결과에 없는 내용을 답변하려 할 때 차단",
+          ],
+          [
+            "Word Filter",
+            "특정 단어·문구를 입출력에서 차단한다.",
+            "경쟁사명, 비속어, 내부 코드명 등 차단",
+          ],
+        ]}
+      />
+
+      <MermaidDiagram
+        code={`flowchart TB
+        INPUT["사용자 입력"]
+        GR_IN["Guardrails\n(입력 필터링)"]
+        AGENT["Agent 처리\n(FM + Tool + KB)"]
+        GR_OUT["Guardrails\n(출력 필터링)"]
+        OUTPUT["안전한 응답"]
+
+        INPUT --> GR_IN
+        GR_IN -->|"통과"| AGENT --> GR_OUT
+        GR_OUT -->|"통과"| OUTPUT
+        GR_IN -->|"차단"| BLOCK1["차단 메시지"]
+        GR_OUT -->|"차단"| BLOCK2["차단 메시지"]`}
+      />
+
+      <h2>운영 시 고려 사항</h2>
+
+      <KeyTable
+        columns={["항목", "설명"]}
+        rows={[
+          [
+            "세션 · 메모리",
+            "대화 세션 ID로 멀티턴 맥락을 유지한다. 장기 기억이 필요하면 애플리케이션 측 저장소와 정책을 분리한다.",
+          ],
+          [
+            "스트리밍",
+            "응답을 토큰 단위로 스트리밍하면 체감 지연이 줄어든다. 클라이언트는 중단·재시도 UX를 준비한다.",
+          ],
+          [
+            "관측성",
+            "CloudWatch·X-Ray 등으로 Lambda·Agent 호출을 추적하고, 도구 실패율·토큰 사용량을 대시보드에 올린다.",
+          ],
+          [
+            "멀티 에이전트",
+            "복합 시나리오는 상위 오케스트레이터 Agent가 하위 Agent를 호출하는 패턴으로 나눈다. 순환 호출·비용 상한을 명시한다.",
+          ],
+        ]}
+      />
+
+      <h2>Agent + KB + Guardrails 통합 구성</h2>
+
+      <MermaidDiagram
+        code={`flowchart TB
+        USER["사용자"]
+
+        subgraph bedrock ["Bedrock Agent"]
+          GR_IN["Guardrails (입력)"]
+          FM["FM (추론)"]
+          GR_OUT["Guardrails (출력)"]
+
+          subgraph decide ["FM의 판단"]
+            D1{"도구가 필요한가?"}
+            D2{"지식이 필요한가?"}
+            D3{"바로 답변 가능?"}
+          end
+        end
+
+        AG["Action Group\n(Lambda)"]
+        KB["Knowledge Base\n(벡터 검색)"]
+        ANS["최종 답변"]
+
+        USER --> GR_IN --> FM
+        FM --> decide
+        D1 -->|"Yes"| AG --> FM
+        D2 -->|"Yes"| KB --> FM
+        D3 -->|"Yes"| GR_OUT --> ANS --> USER`}
+      />
+
+      <h2>요약</h2>
+
+      <KeyTable
+        columns={["핵심 포인트", "설명"]}
+        rows={[
+          [
+            "Action Group = Agent의 손",
+            "Lambda 연동으로 API 호출, DB 조회 등 실제 작업을 수행한다. OpenAPI 스펙으로 도구를 정의.",
+          ],
+          [
+            "Knowledge Base = Agent의 지식",
+            "S3 문서를 자동으로 RAG 파이프라인으로 구성. 코드 없이 근거 기반 답변 제공.",
+          ],
+          [
+            "Code Interpreter",
+            "코드 실행으로 계산·분석. Action Group·KB와 함께 도구 축을 이룬다.",
+          ],
+          [
+            "Guardrails = Agent의 안전장치",
+            "콘텐츠 필터, 주제 제한, PII 마스킹, Grounding Check로 프로덕션 수준의 안전성 확보.",
+          ],
+          [
+            "AgentCore",
+            <>
+              임의 프레임워크·FM 호스팅·Gateway·Identity.{" "}
+              <DocLink layer="aws-common" slug="bedrock-agentcore">
+                AgentCore
+              </DocLink>
+            </>,
+          ],
+        ]}
+      />
+    </>
+  );
+}

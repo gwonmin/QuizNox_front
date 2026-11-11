@@ -1,0 +1,183 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+export default function StatelessStateful() {
+  return (
+    <>
+      <SectionSummary
+        lead="Stateless는 서버가 요청 간 상태를 보관하지 않는 모델이고, Stateful은 서버가 세션 등 상태를 메모리에 보관하는 모델입니다."
+        bullets={[
+          "Stateless: 요청마다 독립, 세션/로그인 상태는 클라이언트나 별도 저장소에 둔다.",
+          "Stateful: 같은 클라이언트가 같은 서버로 가야 하는 경우가 많아 확장·장애 처리에 주의가 필요하다.",
+        ]}
+      />
+
+      <h2>Stateless vs Stateful 한눈에 비교</h2>
+
+      <KeyTable
+        columns={["구분", "Stateless", "Stateful"]}
+        rows={[
+          [
+            "서버 상태",
+            "요청 간 상태를 서버가 보관하지 않는다.",
+            "서버가 요청 간 상태(세션, 메모리 등)를 보관한다.",
+          ],
+          [
+            "요청 처리",
+            "요청1 → 서버A, 요청2 → 서버B 등 아무 인스턴스나 처리 가능하다.",
+            "같은 클라이언트 요청은 같은 서버로 가야 할 수 있다(스티키).",
+          ],
+          [
+            "확장성",
+            "수평 확장에 유리하다.",
+            "상태 공유·이전이 필요해 확장·장애 처리 시 설계가 복잡해진다.",
+          ],
+        ]}
+      />
+
+      <h2>개념 도식</h2>
+
+      <MermaidDiagram
+        code={`flowchart LR
+        subgraph sl [Stateless]
+          C1["클라이언트"] --> R1["요청1"]
+          R1 --> A["서버 A"]
+          C1 --> R2["요청2"]
+          R2 --> B["서버 B"]
+          A -.->|"상태 없음"| B
+        end`}
+      />
+
+      <MermaidDiagram
+        code={`flowchart LR
+        subgraph sf [Stateful]
+          C2["클라이언트"] --> R3["요청1"]
+          R3 --> S["서버 A"]
+          C2 --> R4["요청2"]
+          R4 --> S
+          S --> M["상태 보관"]
+        end`}
+      />
+
+      <h2>실제 예시</h2>
+
+      <KeyTable
+        columns={["구분", "예시", "이유"]}
+        rows={[
+          [
+            "Stateless",
+            "날씨 API, 검색 API",
+            "“오늘 날씨 알려줘”만 보내면 되며, 서버가 이전 요청을 기억할 필요가 없다.",
+          ],
+          [
+            "Stateful",
+            "쇼핑 카트(서버 메모리), 터미널 SSH 세션",
+            "카트·로그인 세션이 서버 메모리에 있어서 다음 요청도 같은 서버로 가야 한다.",
+          ],
+        ]}
+      />
+
+      <hr />
+
+      <h2>Stateless 세션 관리 — JWT 기반 인증</h2>
+
+      <p>로그인 상태를 서버 메모리에 저장하면 Stateful이 되지만, <strong>JWT(JSON Web Token)</strong> 를 사용하면 서버가 상태를 보관하지 않고도 사용자를 식별할 수 있다.</p>
+
+      <h3>Stateful 세션 vs Stateless JWT 흐름 비교</h3>
+
+      <MermaidDiagram
+        code={`flowchart TB
+        subgraph stateful ["Stateful: 서버 세션"]
+          C1["클라이언트"] -->|"1. 로그인"| S1["서버 A"]
+          S1 -->|"2. 세션 생성\n(서버 메모리 저장)"| S1
+          S1 -->|"3. session_id 반환"| C1
+          C1 -->|"4. session_id로 요청"| S1
+          S1 -->|"5. 메모리에서\n세션 조회"| S1
+        end
+
+        subgraph stateless ["Stateless: JWT"]
+          C2["클라이언트"] -->|"1. 로그인"| S2["서버 A"]
+          S2 -->|"2. JWT 발급\n(서명만 하고 저장 안 함)"| C2
+          C2 -->|"3. JWT와 함께 요청"| S3["서버 B"]
+          S3 -->|"4. 서명 검증만으로\n사용자 확인"| S3
+        end
+        stateful ~~~ stateless`}
+      />
+
+      <KeyTable
+        columns={["항목", "Stateful (서버 세션)", "Stateless (JWT)"]}
+        rows={[
+          [
+            "상태 저장 위치",
+            "서버 메모리 또는 세션 스토어(Redis 등)",
+            "클라이언트(토큰 자체에 정보 포함)",
+          ],
+          [
+            "서버 확장",
+            "세션 공유(Redis) 또는 Sticky Session 필요",
+            "아무 서버나 처리 가능 — 수평 확장에 유리",
+          ],
+          [
+            "인증 처리",
+            "매 요청마다 세션 스토어 조회",
+            "서명 검증만 수행 — DB/스토어 조회 불필요",
+          ],
+          [
+            "토큰 무효화",
+            "세션 삭제로 즉시 무효화 가능",
+            "만료 전 강제 무효화가 어려움 — 블랙리스트 별도 관리 필요",
+          ],
+          [
+            "장애 영향",
+            "세션 스토어 장애 시 전체 인증 불가",
+            "서버 장애 시에도 다른 서버가 토큰 검증 가능",
+          ],
+        ]}
+      />
+
+      <h3>JWT 구조</h3>
+
+      <KeyTable
+        columns={["파트", "내용", "역할"]}
+        rows={[
+          [
+            "Header",
+            '{"alg": "HS256", "typ": "JWT"}',
+            "서명 알고리즘과 토큰 타입을 명시한다.",
+          ],
+          [
+            "Payload",
+            '{"sub": "user123", "role": "admin", "exp": 1700000000}',
+            "사용자 정보(클레임)를 담는다. 서버가 별도 저장 없이 이 정보로 인증·인가한다.",
+          ],
+          [
+            "Signature",
+            "HMAC-SHA256(header + payload, secret)",
+            "위변조를 방지한다. 서버는 비밀키로 서명을 검증만 하면 된다.",
+          ],
+        ]}
+      />
+
+      <h3>Stateless를 유지하면서 보완하는 패턴</h3>
+
+      <KeyTable
+        columns={["패턴", "설명"]}
+        rows={[
+          [
+            "짧은 만료 + Refresh Token",
+            "Access Token은 짧게(15분 등), Refresh Token으로 갱신한다. 탈취 시 피해 범위를 줄인다.",
+          ],
+          [
+            "토큰 블랙리스트",
+            "로그아웃·강제 만료 시 토큰 ID(jti)를 Redis 등에 짧은 TTL로 저장한다. 조회 부담이 적어 Stateless 이점을 크게 잃지 않는다.",
+          ],
+          [
+            "Token Rotation",
+            "Refresh Token 사용 시마다 새 토큰을 발급하고 이전 것을 무효화한다. 탈취된 토큰의 재사용을 탐지할 수 있다.",
+          ],
+        ]}
+      />
+    </>
+  );
+}

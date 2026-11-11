@@ -1,0 +1,304 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+
+export default function Rag() {
+  return (
+    <>
+      <SectionSummary
+        lead="RAG(Retrieval-Augmented Generation)는 외부 지식을 검색해 프롬프트에 넣고 LLM이 생성하는 구조다. 단순 벡터 검색을 넘어 하이브리드 검색·재순위·에이전트형 반복 검색·접근 통제까지 포함해 설계한다."
+        bullets={[
+          "환각을 줄이고 출처·인용 가능한 답을 지향한다(완전 제거는 아님).",
+          "인덱스만 갱신하면 지식을 최신화할 수 있어 운영 주기가 짧다.",
+          "임베딩·청킹·검색·재순위·생성이 분리되어 있어, 병목 구간을 계측·개선하기 좋다.",
+        ]}
+      />
+
+      <h2>RAG가 필요한 이유</h2>
+
+      <KeyTable
+        columns={["문제", "LLM만 사용", "RAG 적용"]}
+        rows={[
+          [
+            "지식 최신성",
+            "학습 데이터 이후 정보를 모름 (cut-off)",
+            "외부 DB에서 최신 정보를 검색하여 답변에 반영",
+          ],
+          [
+            "사내 정보",
+            "내부 문서·정책을 전혀 알 수 없음",
+            "사내 문서를 벡터 DB에 저장하고 검색하여 활용",
+          ],
+          [
+            "Hallucination",
+            "없는 정보를 그럴듯하게 생성 (환각)",
+            "검색된 근거를 기반으로 답변하여 환각 감소",
+          ],
+          [
+            "출처 제공",
+            "어디서 얻은 정보인지 알 수 없음",
+            "검색된 문서 출처를 함께 제공 가능",
+          ],
+        ]}
+      />
+
+      <h2>RAG 아키텍처</h2>
+
+      <MermaidDiagram
+        code={`flowchart TB
+        subgraph indexing ["인덱싱 파이프라인 (오프라인)"]
+          direction LR
+          DOC["원본 문서\n(PDF, 위키, DB 등)"]
+          CHUNK["청킹\n(문서 분할)"]
+          EMBED1["임베딩\n(텍스트 → 벡터)"]
+          VDB["벡터 DB\n저장"]
+          DOC --> CHUNK --> EMBED1 --> VDB
+        end
+
+        subgraph retrieval ["검색 + 생성 파이프라인 (온라인)"]
+          direction LR
+          QUERY["사용자 질문"]
+          EMBED2["질문 임베딩"]
+          SEARCH["벡터 유사도 검색\n(상위 K개)"]
+          CTX["검색된 문서 + 질문\n(프롬프트 구성)"]
+          LLM["LLM"]
+          ANS["근거 기반 답변"]
+          QUERY --> EMBED2 --> SEARCH --> CTX --> LLM --> ANS
+        end
+
+        VDB -.->|"검색"| SEARCH`}
+      />
+
+      <h2>핵심 구성 요소</h2>
+
+      <KeyTable
+        columns={["구성 요소", "역할", "대표 도구"]}
+        rows={[
+          [
+            "문서 로더 (Loader)",
+            "다양한 형식(PDF, HTML, DB, API 등)에서 텍스트를 추출한다.",
+            "LangChain Document Loaders, LlamaIndex Readers",
+          ],
+          [
+            "청킹 (Chunking)",
+            "긴 문서를 검색에 적합한 작은 단위로 분할한다. 청크 크기와 겹침(overlap)이 품질에 큰 영향.",
+            "RecursiveCharacterTextSplitter, SemanticChunker",
+          ],
+          [
+            "임베딩 모델 (Embedding)",
+            "텍스트를 의미를 담은 고차원 벡터로 변환한다. 유사한 의미의 텍스트는 가까운 벡터로 매핑. 다국어 · 도메인 적합도는 모델마다 다르다.",
+            "제공사 임베딩 API(OpenAI, Cohere, Amazon Titan 등), E5 · BGE 같은 오픈 가중치 모델",
+          ],
+          [
+            "벡터 DB",
+            "임베딩 벡터를 저장하고, 질문 벡터와 가장 유사한 문서를 빠르게 검색한다.",
+            "Pinecone, Weaviate, Chroma, pgvector, OpenSearch, FAISS",
+          ],
+          [
+            "LLM",
+            "검색된 문서와 질문을 받아 근거 기반 답변을 생성한다. 구조화 출력(JSON 스키마)으로 인용 필드를 고정하면 운영이 쉬워진다.",
+            "범용 LLM API 또는 자체 호스팅 모델 (최신 목록은 LLM 기초 문서의 링크 참고)",
+          ],
+        ]}
+      />
+
+      <h2>Chunking 전략</h2>
+
+      <KeyTable
+        columns={["전략", "방식", "장단점"]}
+        rows={[
+          [
+            "고정 크기 분할",
+            "일정 문자/토큰 수로 기계적으로 자른다.",
+            "구현이 단순하지만, 문맥이 중간에 잘릴 수 있음.",
+          ],
+          [
+            "Recursive 분할",
+            "문단 → 문장 → 단어 순서로 계층적으로 분할한다.",
+            "자연스러운 경계를 유지. 가장 많이 사용되는 방식.",
+          ],
+          [
+            "Semantic 분할",
+            "임베딩 유사도를 기반으로 의미 단위로 분할한다.",
+            "의미적 일관성이 높지만, 추가 임베딩 비용 발생.",
+          ],
+          [
+            "Document 구조 기반",
+            "Markdown 헤딩, HTML 태그, PDF 섹션 등 문서 구조를 활용.",
+            "구조가 명확한 문서에 매우 효과적.",
+          ],
+        ]}
+      />
+
+      <blockquote><p><strong>Overlap(겹침)</strong>: 인접 청크 간에 일부 텍스트를 겹치게 하여 문맥 손실을 줄인다. 일반적으로 청크 크기의 10~20%를 겹침으로 설정.</p></blockquote>
+
+      <h2>Naive RAG vs Advanced RAG</h2>
+
+      <MermaidDiagram
+        code={`flowchart TB
+        subgraph naive ["Naive RAG"]
+          direction LR
+          N1["질문"] --> N2["벡터 검색"] --> N3["상위 K개\n문서 조회"] --> N4["LLM에 전달"] --> N5["답변"]
+        end
+
+        subgraph advanced ["Advanced RAG"]
+          direction LR
+          A1["질문"] --> A2["쿼리 변환\n(확장·분해)"]
+          A2 --> A3["하이브리드 검색\n(벡터 + 키워드)"]
+          A3 --> A4["Re-ranking\n(관련도 재정렬)"]
+          A4 --> A5["LLM에 전달"] --> A6["답변"]
+        end
+        naive ~~~ advanced
+      `}
+      />
+
+      <KeyTable
+        columns={["구분", "Naive RAG", "Advanced RAG"]}
+        rows={[
+          [
+            "쿼리 처리",
+            "사용자 질문을 그대로 임베딩하여 검색",
+            "쿼리 변환(HyDE, 서브 쿼리 분해, 확장) 후 검색",
+          ],
+          [
+            "검색 방식",
+            "벡터 유사도 검색만 사용",
+            "벡터 + 키워드(BM25) 하이브리드 검색",
+          ],
+          [
+            "결과 정제",
+            "검색 결과를 그대로 LLM에 전달",
+            "Re-ranker로 관련도 재정렬 후 상위 결과만 전달",
+          ],
+          [
+            "정확도",
+            "단순 질문에는 충분하지만, 복잡한 질문에 약함",
+            "복잡한 질문, 멀티홉 추론에서 높은 정확도",
+          ],
+        ]}
+      />
+
+      <h2>Advanced RAG 주요 기법</h2>
+
+      <KeyTable
+        columns={["기법", "설명"]}
+        rows={[
+          [
+            "HyDE (Hypothetical Document Embedding)",
+            "LLM이 먼저 가상의 답변을 생성하고, 그 답변을 임베딩하여 검색한다. 질문보다 답변 스타일의 벡터가 문서와 더 잘 매칭.",
+          ],
+          [
+            "Sub-query Decomposition",
+            "복잡한 질문을 여러 하위 질문으로 분해하여 각각 검색한 뒤 종합한다.",
+          ],
+          [
+            "Hybrid Search",
+            "벡터 검색(의미적 유사도) + 키워드 검색(BM25, 정확 매칭)을 결합하여 검색 품질을 높인다.",
+          ],
+          [
+            "Re-ranking",
+            "Cross-encoder 모델로 (질문, 문서) 쌍의 관련도를 정밀 평가하여 순위를 재조정한다. 제공사 Rerank API나 오픈 가중치 reranker를 쓴다.",
+          ],
+          [
+            "Parent-Child Chunking",
+            "검색은 작은 청크(child)로 하되, LLM에는 해당 청크가 속한 큰 문맥(parent)을 전달하여 문맥 손실을 방지한다.",
+          ],
+          [
+            "Self-RAG",
+            "LLM이 스스로 '검색이 필요한지' 판단하고, 검색 결과의 관련성도 자체 평가한다.",
+          ],
+          [
+            "Agentic RAG",
+            "에이전트가 질의를 고치거나 하위 질문으로 쪼개 검색을 여러 번 돌린 뒤 합성한다. 복잡 질문에 유리하나 비용·지연이 커질 수 있다.",
+          ],
+          [
+            "Graph·구조화 보강",
+            "엔티티·관계 그래프나 메타데이터(ACL·제품군)를 검색에 얹어 멀티홉·권한 질의를 돕는 패턴. 구축 비용은 높다.",
+          ],
+          [
+            "Contextualized chunking",
+            "청크에 문서 제목·섹션 요약을 붙여 임베딩하는 식으로 검색 시 문맥 단서를 보강한다.",
+          ],
+        ]}
+      />
+
+      <h2>접근 통제 · 보안</h2>
+
+      <KeyTable
+        columns={["항목", "설명"]}
+        rows={[
+          [
+            "문서 ACL",
+            "검색 결과는 요청자 권한과 교집합이어야 한다. 인덱스에 테넌트·역할 메타데이터를 넣고 필터링한다.",
+          ],
+          [
+            "PII · 비밀",
+            "인덱싱 전 마스킹·토큰화할지, 검색 로그에 원문을 남기지 않을지 정책을 정한다.",
+          ],
+          [
+            "프롬프트 인젝션",
+            "문서 본문에 숨은 지시가 검색 결과로 들어올 수 있다. 출력 검증·도메인 가드레일을 병행한다.",
+          ],
+        ]}
+      />
+
+      <h2>RAG 평가 지표</h2>
+
+      <KeyTable
+        columns={["지표", "측정 대상", "설명"]}
+        rows={[
+          [
+            "Faithfulness",
+            "답변의 근거 충실도",
+            "생성된 답변이 검색된 문서에 근거하는 비율. 환각 여부를 측정.",
+          ],
+          [
+            "Answer Relevancy",
+            "답변의 관련성",
+            "답변이 원래 질문에 얼마나 적합한지 평가.",
+          ],
+          [
+            "Context Precision",
+            "검색 정밀도",
+            "검색된 문서 중 실제로 답변에 필요한 문서의 비율.",
+          ],
+          [
+            "Context Recall",
+            "검색 재현율",
+            "답변에 필요한 정보가 검색 결과에 얼마나 포함되었는지.",
+          ],
+        ]}
+      />
+
+      <blockquote><p>RAGAS·DeepEval·OpenAI Evals 등 프레임워크·LLM-as-judge로 위 지표를 자동화하는 사례가 많다. 평가 세트는 실제 유저 질의 분포를 반영해 주기적으로 갱신한다.</p></blockquote>
+
+      <h2>요약</h2>
+
+      <KeyTable
+        columns={["핵심 포인트", "설명"]}
+        rows={[
+          [
+            "RAG = 검색 + 생성",
+            "외부 지식을 검색하여 LLM 프롬프트에 주입함으로써 정확하고 근거 있는 답변을 생성한다.",
+          ],
+          [
+            "청킹과 임베딩이 품질을 좌우",
+            "문서를 어떻게 분할하고 벡터화하느냐에 따라 검색 품질이 크게 달라진다.",
+          ],
+          [
+            "Naive RAG를 넘어 Advanced RAG로",
+            "쿼리 변환, 하이브리드 검색, Re-ranking을 적용하면 복잡한 질문에도 높은 정확도를 달성한다.",
+          ],
+          [
+            "평가 체계가 필수",
+            "Faithfulness, Context Precision 등 지표로 RAG 파이프라인을 지속적으로 개선한다.",
+          ],
+          [
+            "보안은 파이프라인 설계",
+            "ACL·프롬프트 인젝션·로그 마스킹을 RAG 단계에 포함한다.",
+          ],
+        ]}
+      />
+    </>
+  );
+}

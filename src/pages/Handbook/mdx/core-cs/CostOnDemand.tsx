@@ -1,0 +1,70 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+import { Callout } from "@/components/handbook/Callout";
+import { DocLink } from "@/components/handbook/DocLink";
+
+export default function CostOnDemand() {
+  return (
+    <>
+      <SectionSummary
+        lead="온디맨드(On-Demand)는 약정 없이 쓴 만큼 표준 단가로 내는 구매 방식입니다. 세 가지 구매 옵션 중 가장 비싸지만 가장 자유롭고, 모든 리소스는 별도로 지정하지 않으면 온디맨드로 과금됩니다. 그래서 온디맨드는 '선택하는 것'이라기보다 '얼마나 남겨 둘지 정하는 것'에 가깝습니다."
+        bullets={[
+          "특징: 약정 · 선결제 없음. 켜면 과금, 끄면 끝. 단가는 예약 · 스팟보다 높다.",
+          "맞는 곳: 사용량을 아직 모르는 새 서비스, 짧게 쓰는 실험 · 테스트, 예측 불가능한 급증분.",
+          "역할: 기준선은 예약으로, 중단 허용 작업은 스팟으로 보내고 남는 변동분을 온디맨드가 받는다.",
+        ]}
+      />
+
+      <h2>세 구매 옵션 사이의 위치</h2>
+
+      <MermaidDiagram
+        code={`flowchart TB
+        OD["온디맨드<br/>약정 없음 · 표준 단가"]
+        RI["예약 · Savings Plans<br/>1~3년 약정 · 할인"]
+        SP["스팟<br/>중단 허용 · 큰 할인"]
+        OD -->|"사용량이 안정되면"| RI
+        OD -->|"중단돼도 되는 작업이면"| SP`}
+      />
+
+      <p>새 워크로드는 온디맨드로 시작한다. 몇 주 사용량을 본 뒤 <strong>일정하게 쓰는 부분</strong>은 예약으로, <strong>중단돼도 되는 부분</strong>은 스팟으로 옮기고, 나머지가 온디맨드로 남는다.</p>
+
+      <h2>비교</h2>
+
+      <KeyTable
+        columns={["항목", "온디맨드", "예약 · Savings Plans", "스팟"]}
+        rows={[
+          ["약정", "없음", "1년 또는 3년", "없음"],
+          ["단가", "기준(100%)", "할인", "큰 할인 (시세 변동)"],
+          ["중단", "없음", "없음", "용량 회수 시 2분 전 통지 후 중단"],
+          ["맞는 워크로드", "변동 · 단기 · 미확정", "24시간 안정 기준선", "배치 · 재시도 가능한 작업"],
+          ["리스크", "장기적으로 가장 비쌈", "안 쓰면 약정분 낭비", "중단 · 용량 부족"],
+        ]}
+      />
+
+      <h2>온디맨드가 맞는 경우</h2>
+
+      <KeyTable
+        columns={["상황", "이유"]}
+        rows={[
+          ["출시 직후 서비스", "사용량 패턴이 없다. 약정하면 과하거나 모자라게 묶인다"],
+          ["개발 · 테스트 환경", "근무 시간에만 켜고 스케줄로 끈다. 켜 둔 시간이 짧아 약정 효과가 작다"],
+          ["계절 · 이벤트 피크분", "1년 중 며칠만 필요한 용량을 1년 약정으로 사는 것은 손해"],
+          ["중단을 못 견디는 임시 작업", "스팟은 중단되고 예약은 길다. 짧고 중요한 작업은 온디맨드"],
+        ]}
+      />
+
+      <Callout variant="warning" title="기본값이 온디맨드라는 것이 함정">
+        <p>아무도 결정하지 않으면 모든 리소스가 온디맨드로 과금된다. 몇 달 동안 24시간 돌아가는 서버가 온디맨드로 남아 있으면 그만큼 할인 기회를 버리는 것이다. Cost Explorer의 커버리지 리포트에서 "온디맨드로 남은 안정 사용량"을 정기적으로 확인한다.</p>
+      </Callout>
+
+      <h2>관련 문서</h2>
+
+      <ul>
+        <li>다른 구매 옵션: <DocLink slug="cost-reserved">예약</DocLink> · <DocLink slug="cost-spot">스팟</DocLink></li>
+        <li>어디에 얼마나 쓰고 있는지: <DocLink slug="cost-visibility">비용 관측</DocLink></li>
+        <li>컴퓨트 비용 전체 구조: <DocLink slug="cost-compute">컴퓨트 비용</DocLink></li>
+      </ul>
+    </>
+  );
+}

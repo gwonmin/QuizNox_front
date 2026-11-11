@@ -7512,6 +7512,7 @@ export const HANDBOOK_DOC_EXCERPTS: Record<string, HandbookDocExcerpt> = {
       "어떻게 말해야 모델이 잘 따르나?",
       "이번 호출에 무엇을 넣고 무엇을 빼야 하나?",
       "필요한 정보가 없거나, 너무 많아서 중요한 정보를 놓침",
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
       "원하는 결과의 가능성을 최대화하는 가장 작은 고신호 토큰 집합",
       "지시문 (system)",
       "위에서부터 순서대로 이어 붙임",
@@ -7529,8 +7530,7 @@ export const HANDBOOK_DOC_EXCERPTS: Record<string, HandbookDocExcerpt> = {
       "원본 그대로 넣지 말고 필요한 필드만 추리거나 잘라서 넣는다.",
       "입력 토큰 수에 비례해 요금과 응답 시간이 늘어난다. Agent는 같은 컨텍스트를 매 단계 다시 보내므로 누적 효과가 크다.",
       "컨텍스트가 길어질수록 모델이 특정 정보를 정확히 찾아 쓰는 능력이 떨어지는 경향이 있다(context rot).",
-      "오래된 정보와 새 정보, 서로 다른 출처가 섞이면 모델이 어느 쪽을 따를지 흔들린다.",
-      "도구 결과나 검색 문서에 섞인 지시문이 모델 행동을 바꿀 수 있다(prompt injection)."
+      "오래된 정보와 새 정보, 서로 다른 출처가 섞이면 모델이 어느 쪽을 따를지 흔들린다."
     ],
     "terms": [
       "모델을",
@@ -7783,8 +7783,8 @@ export const HANDBOOK_DOC_EXCERPTS: Record<string, HandbookDocExcerpt> = {
       "실패하면 오류 내용을 넣어 같은 단계를 다시 시도한다.",
       "형식 오류·일시적 실패를 스스로 회복한다.",
       "원인이 바뀌지 않으면 같은 실패를 반복한다.",
-      "단계가 항상 같다 (분류 → 검색 → 답변)",
-      "정해진 workflow. 루프 없이 순서대로 호출한다."
+      "https://www.anthropic.com/engineering/building-effective-agents",
+      "단계가 항상 같다 (분류 → 검색 → 답변)"
     ],
     "terms": [
       "관찰",
@@ -7892,6 +7892,8 @@ export const HANDBOOK_DOC_EXCERPTS: Record<string, HandbookDocExcerpt> = {
       "4. Harness: 도구 실행 (timeout · 격리)",
       "5. 결과 정리 후 컨텍스트에 추가",
       "6. Model: 결과를 보고 다음 행동 결정",
+      "주문 번호로 주문 상태를 조회한다. 환불 가능 여부 판단 전에 먼저 호출한다.",
+      "^ORD-[0-9]{8}$",
       "모델이 도구를 고르는 1차 단서",
       "동사 + 대상 (get_order, create_refund). 비슷한 이름을 여러 개 두지 않는다.",
       "언제 쓰고 언제 쓰지 말지 알려줌",
@@ -7909,9 +7911,7 @@ export const HANDBOOK_DOC_EXCERPTS: Record<string, HandbookDocExcerpt> = {
       "API 엔드포인트 5개를 순서대로 부르게 하기보다, 작업 하나를 끝내는 도구 하나가 더 정확하고 토큰도 적게 든다.",
       "결과는 작고 바로 쓸 수 있게",
       "큰 JSON 원본 대신 필요한 필드만. 목록은 페이지 단위로 자르고 '더 있음'을 알린다.",
-      "오류는 고칠 수 있는 말로",
-      "'400 Bad Request' 대신 'order_id 형식은 ORD-8자리 숫자. 받은 값: 1234'처럼 원인과 고칠 방법을 준다.",
-      "재시도로 같은 호출이 두 번 와도 결과가 한 번만 반영되게 한다. Idempotency 문서 참고."
+      "오류는 고칠 수 있는 말로"
     ],
     "terms": [
       "모델이",
@@ -8279,6 +8279,7 @@ export const HANDBOOK_DOC_EXCERPTS: Record<string, HandbookDocExcerpt> = {
       "인계 (takeover)",
       "작업 주도권을 사람이 가져가 직접 끝낸다.",
       "코딩 Agent가 막히면 사용자에게 제어를 돌려줌",
+      "https://openai.com/business/guides-and-resources/a-practical-guide-to-building-ai-agents/",
       "읽기 전용, 외부에 영향 없음",
       "주문 조회, 문서 검색",
       "쓰기지만 되돌릴 수 있음",
@@ -8290,8 +8291,7 @@ export const HANDBOOK_DOC_EXCERPTS: Record<string, HandbookDocExcerpt> = {
       "작업의 토큰 · 비용 예산을 더 써야 끝낼 수 있을 때",
       "검증 실패나 평가 점수가 기준 미만일 때",
       "정책상 사람 판단이 필요한 영역",
-      "법률 · 의료 · 인사처럼 책임이 사람에게 있어야 하는 결정",
-      "Agent: 행동 제안 (도구 + 인자)"
+      "법률 · 의료 · 인사처럼 책임이 사람에게 있어야 하는 결정"
     ],
     "terms": [
       "정해진",
@@ -8540,11 +8540,11 @@ export const HANDBOOK_DOC_EXCERPTS: Record<string, HandbookDocExcerpt> = {
       "경로 · 최종 답 · 지연 · 비용",
       "대화 전체로 목표를 이뤘나",
       "사용자 의도 파악, 최종 해결 여부, 같은 질문 반복 여부",
+      "https://docs.langchain.com/langsmith/online-evaluations-multi-turn",
       "정답 비교, 스키마 검사, 테스트 실행, 금지 행동 검사",
       "정답이 하나가 아닌 작업에는 못 씀",
       "Trajectory 비교",
-      "기대한 도구 호출 순서와 실제를 비교 (정확히 일치 · 순서 무관 · 부분집합 · 상위집합)",
-      "경로 오류를 결정적으로 잡음"
+      "기대한 도구 호출 순서와 실제를 비교 (정확히 일치 · 순서 무관 · 부분집합 · 상위집합)"
     ],
     "terms": [
       "평가는",
@@ -8651,6 +8651,7 @@ export const HANDBOOK_DOC_EXCERPTS: Record<string, HandbookDocExcerpt> = {
       "지연, 오류율, 처리량",
       "여기에 토큰 · 비용 · 단계 수 · 도구 실패율 · 품질 점수 추가",
       "오류 없이 틀린 답, 불필요한 반복, 잘못된 도구 선택",
+      "https://docs.aws.amazon.com/wellarchitected/latest/agentic-ai-lens/design-principles.html",
       "Session: 대화 하나",
       "Trace: 사용자 요청 하나",
       "span: 모델 호출 (계획)",
@@ -8664,14 +8665,13 @@ export const HANDBOOK_DOC_EXCERPTS: Record<string, HandbookDocExcerpt> = {
       "Handoff · 하위 Agent",
       "보낸 쪽 · 받은 쪽, 넘긴 이유, 넘긴 컨텍스트 크기",
       "단계 번호, checkpoint 저장, 승인 대기 진입 · 해제, 종료 이유",
+      "https://github.com/open-telemetry/semantic-conventions-genai",
       "Agent 하나를 실행",
       "여러 Agent · 작업으로 이뤄진 흐름 전체를 실행",
       "모델 추론 (chat 등)",
       "모델 호출 하나. span 이름은 '작업 이름 + 요청 모델' 형식",
       "HTTP · 도구 서버 호출",
-      "W3C Trace Context 헤더(traceparent)를 전달",
-      "메시지 속성에 trace 문맥을 넣고 소비자가 이어받음",
-      "session ID를 모든 span 속성(또는 baggage)에 넣어 대화 전체를 묶음"
+      "W3C Trace Context 헤더(traceparent)를 전달"
     ],
     "terms": [
       "서버",
@@ -11591,6 +11591,7 @@ export const HANDBOOK_DOC_EXCERPTS: Record<string, HandbookDocExcerpt> = {
       "Cohere · Stability 등",
       "Cohere, Stability AI 등",
       "임베딩·명령형 텍스트·이미지 생성 등 용도별 SKU가 있다.",
+      "https://docs.aws.amazon.com/bedrock/latest/userguide/models-supported.html",
       "코딩, 분석, 요약, 대화, 이미지 생성 등 목적에 따라 모델 강점이 다르다.",
       "코딩 → Claude Sonnet, 간단 분류 → Haiku, 이미지 → SDXL",
       "입출력 토큰당 과금. 모델별 가격 차이가 크다.",
@@ -11599,8 +11600,7 @@ export const HANDBOOK_DOC_EXCERPTS: Record<string, HandbookDocExcerpt> = {
       "실시간 챗봇 → Haiku(빠름), 배치 분석 → Sonnet(품질)",
       "긴 문서·멀티턴은 SKU별 상한이 다르다. 초과 시 RAG·요약으로 나눈다.",
       "요구 토큰 수를 산정한 뒤 해당 범위를 지원하는 모델을 고른다.",
-      "Fine-tuning 필요성",
-      "특정 도메인에 맞춰야 하면 Fine-tuning을 지원하는 모델을 선택한다."
+      "Fine-tuning 필요성"
     ],
     "terms": [
       "여러",
@@ -17816,7 +17816,9 @@ export const HANDBOOK_DOC_EXCERPTS: Record<string, HandbookDocExcerpt> = {
       "CA를 지우면 클러스터를 다시 만들어야 한다. renew만 쓴다.",
       "certs renew all",
       "manifests 잠시 이동",
-      "apiserver 재생성"
+      "apiserver 재생성",
+      "$HOME/.kube/config",
+      "$(id -u):$(id -g)"
     ],
     "terms": [
       "컨트롤",
@@ -17934,7 +17936,8 @@ export const HANDBOOK_DOC_EXCERPTS: Record<string, HandbookDocExcerpt> = {
       "Deployment 필드를 남김",
       "replicas와 strategy는 DaemonSet에 없다. 남기면 apply가 거부된다.",
       "liveness / readiness",
-      "Deployment replicas"
+      "Deployment replicas",
+      "sleep infinity"
     ],
     "terms": [
       "원하는",
@@ -18855,7 +18858,8 @@ export const HANDBOOK_DOC_EXCERPTS: Record<string, HandbookDocExcerpt> = {
       "admin.conf 권한",
       "root 소유인 채 두면 시험 계정에서 kubectl이 거부된다.",
       "init의 pod-network-cidr과 CNI 설정의 대역이 다르면 Pod 경로가 끊긴다.",
-      "kubeadm init"
+      "kubeadm init",
+      "$(id -u):$(id -g)"
     ],
     "terms": [
       "으로",
@@ -20490,7 +20494,8 @@ export const HANDBOOK_DOC_EXCERPTS: Record<string, HandbookDocExcerpt> = {
       "kubelet이 보는 staticPodPath는 보통 /etc/kubernetes/manifests 하나다.",
       "여러 컨트롤 플레인의 주소",
       "advertise-address와 etcd endpoints가 그 노드 IP인지 확인한다.",
-      "/etc/kubernetes/manifests"
+      "/etc/kubernetes/manifests",
+      "$(sudo crictl ps -a --name kube-apiserver -q | head -n 1)"
     ],
     "terms": [
       "서버",

@@ -116,7 +116,7 @@ export function HandbookLayout({
   return (
     <main
       className={cn(
-        "max-w-6xl mx-auto min-w-0 px-4 py-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_260px]",
+        "mx-auto grid min-w-0 max-w-6xl gap-8 px-4 py-8 pt-[max(2rem,env(safe-area-inset-top))] pb-[max(2rem,env(safe-area-inset-bottom))] lg:grid-cols-[minmax(0,1fr)_260px]",
         !hasToc && "lg:grid-cols-[minmax(0,1fr)]",
         className,
       )}
@@ -124,10 +124,13 @@ export function HandbookLayout({
       <section className="min-w-0">
         <div className={cn("min-w-0", centerReadingColumn && "mx-auto w-full max-w-4xl")}>
           <header className="mb-6">
-            <nav aria-label="breadcrumb" className="text-sm text-muted-foreground">
+            <nav aria-label="breadcrumb" className="flex flex-wrap items-center gap-y-1 text-sm text-muted-foreground">
               {showBackToListLink && (
                 <>
-                  <Link to={backToListHref} className="hover:text-foreground">
+                  <Link
+                    to={backToListHref}
+                    className="inline-flex min-h-11 items-center hover:text-foreground lg:min-h-0"
+                  >
                     핸드북
                   </Link>
                   {layerTitle && (
@@ -136,7 +139,7 @@ export function HandbookLayout({
                       {layerHref ? (
                         <Link
                           to={layerHref}
-                          className="text-foreground/80 hover:text-foreground"
+                          className="inline-flex min-h-11 items-center text-foreground/80 hover:text-foreground lg:min-h-0"
                         >
                           {layerTitle}
                         </Link>
@@ -150,10 +153,12 @@ export function HandbookLayout({
             </nav>
             <div className="mt-3 space-y-1">
               {docTitle && (
-                <h1 className="text-xl font-semibold text-foreground">{docTitle}</h1>
+                <h1 className="text-xl font-semibold leading-snug tracking-tight text-foreground sm:text-2xl">
+                  {docTitle}
+                </h1>
               )}
               {sectionTitle && (
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   {sectionTitle}
                   {sectionIndex != null && sectionCount != null && sectionCount > 0 && (
                     <>
@@ -171,7 +176,7 @@ export function HandbookLayout({
                       <span className="mx-1.5 text-muted-foreground/60">·</span>
                       <Link
                         to={backToDiagramHref}
-                        className="text-xs text-primary hover:underline"
+                        className="inline-flex min-h-11 items-center text-sm text-primary hover:underline lg:min-h-0"
                       >
                         {backLabel}
                       </Link>
@@ -183,12 +188,12 @@ export function HandbookLayout({
           </header>
 
           {hasToc && (
-            <div className="sticky top-0 z-20 -mx-4 mb-4 border-b border-border/80 bg-background/95 px-4 py-2 backdrop-blur lg:hidden">
+            <div className="sticky top-0 z-20 -mx-4 mb-4 border-b border-border/80 bg-background/95 px-4 py-2 backdrop-blur supports-[padding:max(0px)]:pt-[max(0.5rem,env(safe-area-inset-top))] lg:hidden">
               <details
                 ref={mobileTocRef}
-                className="rounded-lg border border-border bg-muted/40 px-3"
+                className="rounded-xl border border-border bg-muted/40 px-3"
               >
-                <summary className="flex min-h-11 cursor-pointer items-center gap-2 text-sm font-semibold text-muted-foreground">
+                <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 text-sm font-semibold text-muted-foreground [&::-webkit-details-marker]:hidden">
                   <span className="shrink-0">이 페이지 목차</span>
                   {activeTitle && (
                     <span className="min-w-0 flex-1 truncate font-normal text-foreground">
@@ -198,7 +203,7 @@ export function HandbookLayout({
                 </summary>
                 <nav
                   aria-label="문서 목차"
-                  className="mt-1 max-h-[min(24rem,50vh)] overflow-y-auto pb-2"
+                  className="mt-1 max-h-[min(24rem,50vh)] overflow-y-auto overscroll-contain pb-2"
                 >
                   <TocNav items={items} activeId={activeId} onSelect={selectHeading} />
                 </nav>
@@ -206,7 +211,9 @@ export function HandbookLayout({
             </div>
           )}
 
-          <div ref={contentRef} className="min-w-0">{children}</div>
+          <div ref={contentRef} className="min-w-0 text-sm leading-relaxed sm:text-[0.9375rem] sm:leading-7">
+            {children}
+          </div>
         </div>
       </section>
 

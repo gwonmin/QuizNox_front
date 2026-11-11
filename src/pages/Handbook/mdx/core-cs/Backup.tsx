@@ -1,0 +1,71 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+import { DocLink } from "@/components/handbook/DocLink";
+
+export default function Backup() {
+  return (
+    <>
+      <SectionSummary
+        lead="백업은 장애·손실 시 복구할 수 있도록 데이터나 상태를 별도로 보관하는 수단입니다. RPO(복구 시점 목표)에 맞춰 백업 주기와 유형을 정하고, 보존 정책으로 보관 기간을 관리한다."
+        bullets={[
+          "전체·증분·차등 백업 등 유형에 따라 복구 시간·저장 비용이 달라지므로 RPO·RTO와 함께 설계한다.",
+          "보존 기간·보관 위치(동일 리전/다른 리전)를 정해 규정·복구 시나리오에 맞춘다.",
+          "복구 목표 지표는 RTO/RPO에서 다룬다.",
+        ]}
+      />
+
+      <h2>백업 유형별 저장량과 복구 경로</h2>
+
+      <MermaidDiagram
+        code={`flowchart TB
+        subgraph full [전체]
+          F1["일 · 전체"] --> F2["월 · 전체"] --> F3["화 · 전체"]
+        end
+        subgraph inc [증분]
+          I0["일 · 전체"] --> I1["월 · 변경분"] --> I2["화 · 변경분"]
+        end
+        subgraph diff [차등]
+          D0["일 · 전체"] --> D1["월 · 일 이후 변경"] --> D2["화 · 일 이후 변경"]
+        end
+        F3 -.->|"복구: 화 하나"| R1["복구"]
+        I2 -.->|"복구: 일 + 월 + 화"| R2["복구"]
+        D2 -.->|"복구: 일 + 화"| R3["복구"]`}
+      />
+
+      <p>전체 백업은 매번 크지만 복구가 한 번에 끝난다. 증분은 가장 작지만 체인이 하나라도 깨지면 그 뒤를 복구할 수 없다. 차등은 그 중간이다. 실무에서는 주 1회 전체 + 매일 증분(또는 차등)처럼 섞고, <strong>복구 시간이 RTO 안에 들어오는지</strong>를 기준으로 조합을 정한다.</p>
+
+      <h2>백업 유형</h2>
+
+      <KeyTable
+        columns={["유형", "설명", "특징"]}
+        rows={[
+          ["전체(Full)", "매번 전체 데이터를 백업한다.", "복구는 빠르나 시간·저장 비용이 크다."],
+          ["증분(Incremental)", "마지막 백업(전체 또는 증분) 이후 변경분만 백업한다.", "저장량·시간 절약. 복구 시 전체+증분 체인 필요."],
+          ["차등(Differential)", "마지막 전체 백업 이후 변경분만 백업한다.", "복구는 전체+최근 차등만 필요. 증분보다 복구 단순."],
+        ]}
+      />
+
+      <h2>보존·설계 시 고려</h2>
+
+      <KeyTable
+        columns={["항목", "설명"]}
+        rows={[
+          ["보존 기간", "얼마나 오래 보관할지. 규정·감사·포렌식 요구에 맞춘다."],
+          ["보관 위치", "동일 리전(저장 비용·접근 속도) vs 다른 리전·오프사이트(재해 대비)."],
+          ["RPO와의 관계", "RPO가 1시간이면 백업·복제 주기가 1시간 이내여야 한다. 백업 유형·주기가 RPO를 만족하는지 검증한다."],
+          ["복구 연습", "복원해 본 적 없는 백업은 백업이 아니다. 분기마다 실제로 복원해 RTO를 측정한다."],
+        ]}
+      />
+
+      <h2>관련 문서</h2>
+
+      <ul>
+        <li>복구 목표를 정하는 기준: <DocLink slug="rto-rpo">RTO · RPO</DocLink></li>
+        <li>백업과 다른 보호 수단: <DocLink slug="replication">복제</DocLink> · <DocLink slug="dr-strategy">DR 전략</DocLink></li>
+        <li>보관 비용 관리: <DocLink slug="cost-storage">스토리지 비용</DocLink></li>
+        <li>AWS 구현: <DocLink layer="soa" slug="ebs-snapshot">EBS 스냅샷</DocLink> · <DocLink layer="saa" slug="backup">Backup (SAA)</DocLink></li>
+      </ul>
+    </>
+  );
+}

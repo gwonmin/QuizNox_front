@@ -3,6 +3,7 @@ import { useHandbookAsyncHold } from "@/contexts/HandbookContentReadyContext";
 import { useDiagramLinks } from "@/contexts/DiagramLinksContext";
 import { injectDiagramLinks } from "@/utils/injectDiagramLinks";
 import { loadMermaid, renderMermaid } from "@/utils/loadMermaid";
+import { cn } from "@/lib/utils";
 
 const RENDER_DELAY_MS = 200;
 
@@ -83,11 +84,16 @@ export function MermaidDiagramWithLinks({
   }, [code, completeHold, diagramIndex, ctx?.diagramLinks, ctx?.onDiagramLinkClick]);
 
   return (
-    <div
-      ref={wrapperRef}
-      className={className ?? "my-4 mermaid-wrapper"}
-      role="img"
-      aria-label="다이어그램"
-    />
+    <div className={cn("my-5", className)}>
+      <div
+        ref={wrapperRef}
+        className="mermaid-wrapper min-h-[8rem] rounded-xl border border-border/50 bg-muted/20 p-2 sm:p-3"
+        role="img"
+        aria-label="다이어그램"
+      />
+      <p className="mt-1.5 text-center text-[0.6875rem] text-muted-foreground md:hidden">
+        좌우로 밀어 도식을 볼 수 있습니다
+      </p>
+    </div>
   );
 }

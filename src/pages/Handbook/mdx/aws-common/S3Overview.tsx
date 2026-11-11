@@ -1,0 +1,77 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+import { DocLink } from "@/components/handbook/DocLink";
+
+export default function S3Overview() {
+  return (
+    <>
+      <SectionSummary
+        lead="S3는 객체 스토리지 서비스로, 일관성·스토리지 클래스·버전·수명 주기·암호화·복제 등으로 비용·내구성·보안을 설정합니다."
+        bullets={[
+          "Strong Read-After-Write: PUT·덮어쓰기·삭제 직후 같은 키로 GET 시 최신 결과 보장.",
+          "스토리지 클래스: Standard(자주 접근), Intelligent-Tiering(패턴 변동), Standard-IA·Glacier(덜 접근·아카이브).",
+          "Versioning·Lifecycle·SSE(암호화)·CRR/SRR(복제)로 운영·비용·보안을 관리.",
+        ]}
+      />
+
+      <h2>객체 하나의 수명</h2>
+
+      <MermaidDiagram
+        code={`flowchart TB
+        PUT["PUT (SSE 암호화)"] --> STD["Standard"]
+        STD -->|"30일 · Lifecycle"| IA["Standard-IA"]
+        IA -->|"90일 · Lifecycle"| GL["Glacier"]
+        GL -->|"N년 · Expiration"| DEL["삭제"]
+        STD -.->|"CRR / SRR"| REP["다른 버킷의 복제본"]
+        STD -.->|"덮어쓰기 · 삭제"| VER["이전 버전<br/>(Versioning)"]`}
+      />
+
+      <p>객체는 올라간 뒤 <strong>접근이 뜸해질수록 싼 클래스로</strong> 옮겨지고 결국 만료된다. 그 사이 복제는 다른 버킷에 사본을, 버저닝은 같은 버킷에 이전 상태를 남긴다. 둘 다 저장 용량을 늘리므로 Lifecycle에 이전 버전 만료 규칙을 함께 둔다.</p>
+
+      <h2>스토리지 클래스</h2>
+
+      <KeyTable
+        columns={["클래스", "용도", "비용·특성"]}
+        rows={[
+          ["Standard", "자주 접근", "기본 가격"],
+          ["Intelligent-Tiering", "접근 패턴 변동", "자동 티어 이동"],
+          ["Standard-IA", "가끔 접근", "검색 비용 있음"],
+          ["Glacier 계열", "아카이브", "복구 시간·저장 비용 낮음"],
+        ]}
+      />
+
+      <h2>Versioning · Lifecycle · 복제</h2>
+
+      <KeyTable
+        columns={["항목", "설명"]}
+        rows={[
+          ["Versioning", "덮어쓰기·삭제해도 이전 버전 ID로 조회·복구 가능"],
+          ["Lifecycle Transition", "N일 후 스토리지 클래스 자동 전환"],
+          ["Lifecycle Expiration", "N일 후 객체·이전 버전 삭제"],
+          ["CRR / SRR", "다른 리전(DR)·같은 리전(로그 등) 복제, 버전링 필요"],
+        ]}
+      />
+
+      <h2>SSE (서버 측 암호화)</h2>
+
+      <KeyTable
+        columns={["구분", "SSE-S3", "SSE-KMS"]}
+        rows={[
+          ["키 관리", "S3", "KMS"],
+          ["감사·제어", "제한적", "상세(CloudTrail 등)"],
+        ]}
+      />
+
+      <h2>관련 문서</h2>
+
+      <ul>
+        <li>객체 스토리지의 자리: <DocLink slug="block-file-object">Block · File · Object</DocLink></li>
+        <li>클래스 · Lifecycle이 비용에 미치는 영향: <DocLink slug="cost-storage">스토리지 비용</DocLink></li>
+        <li>암호화 키 관리: <DocLink layer="aws-common" slug="kms-basics">KMS</DocLink></li>
+        <li>프라이빗 서브넷에서 S3 접근: <DocLink layer="aws-common" slug="vpc-endpoint">VPC Endpoint</DocLink></li>
+        <li>시험 관점: <DocLink layer="saa" slug="s3-static-hosting">S3 정적 호스팅</DocLink> · <DocLink layer="saa" slug="ebs-vs-efs-fsx">EBS vs EFS vs FSx</DocLink></li>
+      </ul>
+    </>
+  );
+}

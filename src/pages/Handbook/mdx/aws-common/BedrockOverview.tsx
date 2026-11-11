@@ -1,0 +1,246 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+import { DocLink } from "@/components/handbook/DocLink";
+
+export default function BedrockOverview() {
+  return (
+    <>
+      <SectionSummary
+        lead="Amazon Bedrock은 여러 제공사의 Foundation Model(FM)을 API로 쓰는 관리형 서비스다. 모델 ID·지역·가격은 수시로 바뀌므로 콘솔·문서의 지원 목록을 기준으로 한다."
+        bullets={[
+          "InvokeModel·Converse 등 API로 텍스트·멀티모달·임베딩을 통합 호출할 수 있다(모델별 지원 상이). 세부 스키마는 Bedrock APIs 문서를 본다.",
+          "서버리스 과금(토큰·이미지 단위 등)이 기본이며, 배치·프롬프트 캐시 등 비용 최적화 옵션을 검토한다.",
+          "Agent, Knowledge Base, Guardrails, 평가·모델 커스터마이징(지원 모델 한정)으로 엔터프라이즈 구성을 맞출 수 있다.",
+        ]}
+      />
+
+      <h2>Bedrock 핵심 구성</h2>
+
+      <MermaidDiagram
+        code={`flowchart TB
+        subgraph bedrock ["Amazon Bedrock"]
+          FM["Foundation Models\n(Claude, Llama, Titan 등)"]
+          AG["Bedrock Agent\n(도구 호출 · 자율 수행)"]
+          KB["Knowledge Base\n(RAG 자동 구성)"]
+          GR["Guardrails\n(안전장치 · 필터링)"]
+          FT["Fine-tuning\n(커스텀 학습)"]
+          FM ~~~ KB
+          AG ~~~ GR
+        end
+
+        APP["애플리케이션"] --> bedrock
+        S3["S3\n(문서 소스)"] --> KB
+        LAMBDA["Lambda\n(Action Group)"] --> AG
+        VDB["벡터 DB\n(OpenSearch 등)"] --> KB`}
+      />
+
+      <h2>지원 모델(패밀리 관점)</h2>
+
+      <KeyTable
+        columns={["패밀리", "제공사", "특징"]}
+        rows={[
+          [
+            "Claude 시리즈",
+            "Anthropic",
+            "추론·코딩·장문에 자주 선택. Sonnet·Opus·Haiku 등 티어별로 속도·단가·컨텍스트가 다르다.",
+          ],
+          [
+            "Llama 시리즈",
+            "Meta",
+            "오픈웨이트 계열을 Bedrock에서 호스팅. 일부 SKU는 커스터마이징·미세조정 옵션이 있다.",
+          ],
+          [
+            "Mistral 등",
+            "Mistral AI 등",
+            "경량·코드·유럽 규정 대응 시나리오에서 후보가 된다.",
+          ],
+          [
+            "Amazon Titan",
+            "Amazon",
+            "텍스트·임베딩·이미지 등 네이티브 모델. 다른 AWS 서비스와 연계 시 단순하다.",
+          ],
+          [
+            "Cohere · Stability 등",
+            "Cohere, Stability AI 등",
+            "임베딩·명령형 텍스트·이미지 생성 등 용도별 SKU가 있다.",
+          ],
+        ]}
+      />
+
+      <blockquote><p>실제 모델 ID·리전 가용·컨텍스트 길이는 <a href="https://docs.aws.amazon.com/bedrock/latest/userguide/models-supported.html" target="_blank" rel="noreferrer">Bedrock 지원 모델 문서</a>와 콘솔에서 확인한다.</p></blockquote>
+
+      <h2>모델 선택 기준</h2>
+
+      <KeyTable
+        columns={["기준", "설명", "선택 예시"]}
+        rows={[
+          [
+            "작업 유형",
+            "코딩, 분석, 요약, 대화, 이미지 생성 등 목적에 따라 모델 강점이 다르다.",
+            "코딩 → Claude Sonnet, 간단 분류 → Haiku, 이미지 → SDXL",
+          ],
+          [
+            "비용",
+            "입출력 토큰당 과금. 모델별 가격 차이가 크다.",
+            "대량 처리·비용 민감 → Haiku/Llama, 품질 우선 → Sonnet",
+          ],
+          [
+            "지연 시간",
+            "모델 크기가 클수록 응답이 느리다.",
+            "실시간 챗봇 → Haiku(빠름), 배치 분석 → Sonnet(품질)",
+          ],
+          [
+            "컨텍스트 길이",
+            "긴 문서·멀티턴은 SKU별 상한이 다르다. 초과 시 RAG·요약으로 나눈다.",
+            "요구 토큰 수를 산정한 뒤 해당 범위를 지원하는 모델을 고른다.",
+          ],
+          [
+            "Fine-tuning 필요성",
+            "특정 도메인에 맞춰야 하면 Fine-tuning을 지원하는 모델을 선택한다.",
+            "커스텀 학습 → Llama, Titan",
+          ],
+        ]}
+      />
+
+      <h2>Bedrock vs SageMaker</h2>
+
+      <KeyTable
+        columns={["구분", "Bedrock", "SageMaker"]}
+        rows={[
+          [
+            "주요 목적",
+            "Foundation Model을 API로 바로 사용",
+            "커스텀 ML 모델을 직접 학습·배포·운영",
+          ],
+          [
+            "인프라 관리",
+            "서버리스 — 인프라 관리 불필요",
+            "인스턴스 선택·관리 필요 (GPU, 엔드포인트 등)",
+          ],
+          [
+            "모델",
+            "사전 학습된 FM을 선택하여 사용. 제한적 Fine-tuning.",
+            "모든 ML 프레임워크(PyTorch, TF 등)로 자유롭게 학습.",
+          ],
+          [
+            "커스터마이징",
+            "Prompt Engineering + 제한적 Fine-tuning + RAG(Knowledge Base)",
+            "데이터·모델·학습 루프 전체를 자유롭게 제어",
+          ],
+          [
+            "시작 속도",
+            "빠름 — API 키만 있으면 바로 사용",
+            "느림 — 데이터 준비, 학습 파이프라인 구축 필요",
+          ],
+          [
+            "비용 모델",
+            "토큰당 과금 (종량제)",
+            "인스턴스 시간당 과금 + 스토리지",
+          ],
+          [
+            "적합한 경우",
+            "생성형 AI 앱, 챗봇, RAG, Agent 구축",
+            "자체 ML 모델 학습, 고도로 커스터마이징된 모델이 필요할 때",
+          ],
+        ]}
+      />
+
+      <MermaidDiagram
+        code={`flowchart LR
+        subgraph bedrock ["Bedrock"]
+          direction TB
+          B1["FM 선택 (Claude, Llama 등)"]
+          B2["API 호출"]
+          B3["Agent / KB / Guardrails"]
+          B1 --> B2 --> B3
+        end
+
+        subgraph sagemaker ["SageMaker"]
+          direction TB
+          S1["데이터 준비"]
+          S2["모델 학습 (GPU)"]
+          S3["엔드포인트 배포"]
+          S4["모니터링 · 재학습"]
+          S1 --> S2 --> S3 --> S4
+        end`}
+      />
+
+      <h2>Bedrock 주요 기능 요약</h2>
+
+      <KeyTable
+        columns={["기능", "설명"]}
+        rows={[
+          [
+            "Model Access",
+            <>
+              콘솔에서 모델 액세스를 켠 뒤 InvokeModel·Converse·배치 추론 등으로 호출. 멀티턴·툴 호출은 Converse 쪽이 단순한 경우가 많다. 상세:{" "}
+              <DocLink layer="aws-common" slug="bedrock-apis">
+                Bedrock APIs
+              </DocLink>
+              .
+            </>,
+          ],
+          [
+            "프롬프트 관리",
+            "시스템 지시·Few-shot 예시를 버전 관리하고, 환경별로 배포한다. IaC·SDK와 함께 두면 재현성이 좋다.",
+          ],
+          [
+            "Knowledge Base",
+            "S3 문서를 자동으로 청킹·임베딩하여 벡터 DB에 저장. RAG를 코드 없이 구성.",
+          ],
+          [
+            "Agent",
+            <>
+              FM + Action Group(Lambda) + Knowledge Base를 조합하여 자율적으로 작업을 수행하는 Agent 구축.{" "}
+              <DocLink layer="aws-common" slug="bedrock-agent">
+                Bedrock Agent
+              </DocLink>
+              ·{" "}
+              <DocLink layer="aws-common" slug="bedrock-agentcore">
+                AgentCore
+              </DocLink>
+              .
+            </>,
+          ],
+          [
+            "Guardrails",
+            "입출력에 대한 콘텐츠 필터링, 주제 제한, PII 마스킹 등 안전장치 적용.",
+          ],
+          [
+            "Fine-tuning",
+            "지원 모델(Llama, Titan 등)에 대해 커스텀 데이터로 추가 학습.",
+          ],
+          [
+            "Model Evaluation",
+            "여러 모델의 품질을 자동으로 비교·평가하여 최적 모델을 선택.",
+          ],
+        ]}
+      />
+
+      <h2>요약</h2>
+
+      <KeyTable
+        columns={["핵심 포인트", "설명"]}
+        rows={[
+          [
+            "Bedrock = 관리형 FM API",
+            "인프라 없이 여러 제공사의 Foundation Model을 서버리스로 사용한다.",
+          ],
+          [
+            "모델 선택이 핵심",
+            "작업 유형, 비용, 지연시간, 컨텍스트 길이를 고려하여 적합한 모델을 선택한다.",
+          ],
+          [
+            "Bedrock = 빠른 시작, SageMaker = 깊은 커스터마이징",
+            "생성형 AI 앱은 Bedrock, 자체 ML 모델 학습은 SageMaker가 적합하다.",
+          ],
+          [
+            "Agent + KB + Guardrails로 엔터프라이즈 AI 구축",
+            "도구 호출, RAG, 안전장치를 통합하여 프로덕션 수준의 AI 시스템을 만든다.",
+          ],
+        ]}
+      />
+    </>
+  );
+}

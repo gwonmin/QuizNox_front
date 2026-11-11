@@ -1,0 +1,82 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+import { DocLink } from "@/components/handbook/DocLink";
+
+export default function GitOps() {
+  return (
+    <>
+      <SectionSummary
+        lead="GitOps는 Git을 배포 desired state의 단일 소스로 두고, 클러스터·환경이 그 상태와 자동으로 동기화되게 하는 방식입니다. 배포 자동화를 넘어 선언적·감사 가능·롤백 쉬운 배포를 추구한다."
+        bullets={[
+          "애플리케이션·인프라의 desired state(매니페스트, Helm 차트, Kustomize 등)를 Git 레포에 두고, 변경은 커밋·PR·머지로만 반영한다.",
+          "GitOps 컨트롤러(Argo CD, Flux 등)가 Git와 클러스터를 주기적으로 비교해, drift가 있으면 클러스터를 Git 상태로 맞춘다(pull 기반).",
+          "배포 자동화(파이프라인이 아티팩트를 푸시해 배포)는 기본이고, GitOps는 '어떤 버전이 어디에 배포됐는지'를 Git 이력으로 남기고 재현·롤백을 단순화한다.",
+        ]}
+      />
+
+      <h2>Push 배포와 Pull 동기화</h2>
+
+      <MermaidDiagram
+        code={`flowchart TB
+        subgraph push ["배포 자동화 (push)"]
+          P1["CI 파이프라인"] -->|"kubectl apply · API 호출"| P2["클러스터"]
+        end
+        subgraph pull ["GitOps (pull)"]
+          G1["Git 레포<br/>desired state"]
+          G2["GitOps 컨트롤러<br/>(Argo CD · Flux)"]
+          G3["클러스터<br/>actual state"]
+          G2 -->|"주기적으로 읽음"| G1
+          G2 -->|"비교 · drift 수정"| G3
+        end
+        CI["CI: 이미지 빌드"] -->|"이미지 태그 커밋"| G1`}
+      />
+
+      <p>Push 방식은 파이프라인이 클러스터 자격을 들고 직접 밀어 넣는다. Pull 방식은 클러스터 안의 컨트롤러가 Git을 읽어 스스로 맞춘다. CI는 이미지를 만들고 <strong>Git에 태그만 커밋</strong>하면 끝이라 클러스터 자격이 CI 밖으로 나가지 않고, 누가 손으로 바꾼 것(drift)도 Git 상태로 되돌아간다.</p>
+
+      <h2>배포 자동화 vs GitOps</h2>
+
+      <KeyTable
+        columns={["구분", "배포 자동화(전통적)", "GitOps"]}
+        rows={[
+          ["진입 방식", "CI 파이프라인이 배포 대상에 직접 푸시(push). kubectl apply, API 호출 등.", "Git에 desired state를 커밋. 컨트롤러가 Git를 주기적으로 읽어 클러스터에 반영(pull)."],
+          ["소스 of truth", "파이프라인·스크립트·CI 변수.", "Git 레포지토리(매니페스트·Helm·Kustomize)."],
+          ["감사·이력", "CI 로그·배포 도구 이력에 의존.", "Git 커밋 이력으로 누가·언제·무엇을 바꿨는지 추적."],
+          ["롤백", "이전 배포 재실행 또는 스크립트.", "Git에서 이전 커밋으로 revert 또는 체크아웃 후 동기화."],
+        ]}
+      />
+
+      <h2>GitOps 흐름</h2>
+
+      <KeyTable
+        columns={["단계", "설명"]}
+        rows={[
+          ["1. CI에서 아티팩트 생성", "빌드·테스트·보안 스캔 통과 후 이미지 등을 레지스트리에 푸시하고, 이미지 태그·다이제스트를 산출한다."],
+          ["2. Git에 desired state 반영", "배포 매니페스트(Deployment의 image 태그, Helm values 등)를 새 아티팩트 버전으로 갱신해 Git에 커밋·머지한다. 수동이거나 CI가 커밋할 수 있다."],
+          ["3. GitOps 컨트롤러 동기화", "Argo CD·Flux 등이 Git와 클러스터를 비교해, 차이가 있으면 클러스터를 Git 상태로 업데이트한다. 주기 폴링 또는 webhook으로 트리거."],
+          ["4. 감사·롤백", "배포된 내용은 항상 Git에 정의된 것과 일치. 문제 시 Git에서 이전 버전으로 되돌리면 컨트롤러가 그에 맞춰 클러스터를 갱신한다."],
+        ]}
+      />
+
+      <h2>도구·패턴</h2>
+
+      <KeyTable
+        columns={["항목", "설명"]}
+        rows={[
+          ["Argo CD", "Git 레포를 소스로 Kubernetes 리소스를 동기화. UI·헬스·자동/수동 sync."],
+          ["Flux", "GitOps 툴킷. Git·OCI·Helm 레포를 소스로 클러스터 상태를 유지."],
+          ["선언적 정의", "YAML 매니페스트, Helm 차트, Kustomize 오버레이로 '원하는 상태'만 기술. 명령형 스크립트 최소화."],
+          ["환경별 브랜치·경로", "main=prod, staging 브랜치 또는 디렉터리로 환경을 나누고, 컨트롤러가 해당 경로만 동기화하도록 설정."],
+        ]}
+      />
+
+      <h2>관련 문서</h2>
+
+      <ul>
+        <li>GitOps가 전제하는 것: <DocLink slug="source-control">소스 관리</DocLink> · <DocLink slug="artifact">아티팩트</DocLink></li>
+        <li>Push 방식의 배포: <DocLink slug="deploy">배포 자동화</DocLink></li>
+        <li>동기화 대상: <DocLink slug="container-orchestration">컨테이너 오케스트레이션</DocLink> · <DocLink layer="aws-common" slug="eks-basics">EKS</DocLink></li>
+      </ul>
+    </>
+  );
+}

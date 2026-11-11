@@ -1,5 +1,5 @@
 /**
- * MDX에서 검색용 요약·소제목·짧은 인용문을 뽑아
+ * TSX 핸드북 문서에서 검색용 요약·소제목·짧은 인용문을 뽑아
  * src/constants/handbookDocExcerpts.ts 를 다시 씁니다.
  *
  *   node scripts/build-handbook-excerpts.mjs
@@ -9,28 +9,24 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const viewPath = path.join(root, "src/pages/Handbook/HandbookView.tsx");
+const registryPath = path.join(root, "src/pages/Handbook/handbookDocRegistry.tsx");
 const mdxRoot = path.join(root, "src/pages/Handbook/mdx");
 const outPath = path.join(root, "src/constants/handbookDocExcerpts.ts");
 
-const view = fs.readFileSync(viewPath, "utf8");
+const registry = fs.readFileSync(registryPath, "utf8");
 
 const importMap = new Map();
-for (const match of view.matchAll(
-  /import\s+(\w+)\s+from\s+"\.\/mdx\/([^"]+)\.mdx"/g,
+for (const match of registry.matchAll(
+  /import\s+(\w+)\s+from\s+"\.\/mdx\/([^"]+)"/g,
 )) {
   importMap.set(match[1], match[2]);
 }
 
 const docs = [];
 const seen = new Set();
-for (const match of view.matchAll(
-  /layerId === "([^"]+)" && slug === "([^"]+)"[\s\S]{0,220}?return <(\w+)/g,
-)) {
-  const layerId = match[1];
-  const slug = match[2];
-  const component = match[3];
-  const key = `${layerId}/${slug}`;
+for (const match of registry.matchAll(/"([^"]+)":\s+(\w+),/g)) {
+  const key = match[1];
+  const component = match[2];
   if (seen.has(key)) continue;
   seen.add(key);
   const rel = importMap.get(component);
@@ -38,7 +34,7 @@ for (const match of view.matchAll(
     console.warn(`import 없음: ${component} (${key})`);
     continue;
   }
-  docs.push({ key, file: path.join(mdxRoot, `${rel}.mdx`) });
+  docs.push({ key, file: path.join(mdxRoot, `${rel}.tsx`) });
 }
 
 function unescapeQuoted(value) {
@@ -56,8 +52,16 @@ function stripFences(source) {
 
 function extractHeadings(source) {
   const headings = [];
-  for (const match of stripFences(source).matchAll(/^#{2,3}\s+(.+)$/gm)) {
+  const cleaned = stripFences(source);
+  for (const match of cleaned.matchAll(/^#{2,3}\s+(.+)$/gm)) {
     const title = match[1].replace(/[*_`]/g, "").replace(/\s+/g, " ").trim();
+    if (title) headings.push(title);
+  }
+  for (const match of cleaned.matchAll(/<h([23])>([\s\S]*?)<\/h\1>/g)) {
+    const title = match[2]
+      .replace(/<[^>]+>/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
     if (title) headings.push(title);
   }
   return headings;
@@ -82,15 +86,14 @@ function extractLines(source, lead) {
   return lines;
 }
 
-/** 본문에만 있는 짧은 한국어 단어. 스니펫에는 쓰지 않고 검색 매칭에만 씁니다. */
 function extractTerms(source) {
   const withoutImports = source.replace(/^import .+$/gm, "");
-  const seen = new Set();
+  const seenTerms = new Set();
   const terms = [];
   for (const match of stripFences(withoutImports).matchAll(/\p{Script=Hangul}{2,}/gu)) {
     const term = match[0];
-    if (seen.has(term)) continue;
-    seen.add(term);
+    if (seenTerms.has(term)) continue;
+    seenTerms.add(term);
     terms.push(term);
     if (terms.length >= 80) break;
   }
@@ -137,5 +140,5 @@ console.log(
 );
 
 if (Object.keys(excerpts).length < 160) {
-  throw new Error("문서 매핑이 너무 적습니다. HandbookView 패턴을 확인하세요.");
+  throw new Error("문서 매핑이 너무 적습니다. handbookDocRegistry 패턴을 확인하세요.");
 }

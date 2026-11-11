@@ -32,7 +32,7 @@ export function loadMermaid(): Promise<Mermaid> {
           padding: 12,
           subGraphTitleMargin: { top: 6, bottom: 6 },
         },
-      });
+      } as Parameters<Mermaid["initialize"]>[0]);
       return mermaid;
     });
     mermaidPromise.catch(() => {

@@ -1,0 +1,22 @@
+import { MermaidDiagramWithLinks } from "@/components/handbook/MermaidDiagramWithLinks";
+
+export default function AiBasics() {
+  return (
+    <>
+      <MermaidDiagramWithLinks
+        diagramIndex={8}
+        code={`flowchart LR
+        subgraph llm [모델]
+          LLM["LLM 기초"]
+        end
+        subgraph retrieval [검색 증강]
+          RAG["RAG"]
+        end
+        subgraph agent [에이전트]
+          AG["AI Agent"]
+        end
+        llm --> retrieval --> agent`}
+      />
+    </>
+  );
+}

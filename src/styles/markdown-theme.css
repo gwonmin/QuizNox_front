@@ -132,7 +132,7 @@
   padding-bottom: 0;
 }
 
-/* 섹션 제목(h2): MDX 스타일 – 여백·구분선 */
+/* 섹션 제목(h2): MDX/TSX 공통 – 여백·구분선·sticky TOC 여유 */
 .handbook-doc-content .markdown-body h2 {
   font-size: 1.125rem;
   font-weight: 600;
@@ -141,6 +141,13 @@
   margin-bottom: 0;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid hsl(var(--border));
+  scroll-margin-top: 5.75rem;
+}
+
+@media (min-width: 1024px) {
+  .handbook-doc-content .markdown-body h2 {
+    scroll-margin-top: 1.5rem;
+  }
 }
 
 .handbook-doc-content .markdown-body h2:first-child {
@@ -156,6 +163,14 @@
   margin-bottom: 0.5rem;
   padding-bottom: 0;
   border-bottom: none;
+  scroll-margin-top: 5.75rem;
+}
+
+@media (min-width: 1024px) {
+  .handbook-doc-content .markdown-body h3,
+  .handbook-doc-content .markdown-body h4 {
+    scroll-margin-top: 1.5rem;
+  }
 }
 
 /* 리드 문단: 제목 바로 다음 단락 */

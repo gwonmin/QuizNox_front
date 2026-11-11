@@ -1,0 +1,82 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+import { Callout } from "@/components/handbook/Callout";
+import { DocLink } from "@/components/handbook/DocLink";
+
+export default function IamUserVsRole() {
+  return (
+    <>
+      <SectionSummary
+        lead="IAM User는 한 사람·프로세스에 장기 자격(비밀번호·Access Key)을 주는 신원이고, IAM Role은 자격 증명 없이 '맡아 쓰는' 권한 묶음입니다. Role은 AssumeRole로 몇 시간짜리 임시 자격을 받아 쓰므로 키가 새어도 피해가 짧고, 사람·서비스·다른 계정이 같은 Role을 돌려 쓸 수 있습니다. AWS 서비스가 다른 리소스에 접근할 때는 거의 항상 Role입니다."
+        bullets={[
+          "IAM User: 장기 자격 증명 보유. 콘솔 로그인, CLI, 외부 CI 등 '사람이 직접 들고 있는' 접근에만 쓴다.",
+          "IAM Role: 자격 증명 없음. 신뢰 정책에 적힌 주체(서비스 · User · 다른 계정)만 AssumeRole로 임시 자격을 받는다. EC2 인스턴스 프로파일, Lambda 실행 역할, 크로스 계정 접근이 대표 사례.",
+          "원칙: 서비스는 Role, 사람도 가능하면 SSO(Identity Center) → Role. 장기 Access Key는 마지막 수단.",
+        ]}
+      />
+
+      <h2>자격이 생기는 경로</h2>
+
+      <MermaidDiagram
+        code={`flowchart TB
+        subgraph user [IAM User]
+          PW["비밀번호 · Access Key<br/>(장기, 직접 보관)"]
+        end
+        subgraph role [IAM Role]
+          TP["신뢰 정책<br/>누가 맡을 수 있나"]
+          PP["권한 정책<br/>무엇을 할 수 있나"]
+        end
+        H["사람 (콘솔 · CLI)"] --> PW --> API["AWS API"]
+        EC2["EC2 · Lambda · ECS"] -->|"AssumeRole (자동)"| TP
+        X["다른 계정 · SSO 사용자"] -->|"AssumeRole"| TP
+        TP --> TMP["임시 자격<br/>(수 분 ~ 12시간)"] --> API
+        PP -.->|"적용"| TMP
+        user ~~~ role
+      `}
+      />
+
+      <p>User는 자격을 <strong>갖고 있고</strong>, Role은 자격을 <strong>발급받는다</strong>. Role에는 두 정책이 붙는다. 신뢰 정책이 "누가"를, 권한 정책이 "무엇을"을 정한다.</p>
+
+      <h2>User vs Role</h2>
+
+      <KeyTable
+        columns={["구분", "IAM User", "IAM Role"]}
+        rows={[
+          ["자격 증명", "장기 (비밀번호 · Access Key). 교체는 사람이 해야 함", "없음. AssumeRole 때마다 임시 자격 발급, 자동 만료"],
+          ["누가 쓰나", "한 명 · 한 프로세스", "신뢰 정책에 적힌 모든 주체. 여러 서비스 · 계정이 공유 가능"],
+          ["붙는 정책", "권한 정책 (+ 그룹 정책)", "권한 정책 + 신뢰 정책"],
+          ["유출 시 피해", "키를 비활성화할 때까지 계속", "세션 만료(최대 12시간)까지"],
+          ["대표 용도", "콘솔 로그인, 로컬 CLI, 외부 시스템의 고정 키", "EC2 인스턴스 프로파일, Lambda 실행 역할, 크로스 계정, SSO 사용자의 권한 세트"],
+        ]}
+      />
+
+      <h2>어느 쪽을 쓸까</h2>
+
+      <KeyTable
+        columns={["상황", "선택", "이유"]}
+        rows={[
+          ["EC2 위 앱이 S3를 읽는다", "Role (인스턴스 프로파일)", "키를 서버에 두지 않는다. SDK가 메타데이터에서 임시 자격을 자동으로 받는다"],
+          ["Lambda가 DynamoDB에 쓴다", "Role (실행 역할)", "함수마다 필요한 권한만 가진 Role을 붙인다"],
+          ["다른 계정의 리소스에 접근", "Role (크로스 계정)", "상대 계정의 Role을 AssumeRole. 키를 주고받지 않는다"],
+          ["개발자가 콘솔 · CLI를 쓴다", "SSO → Role (권장) 또는 User + MFA", "Identity Center로 로그인하면 권한 세트가 Role로 발급된다"],
+          ["외부 SaaS가 우리 계정에 접근", "Role + External ID", "SaaS 계정을 신뢰 정책에 적고 External ID로 혼동된 대리인 문제를 막는다"],
+          ["GitHub Actions 등 외부 CI", "Role (OIDC 연동)", "장기 키 대신 OIDC 토큰으로 AssumeRoleWithWebIdentity"],
+        ]}
+      />
+
+      <Callout variant="warning" title="장기 Access Key가 남아 있는지 본다">
+        <p>User에 발급한 Access Key는 코드 · 설정 파일 · CI 변수에 복사되어 돌아다니기 쉽다. IAM 자격 증명 보고서에서 90일 이상 교체되지 않은 키, 사용 기록이 없는 키를 주기적으로 지운다. Role로 바꿀 수 있는 곳은 모두 바꾼다.</p>
+      </Callout>
+
+      <h2>관련 문서</h2>
+
+      <ul>
+        <li>Role을 맡는 메커니즘: <DocLink layer="aws-common" slug="sts-assumerole">STS / AssumeRole</DocLink></li>
+        <li>다른 계정의 Role 맡기: <DocLink layer="aws-common" slug="cross-account">Cross-account</DocLink></li>
+        <li>두 번째 인증 요소: <DocLink layer="aws-common" slug="mfa">MFA</DocLink></li>
+        <li>권한을 최소로 주는 원칙: <DocLink slug="least-privilege">최소 권한</DocLink> · <DocLink slug="authn-vs-authz">인증 vs 인가</DocLink></li>
+      </ul>
+    </>
+  );
+}

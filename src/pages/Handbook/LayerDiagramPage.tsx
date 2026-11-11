@@ -7,12 +7,12 @@ import { getDiagramConfig } from "../../constants/handbookLayerDiagramConfig";
 import { injectDiagramLinks } from "../../utils/injectDiagramLinks";
 import "../../styles/markdown-theme.css";
 
-import AwsCommonLayerDiagramMdx from "./mdx/aws-common/AwsCommonLayerDiagram.mdx";
-import SaaLayerDiagramMdx from "./mdx/saa/SaaLayerDiagram.mdx";
-import DvaLayerDiagramMdx from "./mdx/dva/DvaLayerDiagram.mdx";
-import SoaLayerDiagramMdx from "./mdx/soa/SoaLayerDiagram.mdx";
-import CkaLayerDiagramMdx from "./mdx/cka/CkaLayerDiagram.mdx";
-import AifLayerDiagramMdx from "./mdx/aif/AifLayerDiagram.mdx";
+import AwsCommonLayerDiagram from "./mdx/aws-common/AwsCommonLayerDiagram";
+import SaaLayerDiagram from "./mdx/saa/SaaLayerDiagram";
+import DvaLayerDiagram from "./mdx/dva/DvaLayerDiagram";
+import SoaLayerDiagram from "./mdx/soa/SoaLayerDiagram";
+import CkaLayerDiagram from "./mdx/cka/CkaLayerDiagram";
+import AifLayerDiagram from "./mdx/aif/AifLayerDiagram";
 
 const MAIN_CLASS = "max-w-4xl mx-auto min-w-0 px-4 py-8";
 const SCROLL_BACK_KEY = "handbookScrollBackHash";
@@ -63,16 +63,16 @@ function LayerSectionList({ layer }: { layer: HandbookLayer }) {
   );
 }
 
-const LAYER_DIAGRAM_MDX: Record<
+const LAYER_DIAGRAM: Record<
   string,
   React.ComponentType<Record<string, unknown>>
 > = {
-  "aws-common": AwsCommonLayerDiagramMdx,
-  saa: SaaLayerDiagramMdx,
-  dva: DvaLayerDiagramMdx,
-  soa: SoaLayerDiagramMdx,
-  cka: CkaLayerDiagramMdx,
-  aif: AifLayerDiagramMdx,
+  "aws-common": AwsCommonLayerDiagram,
+  saa: SaaLayerDiagram,
+  dva: DvaLayerDiagram,
+  soa: SoaLayerDiagram,
+  cka: CkaLayerDiagram,
+  aif: AifLayerDiagram,
 };
 
 export function LayerDiagramPage() {
@@ -83,7 +83,7 @@ export function LayerDiagramPage() {
 
   const layer = layerId ? getHandbookLayer(layerId) : undefined;
   const config = layerId ? getDiagramConfig(layerId) : null;
-  const DiagramContent = layerId ? LAYER_DIAGRAM_MDX[layerId] : null;
+  const DiagramContent = layerId ? LAYER_DIAGRAM[layerId] : null;
 
   useEffect(() => {
     if (!layer) return;
