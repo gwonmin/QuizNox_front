@@ -39,7 +39,7 @@ interface MockExamConfig {
 
 interface MockExamConfigState {
   examType: ExamType | null;
-  examTypeId: string | null; // AWS_AIF, AWS_DVA, AWS_SAA, AWS_SOA, AWS_DOP
+  examTypeId: string | null; // AWS_CLF, AWS_AIF, AWS_DVA, AWS_SAA, AWS_SOA, AWS_DOP
   examName: string | null; // AWS Certified Developer
   examShortName: string | null; // Developer Associate
   timeLimit: number; // 분 단위

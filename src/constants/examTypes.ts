@@ -14,6 +14,17 @@ export interface ExamTypeInfo {
 
 // 각 시험 유형별 기본 설정 (시간/합격 기준/문항 수)
 export const EXAM_TYPES: Record<string, ExamTypeInfo> = {
+  AWS_CLF: {
+    id: "AWS_CLF",
+    name: "AWS Certified Cloud Practitioner",
+    shortName: "Cloud Practitioner Foundational",
+    examCode: "CLF-C02",
+    examType: "foundational",
+    timeLimit: 90,
+    passThreshold: 45,
+    questionCount: 65,
+    level: "Foundational",
+  },
   AWS_AIF: {
     id: "AWS_AIF",
     name: "AWS Certified AI Practitioner",
