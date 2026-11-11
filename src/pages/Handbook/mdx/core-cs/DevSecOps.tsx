@@ -21,9 +21,9 @@ export default function DevSecOps() {
         code={`flowchart TB
         CODE["커밋 · PR"] --> B["빌드"]
         B --> T["테스트"]
-        T --> SCAN{"보안 스캔<br/>SAST · 의존성 · 시크릿 · 이미지"}
+        T --> SCAN{"보안 스캔 · SAST · 의존성 · 시크릿 · 이미지"}
         SCAN -->|"통과"| ART["아티팩트 푸시"]
-        SCAN -->|"실패"| STOP["파이프라인 중단<br/>결과를 PR에 보고"]
+        SCAN -->|"실패"| STOP["파이프라인 중단 · 결과를 PR에 보고"]
         ART --> DEP["배포"]
         DEP --> DAST["DAST · 런타임 모니터링"]
         DAST -.->|"발견 사항"| CODE`}

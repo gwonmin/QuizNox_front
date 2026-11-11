@@ -50,7 +50,7 @@ export default function ModelRouting() {
         REQ["요청"] --> CLS["분류 (빠른 모델 또는 규칙)"]
         CLS -->|"단순"| FAST["빠르고 싼 모델"]
         CLS -->|"어려움"| STRONG["추론형 모델"]
-        FAST --> CHK{"검증 통과 · 확신 충분?"}
+        FAST --> CHK{"검증·확신 충분 여부"}
         CHK -->|"예"| OUT["응답"]
         CHK -->|"아니오"| STRONG
         STRONG --> OUT

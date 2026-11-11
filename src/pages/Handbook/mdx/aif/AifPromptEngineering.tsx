@@ -7,7 +7,7 @@ export default function AifPromptEngineering() {
   return (
     <>
       <SectionSummary
-        lead="프롬프트 엔지니어링은 **가중치를 바꾸지 않고** 지시를 다듬어 출력을 개선한다. 구성 요소를 맞추고, 기법·템플릿·분해·평가 루프로 반복한다."
+        lead={<>프롬프트 엔지니어링은 <strong>가중치를 바꾸지 않고</strong> 지시를 다듬어 출력을 개선한다. 구성 요소를 맞추고, 기법·템플릿·분해·평가 루프로 반복한다.</>}
         bullets={[
           "예시 0개 zero-shot, 몇 개 few-shot, 단계 추론 chain-of-thought, 분기 탐색 tree of thought.",
           "템플릿은 일관·재사용·테스트 가능해야 한다. 복잡한 작업은 분해 → 각각 프롬프트 → 결합.",
@@ -49,7 +49,7 @@ export default function AifPromptEngineering() {
 
       <h2>베스트 프랙티스 · 분해 · 평가</h2>
 
-      **명확하고 구체적으로** 쓰고, 필요한 **컨텍스트와 예시**를 준다.
+      <p><strong>명확하고 구체적으로</strong> 쓰고, 필요한 <strong>컨텍스트와 예시</strong>를 준다.</p>
 
       <KeyTable
         columns={["원칙", "내용"]}

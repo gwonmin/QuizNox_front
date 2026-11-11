@@ -19,8 +19,8 @@ export default function AifMlLifecycle() {
       <MermaidDiagram
         code={`flowchart LR
         A["비즈니스 목표"] --> B["데이터 수집"]
-        B --> C["데이터 준비<br/>EDA · 전처리 · 피처"]
-        C --> D["모델 학습<br/>하이퍼파라미터 튜닝"]
+        B --> C["데이터 준비 · EDA · 전처리 · 피처"]
+        C --> D["모델 학습 · 하이퍼파라미터 튜닝"]
         D --> E["평가"]
         E --> F["배포"]
         F --> G["모니터링 · 재학습"]

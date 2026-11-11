@@ -22,7 +22,7 @@ export default function AgentLoop() {
         code={`flowchart TB
         START["목표 · 입력"] --> OBS["Observe: 상태 · 결과 확인"]
         OBS --> THINK["Think / Plan: 다음 행동 결정"]
-        THINK --> STOP{"종료 조건?"}
+        THINK --> STOP{"종료 조건 여부"}
         STOP -->|"아니오"| ACT["Act: 도구 호출"]
         ACT --> OBS
         STOP -->|"목표 달성"| DONE["최종 답변"]
@@ -59,7 +59,7 @@ export default function AgentLoop() {
         end
         subgraph pe [Planner-Executor]
           direction TB
-          P1["계획 수립"] --> P2["단계 실행"] --> P3{"계획대로?"}
+          P1["계획 수립"] --> P2["단계 실행"] --> P3{"계획 일치 여부"}
           P3 -->|"예"| P2
           P3 -->|"아니오"| P1
         end

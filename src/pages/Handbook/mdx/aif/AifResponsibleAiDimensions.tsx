@@ -47,7 +47,7 @@ export default function AifResponsibleAiDimensions() {
 
       <h2>Bias cycle</h2>
 
-      **Weak data → model → apps.** 약한 데이터가 모델에 스며들고 앱 동작으로 확대된다. 데이터 교정·평가·Guardrails로 고리를 끊는다.
+      <p><strong>Weak data → model → apps.</strong> 약한 데이터가 모델에 스며들고 앱 동작으로 확대된다. 데이터 교정·평가·Guardrails로 고리를 끊는다.</p>
 
       <MermaidDiagram
         code={`flowchart LR

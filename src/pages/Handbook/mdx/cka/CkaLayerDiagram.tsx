@@ -4,7 +4,7 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
 export default function CkaLayerDiagram() {
   return (
     <>
-      **Certified Kubernetes Administrator (CKA)** 는 객관식 없이, 원격 터미널의 클러스터에서 과제를 해결하는 시험입니다. 제한 시간은 2시간이고 합격은 66%입니다. 시험 중에 Kubernetes 공식 문서를 볼 수 있으므로, 여기서는 명령 순서와 채점되는 최종 상태를 잡아 둡니다.
+      <p><strong>Certified Kubernetes Administrator (CKA)</strong> 는 객관식 없이, 원격 터미널의 클러스터에서 과제를 해결하는 시험입니다. 제한 시간은 2시간이고 합격은 66%입니다. 시험 중에 Kubernetes 공식 문서를 볼 수 있으므로, 여기서는 명령 순서와 채점되는 최종 상태를 잡아 둡니다.</p>
 
       과제가 클러스터를 지정하면 먼저 `kubectl config use-context` 로 맞춥니다. 속도는 같은 과제를 클러스터에서 반복해야 붙습니다. 아래 노드를 누르면 해당 문서로 이동합니다.
 

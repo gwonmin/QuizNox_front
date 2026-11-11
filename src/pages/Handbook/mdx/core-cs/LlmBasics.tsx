@@ -54,7 +54,7 @@ export default function LlmBasics() {
 
       <h2>LLM 동작 원리</h2>
 
-      **Prompt → tokenize → embed → decode → response.** 컨텍스트는 요청(교환)마다 실리며 FM이 영속 저장하지 않는다.
+      <p><strong>Prompt → tokenize → embed → decode → response.</strong> 컨텍스트는 요청(교환)마다 실리며 FM이 영속 저장하지 않는다.</p>
 
       <MermaidDiagram
         code={`flowchart TB

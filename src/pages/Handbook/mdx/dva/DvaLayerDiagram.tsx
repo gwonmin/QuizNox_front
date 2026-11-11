@@ -4,7 +4,7 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
 export default function DvaLayerDiagram() {
   return (
     <>
-      **AWS Certified Developer - Associate (DVA-C02)** 시험은 서버리스 아키텍처와 개발자 도구에 집중하며, 실제 개발 시나리오에서 AWS 서비스를 어떻게 설계·구현하는지 평가합니다.  
+      <p><strong>AWS Certified Developer - Associate (DVA-C02)</strong> 시험은 서버리스 아키텍처와 개발자 도구에 집중하며, 실제 개발 시나리오에서 AWS 서비스를 어떻게 설계·구현하는지 평가합니다.  </p>
       <p>아래 노드를 클릭하면 해당 개념 문서로 이동합니다.</p>
 
       <hr />

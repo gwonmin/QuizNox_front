@@ -4,7 +4,7 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
 export default function SaaLayerDiagram() {
   return (
     <>
-      **AWS Certified Solutions Architect - Associate (SAA-C03)** 시험은 2025년 기준, 클라우드 설계의 **4가지 주요 도메인**을 기반으로 하며, **실무 시나리오 기반** 문제가 다수를 이룹니다. 특히 **보안, 고가용성, 비용 최적화**가 핵심 빈출 주제입니다.  
+      <p><strong>AWS Certified Solutions Architect - Associate (SAA-C03)</strong> 시험은 2025년 기준, 클라우드 설계의 <strong>4가지 주요 도메인</strong>을 기반으로 하며, <strong>실무 시나리오 기반</strong> 문제가 다수를 이룹니다. 특히 <strong>보안, 고가용성, 비용 최적화</strong>가 핵심 빈출 주제입니다.  </p>
       <p>아래 노드를 클릭하면 해당 개념 문서로 이동합니다.</p>
 
       <hr />

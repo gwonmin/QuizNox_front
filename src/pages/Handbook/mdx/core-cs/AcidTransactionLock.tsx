@@ -66,7 +66,7 @@ export default function AcidTransactionLock() {
         subgraph tx [트랜잭션 흐름]
           B["Begin"]
           O["연산들"]
-          C{"성공?"}
+          C{"성공 여부"}
           Co["Commit"]
           R["Rollback"]
         end

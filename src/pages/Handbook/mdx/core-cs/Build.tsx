@@ -20,10 +20,10 @@ export default function Build() {
 
       <MermaidDiagram
         code={`flowchart TB
-        SRC["소스 체크아웃<br/>(커밋 고정)"] --> DEP["의존성 설치<br/>(lock 파일 기준)"]
+        SRC["소스 체크아웃 · (커밋 고정)"] --> DEP["의존성 설치 · (lock 파일 기준)"]
         DEP --> CMP["컴파일 · 번들"]
         CMP --> PKG["패키징 · 이미지 빌드"]
-        PKG --> OUT["산출물 + 메타데이터<br/>(버전 · 커밋 · 체크섬)"]
+        PKG --> OUT["산출물 + 메타데이터 · (버전 · 커밋 · 체크섬)"]
         CACHE["빌드 캐시"] -.-> DEP
         CACHE -.-> PKG
         OUT -->|"다음 단계"| TEST["테스트 · 보안 스캔"]`}

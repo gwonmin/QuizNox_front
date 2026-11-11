@@ -65,7 +65,7 @@ export default function AifGenaiConcepts() {
 
       <h2>생성형 AI 애플리케이션 라이프사이클</h2>
 
-      **Scope → Choose → Adapt → Use** (사용 단계에 평가·배포·모니터링이 포함된다).
+      <p><strong>Scope → Choose → Adapt → Use</strong> (사용 단계에 평가·배포·모니터링이 포함된다).</p>
 
       <KeyTable
         columns={["단계", "할 일"]}

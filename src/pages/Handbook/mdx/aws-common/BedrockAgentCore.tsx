@@ -7,7 +7,7 @@ export default function BedrockAgentCore() {
   return (
     <>
       <SectionSummary
-        lead="**AgentCore**는 프레임워크·FM을 가리지 않고 에이전트를 호스팅·연결·보호하는 런타임 계층이다. Runtime에 올리고 Gateway로 도구를 붙이며, Identity·Memory·Browser·Policy로 운영한다."
+        lead={<><strong>AgentCore</strong>는 프레임워크·FM을 가리지 않고 에이전트를 호스팅·연결·보호하는 런타임 계층이다. Runtime에 올리고 Gateway로 도구를 붙이며, Identity·Memory·Browser·Policy로 운영한다.</>}
         bullets={[
           "Bedrock Agents는 관리형 FM+도구+메모리, Flows는 제어 가능한 워크플로, AgentCore는 임의 프레임워크·FM을 위한 플랫폼이다.",
           "Gateway는 API·Lambda를 MCP 도구로 노출하고, Identity는 inbound·outbound 인증을 나눈다.",
@@ -66,7 +66,7 @@ export default function BedrockAgentCore() {
 
       <h2>Gateway: API · Lambda → MCP</h2>
 
-      **Gateway**는 REST·OpenAPI·Lambda 핸들러를 **MCP 도구**로 래핑한다. 에이전트는 표준 tool schema로 호출하고, Gateway가 백엔드로 라우팅한다.
+      <p><strong>Gateway</strong>는 REST·OpenAPI·Lambda 핸들러를 <strong>MCP 도구</strong>로 래핑한다. 에이전트는 표준 tool schema로 호출하고, Gateway가 백엔드로 라우팅한다.</p>
 
       <MermaidDiagram
         code={`sequenceDiagram
@@ -95,7 +95,7 @@ export default function BedrockAgentCore() {
 
       <h2>Browser · Nova Act</h2>
 
-      **Nova Act**는 브라우저 자동화에 특화된 에이전트·액트 계층이다. AgentCore **Browser** 도구와 결합하면 폼 입력·클릭·스크래핑 같은 UI 작업을 루프에 넣을 수 있다. 프로덕션에서는 Policy·Identity로 허용 도메인과 자격 증명을 제한한다.
+      <p><strong>Nova Act</strong>는 브라우저 자동화에 특화된 에이전트·액트 계층이다. AgentCore <strong>Browser</strong> 도구와 결합하면 폼 입력·클릭·스크래핑 같은 UI 작업을 루프에 넣을 수 있다. 프로덕션에서는 Policy·Identity로 허용 도메인과 자격 증명을 제한한다.</p>
 
       <h2>프레임워크와의 관계</h2>
 

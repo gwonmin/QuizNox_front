@@ -243,9 +243,9 @@ export default function BedrockAgent() {
           GR_OUT["Guardrails (출력)"]
 
           subgraph decide ["FM의 판단"]
-            D1{"도구가 필요한가?"}
-            D2{"지식이 필요한가?"}
-            D3{"바로 답변 가능?"}
+            D1{"도구가 필요 여부"}
+            D2{"지식이 필요 여부"}
+            D3{"즉시 답변 가능 여부"}
           end
         end
 

@@ -16,7 +16,7 @@ export default function ContainerImage() {
 
       <h2>이미지 핵심 개념</h2>
 
-      **한 줄 흐름:** Dockerfile 빌드 → 레이어 단위로 이미지 생성 → 레지스트리 푸시 → 노드에서 풀 시 레이어 캐시로 효율적으로 받아와 컨테이너 실행에 사용한다.
+      <p><strong>한 줄 흐름:</strong> Dockerfile 빌드 → 레이어 단위로 이미지 생성 → 레지스트리 푸시 → 노드에서 풀 시 레이어 캐시로 효율적으로 받아와 컨테이너 실행에 사용한다.</p>
 
       <KeyTable
         columns={["구분", "의미", "비고"]}

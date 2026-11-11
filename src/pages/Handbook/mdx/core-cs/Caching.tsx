@@ -53,7 +53,7 @@ export default function Caching() {
 
       <MermaidDiagram
         code={`flowchart LR
-        R["요청"] --> C{"캐시에 있음?"}
+        R["요청"] --> C{"캐시에 있음 여부"}
         C -->|Hit| Res["캐시에서 응답"]
         C -->|Miss| O["원본 조회"]
         O --> Save["캐시에 저장"]

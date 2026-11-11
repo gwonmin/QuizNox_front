@@ -30,7 +30,7 @@ export default function AifGenaiMetrics() {
 
       <h2>프롬프트 카탈로그 · 채점</h2>
 
-      **Prompt catalog** = 평가용 프롬프트 + labeled outputs. 점수 축은 accuracy · similarity · human · LLM이다.
+      <p><strong>Prompt catalog</strong> = 평가용 프롬프트 + labeled outputs. 점수 축은 accuracy · similarity · human · LLM이다.</p>
 
       <h2>평가 방식</h2>
 

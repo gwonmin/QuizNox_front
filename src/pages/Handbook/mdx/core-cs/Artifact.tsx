@@ -19,7 +19,7 @@ export default function Artifact() {
 
       <MermaidDiagram
         code={`flowchart LR
-        B["빌드 · 테스트 · 스캔 통과"] --> A["아티팩트 v1.4.2<br/>(불변 · 체크섬)"]
+        B["빌드 · 테스트 · 스캔 통과"] --> A["아티팩트 v1.4.2 · (불변 · 체크섬)"]
         A --> REG[("저장소 · 레지스트리")]
         REG -->|"같은 버전"| DEV["개발"]
         REG -->|"같은 버전"| STG["스테이징"]

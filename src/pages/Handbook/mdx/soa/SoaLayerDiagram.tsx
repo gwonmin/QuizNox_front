@@ -4,7 +4,7 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
 export default function SoaLayerDiagram() {
   return (
     <>
-      **AWS Certified SysOps Administrator - Associate (SOA-C02)** 시험은 AWS의 **운영·모니터링·보안·네트워킹·자동화**에 중점을 두며, SAA보다 **런타임 운영과 문제 해결(Troubleshooting)** 비중이 높습니다. "오류 발생 시 해결 방법", CLI·콘솔 위치, 백업·복원 등 **실무 작업**을 묻는 문제가 많습니다.  
+      <p><strong>AWS Certified SysOps Administrator - Associate (SOA-C02)</strong> 시험은 AWS의 <strong>운영·모니터링·보안·네트워킹·자동화</strong>에 중점을 두며, SAA보다 <strong>런타임 운영과 문제 해결(Troubleshooting)</strong> 비중이 높습니다. "오류 발생 시 해결 방법", CLI·콘솔 위치, 백업·복원 등 <strong>실무 작업</strong>을 묻는 문제가 많습니다.  </p>
       <p>아래 노드를 클릭하면 해당 개념 문서로 이동합니다.</p>
 
       <hr />

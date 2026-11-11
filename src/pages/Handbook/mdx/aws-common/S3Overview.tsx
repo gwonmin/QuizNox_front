@@ -24,7 +24,7 @@ export default function S3Overview() {
         IA -->|"90일 · Lifecycle"| GL["Glacier"]
         GL -->|"N년 · Expiration"| DEL["삭제"]
         STD -.->|"CRR / SRR"| REP["다른 버킷의 복제본"]
-        STD -.->|"덮어쓰기 · 삭제"| VER["이전 버전<br/>(Versioning)"]`}
+        STD -.->|"덮어쓰기 · 삭제"| VER["이전 버전 · (Versioning)"]`}
       />
 
       <p>객체는 올라간 뒤 <strong>접근이 뜸해질수록 싼 클래스로</strong> 옮겨지고 결국 만료된다. 그 사이 복제는 다른 버킷에 사본을, 버저닝은 같은 버킷에 이전 상태를 남긴다. 둘 다 저장 용량을 늘리므로 Lifecycle에 이전 버전 만료 규칙을 함께 둔다.</p>

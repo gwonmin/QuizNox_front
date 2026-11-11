@@ -24,7 +24,7 @@ export default function KmsBasics() {
 
         App->>KMS: GenerateDataKey(KMS 키)
         KMS-->>App: Plaintext Data Key + Ciphertext Data Key
-        App->>Store: Plaintext Data Key로 데이터 암호화<br/>Ciphertext Data Key와 함께 저장
+        App->>Store: Plaintext Data Key로 데이터 암호화 · Ciphertext Data Key와 함께 저장
         App->>KMS: Decrypt(Ciphertext Data Key)
         KMS-->>App: Plaintext Data Key
         App->>Store: Plaintext Data Key로 데이터 복호화

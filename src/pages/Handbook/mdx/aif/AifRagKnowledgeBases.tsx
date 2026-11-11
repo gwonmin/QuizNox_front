@@ -7,7 +7,7 @@ export default function AifRagKnowledgeBases() {
   return (
     <>
       <SectionSummary
-        lead="**커스터마이징 사다리**: Prompt engineering → RAG → 모델 커스터마이징. RAG는 앱 → orchestrator → 증강 프롬프트 → LLM이다. Bedrock Knowledge Bases가 청킹·임베딩·검색·생성을 관리한다."
+        lead={<><strong>커스터마이징 사다리</strong>: Prompt engineering → RAG → 모델 커스터마이징. RAG는 앱 → orchestrator → 증강 프롬프트 → LLM이다. Bedrock Knowledge Bases가 청킹·임베딩·검색·생성을 관리한다.</>}
         bullets={[
           "모델을 재학습하지 않고 최신·사내 지식을 반영한다. RetrieveAndGenerate로 답과 출처(citations)를 받는다.",
           "Hydrate: data → chunks → embeddings → KB. Orchestrator: query embedding → semantic search → 증강 프롬프트.",
@@ -49,7 +49,7 @@ export default function AifRagKnowledgeBases() {
 
       <h2>Bedrock Knowledge Bases 구성</h2>
 
-      **Setup**: create KB → add data source → sync.
+      <p><strong>Setup</strong>: create KB → add data source → sync.</p>
 
       <KeyTable
         columns={["요소", "선택지"]}

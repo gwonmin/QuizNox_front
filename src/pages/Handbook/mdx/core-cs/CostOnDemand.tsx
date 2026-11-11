@@ -20,9 +20,9 @@ export default function CostOnDemand() {
 
       <MermaidDiagram
         code={`flowchart TB
-        OD["온디맨드<br/>약정 없음 · 표준 단가"]
-        RI["예약 · Savings Plans<br/>1~3년 약정 · 할인"]
-        SP["스팟<br/>중단 허용 · 큰 할인"]
+        OD["온디맨드 · 약정 없음 · 표준 단가"]
+        RI["예약 · Savings Plans · 1~3년 약정 · 할인"]
+        SP["스팟 · 중단 허용 · 큰 할인"]
         OD -->|"사용량이 안정되면"| RI
         OD -->|"중단돼도 되는 작업이면"| SP`}
       />

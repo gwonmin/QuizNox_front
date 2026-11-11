@@ -7,7 +7,7 @@ export default function BedrockApis() {
   return (
     <>
       <SectionSummary
-        lead="**요청 구성** → Control 또는 Data plane API 선택 → **InvokeModel · Converse · ConverseStream**으로 추론 → 응답의 text · stop_reason · usage를 처리한다."
+        lead={<><strong>요청 구성</strong> → Control 또는 Data plane API 선택 → <strong>InvokeModel · Converse · ConverseStream</strong>으로 추론 → 응답의 text · stop_reason · usage를 처리한다.</>}
         bullets={[
           "Control plane(bedrock)은 모델 목록·작업 관리, Data plane(bedrock-runtime)은 추론이다.",
           "InvokeModel은 모델별 JSON, Converse는 모델 공통 포맷, ConverseStream은 청크 스트리밍이다.",
@@ -17,7 +17,7 @@ export default function BedrockApis() {
 
       <h2>GenAI 앱 스택 · 코어 컴포넌트</h2>
 
-      **스택**: 애플리케이션 → 모델·도구 → 인프라. **코어**: frontend, app logic, FM interface, FM.
+      <p><strong>스택</strong>: 애플리케이션 → 모델·도구 → 인프라. <strong>코어</strong>: frontend, app logic, FM interface, FM.</p>
 
       <MermaidDiagram
         code={`flowchart TB
@@ -52,7 +52,7 @@ export default function BedrockApis() {
 
       <h2>서버리스 백본</h2>
 
-      **API Gateway** → **Lambda** → **Bedrock** (bedrock-runtime).
+      <p><strong>API Gateway</strong> → <strong>Lambda</strong> → <strong>Bedrock</strong> (bedrock-runtime).</p>
 
       <MermaidDiagram
         code={`sequenceDiagram

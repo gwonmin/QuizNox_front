@@ -20,9 +20,9 @@ export default function CostOptimization() {
 
       <MermaidDiagram
         code={`flowchart LR
-        SEE["보기<br/>비용 관측 · 단위 비용"] --> FIND["찾기<br/>낭비 · 과다 · 비싼 경로"]
-        FIND --> ACT["줄이기<br/>끄기 → 사이징 → 전환 → 구매 옵션"]
-        ACT --> GUARD["지키기<br/>예산 · 알람 · 태그 강제"]
+        SEE["보기 · 비용 관측 · 단위 비용"] --> FIND["찾기 · 낭비 · 과다 · 비싼 경로"]
+        FIND --> ACT["줄이기 · 끄기 → 사이징 → 전환 → 구매 옵션"]
+        ACT --> GUARD["지키기 · 예산 · 알람 · 태그 강제"]
         GUARD --> SEE`}
       />
 

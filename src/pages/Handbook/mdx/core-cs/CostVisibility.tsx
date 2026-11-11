@@ -24,12 +24,12 @@ export default function CostVisibility() {
           RES["리소스 (태그 포함)"]
           ACC["계정 · 조직 구조"]
         end
-        BILL["청구 데이터<br/>(Cost and Usage Report)"]
+        BILL["청구 데이터 · (Cost and Usage Report)"]
         RES --> BILL
         ACC --> BILL
-        BILL --> CE["Cost Explorer<br/>트렌드 · 필터 · 그룹"]
-        BILL --> AD["Cost Anomaly Detection<br/>급증 감지"]
-        BILL --> DW["데이터 웨어하우스 · BI<br/>리소스 단위 분석"]
+        BILL --> CE["Cost Explorer · 트렌드 · 필터 · 그룹"]
+        BILL --> AD["Cost Anomaly Detection · 급증 감지"]
+        BILL --> DW["데이터 웨어하우스 · BI · 리소스 단위 분석"]
         CE --> DEC["팀별 리뷰 · 예산 · 최적화"]
         AD --> DEC
         DW --> DEC`}

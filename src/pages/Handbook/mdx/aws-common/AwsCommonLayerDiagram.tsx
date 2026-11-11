@@ -9,7 +9,7 @@ export default function AwsCommonLayerDiagram() {
 
       <h2>1. Networking (VPC · 서브넷 · 보안)</h2>
 
-      **왜 배우나요?** VPC·서브넷·라우팅·보안 그룹·NACL을 구분해야 트래픽 경로와 접근 제어를 설계할 수 있습니다. 퍼블릭/프라이빗 구분과 IGW·NAT·VPC Endpoint 선택이 기반이 됩니다.
+      <p><strong>왜 배우나요?</strong> VPC·서브넷·라우팅·보안 그룹·NACL을 구분해야 트래픽 경로와 접근 제어를 설계할 수 있습니다. 퍼블릭/프라이빗 구분과 IGW·NAT·VPC Endpoint 선택이 기반이 됩니다.</p>
 
       <p>서브넷·라우팅 → IGW/NAT · EIP → 보안(SG·NACL) · VPC Endpoint</p>
 
@@ -30,7 +30,7 @@ export default function AwsCommonLayerDiagram() {
 
       <h2>2. Identity & Access (IAM)</h2>
 
-      **왜 배우나요?** 누가 어떤 리소스에 접근할 수 있는지 정하려면 User/Role, 정책 평가 순서, Identity/Resource 정책, Explicit Deny·STS·Cross-account를 구분해야 합니다.
+      <p><strong>왜 배우나요?</strong> 누가 어떤 리소스에 접근할 수 있는지 정하려면 User/Role, 정책 평가 순서, Identity/Resource 정책, Explicit Deny·STS·Cross-account를 구분해야 합니다.</p>
 
       <p>주체(User/Role) → 정책 평가 · 정책 유형 → Explicit Deny · STS · Cross-account · MFA</p>
 
@@ -51,7 +51,7 @@ export default function AwsCommonLayerDiagram() {
 
       <h2>3. Storage & Data (S3 · EBS · EFS · RDS · DynamoDB · ElastiCache)</h2>
 
-      **왜 배우나요?** 객체·블록·파일·관계형·NoSQL·캐시 등 저장소 유형별로 S3·EBS·EFS·RDS·DynamoDB·ElastiCache를 선택할 수 있어야 아키텍처에 맞는 저장소를 고를 수 있습니다.
+      <p><strong>왜 배우나요?</strong> 객체·블록·파일·관계형·NoSQL·캐시 등 저장소 유형별로 S3·EBS·EFS·RDS·DynamoDB·ElastiCache를 선택할 수 있어야 아키텍처에 맞는 저장소를 고를 수 있습니다.</p>
 
       <p>객체(S3) · 블록(EBS) · 파일(EFS) → 관계형(RDS) · NoSQL(DynamoDB) · 캐시(ElastiCache)</p>
 
@@ -71,7 +71,7 @@ export default function AwsCommonLayerDiagram() {
 
       <h2>4. Compute & Scaling (EC2 · Lambda · ECS · EKS · ELB · ASG)</h2>
 
-      **왜 배우나요?** VM·서버리스·컨테이너 중 무엇을 쓸지, 트래픽 분산(ELB)·헬스체크·스케일(ASG)을 어떻게 붙일지 알아야 컴퓨트 레이어를 설계할 수 있습니다.
+      <p><strong>왜 배우나요?</strong> VM·서버리스·컨테이너 중 무엇을 쓸지, 트래픽 분산(ELB)·헬스체크·스케일(ASG)을 어떻게 붙일지 알아야 컴퓨트 레이어를 설계할 수 있습니다.</p>
 
       <p>컴퓨트(EC2·Lambda·ECS·EKS) → 로드밸런서(ALB/NLB) · Target Group · Health Check · Sticky Session → ASG · Scaling Policy</p>
 
@@ -95,7 +95,7 @@ export default function AwsCommonLayerDiagram() {
 
       <h2>5. Monitoring & Logging (CloudWatch · 감사)</h2>
 
-      **왜 배우나요?** 메트릭·로그·대시보드·알람으로 상태를 보고, CloudTrail·Config로 감사와 규정 준수를 채우려면 각 서비스 역할을 구분해야 합니다.
+      <p><strong>왜 배우나요?</strong> 메트릭·로그·대시보드·알람으로 상태를 보고, CloudTrail·Config로 감사와 규정 준수를 채우려면 각 서비스 역할을 구분해야 합니다.</p>
 
       <p>메트릭·로그 수집 → 대시보드 · 알람 → 감사(CloudTrail vs Config)</p>
 
@@ -113,7 +113,7 @@ export default function AwsCommonLayerDiagram() {
 
       <h2>6. Security & Secrets (KMS · Secrets Manager · Parameter Store)</h2>
 
-      **왜 배우나요?** 데이터 암호화(KMS)와 시크릿/구성값 관리(Secrets Manager · Parameter Store)를 이해해야, S3·RDS·DynamoDB·Lambda 등 전반에 일관된 보안 기준을 적용할 수 있습니다.
+      <p><strong>왜 배우나요?</strong> 데이터 암호화(KMS)와 시크릿/구성값 관리(Secrets Manager · Parameter Store)를 이해해야, S3·RDS·DynamoDB·Lambda 등 전반에 일관된 보안 기준을 적용할 수 있습니다.</p>
 
       <p>KMS → 데이터 키(Envelope Encryption) → 저장소 암호화(S3·EBS·RDS·DynamoDB) Secrets Manager → 고가치 시크릿 저장·회전(DB PW, JWT 시크릿 등) Parameter Store → 환경별 구성값·가벼운 시크릿 관리(String / SecureString)</p>
 
@@ -130,7 +130,7 @@ export default function AwsCommonLayerDiagram() {
 
       <h2>7. AI & Bedrock</h2>
 
-      **왜 배우나요?** 관리형 FM API·Agent·AgentCore를 구분해야 GenAI 앱의 호출·오케스트레이션·호스팅을 고를 수 있습니다.
+      <p><strong>왜 배우나요?</strong> 관리형 FM API·Agent·AgentCore를 구분해야 GenAI 앱의 호출·오케스트레이션·호스팅을 고를 수 있습니다.</p>
 
       <p>개요 → APIs → Agent → AgentCore</p>
 

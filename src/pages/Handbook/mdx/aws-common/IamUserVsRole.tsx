@@ -21,16 +21,16 @@ export default function IamUserVsRole() {
       <MermaidDiagram
         code={`flowchart TB
         subgraph user [IAM User]
-          PW["비밀번호 · Access Key<br/>(장기, 직접 보관)"]
+          PW["비밀번호 · Access Key · (장기, 직접 보관)"]
         end
         subgraph role [IAM Role]
-          TP["신뢰 정책<br/>누가 맡을 수 있나"]
-          PP["권한 정책<br/>무엇을 할 수 있나"]
+          TP["신뢰 정책 · 누가 맡을 수 있나"]
+          PP["권한 정책 · 무엇을 할 수 있나"]
         end
         H["사람 (콘솔 · CLI)"] --> PW --> API["AWS API"]
         EC2["EC2 · Lambda · ECS"] -->|"AssumeRole (자동)"| TP
         X["다른 계정 · SSO 사용자"] -->|"AssumeRole"| TP
-        TP --> TMP["임시 자격<br/>(수 분 ~ 12시간)"] --> API
+        TP --> TMP["임시 자격 · (수 분 ~ 12시간)"] --> API
         PP -.->|"적용"| TMP
         user ~~~ role
       `}

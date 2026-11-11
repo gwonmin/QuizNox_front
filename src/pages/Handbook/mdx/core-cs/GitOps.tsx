@@ -23,9 +23,9 @@ export default function GitOps() {
           P1["CI 파이프라인"] -->|"kubectl apply · API 호출"| P2["클러스터"]
         end
         subgraph pull ["GitOps (pull)"]
-          G1["Git 레포<br/>desired state"]
-          G2["GitOps 컨트롤러<br/>(Argo CD · Flux)"]
-          G3["클러스터<br/>actual state"]
+          G1["Git 레포 · desired state"]
+          G2["GitOps 컨트롤러 · (Argo CD · Flux)"]
+          G3["클러스터 · actual state"]
           G2 -->|"주기적으로 읽음"| G1
           G2 -->|"비교 · drift 수정"| G3
         end

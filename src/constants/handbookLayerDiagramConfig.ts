@@ -1,7 +1,7 @@
 /**
  * 레이어별 진입 다이어그램 URL 및 노드→문서 경로 맵.
- * Systems Fundamentals(core-cs)는 섹션별 페이지(mdx/core-cs/sections/*.tsx) 사용, diagramUrl 미사용.
- * 그 외 레이어는 overview.md → MDX 컴포넌트로 렌더하며 diagramUrl은 레거시 참조용.
+ * Systems Fundamentals(core-cs)는 섹션별 페이지(mdx/core-cs/sections/*.tsx, legacy path) 사용, diagramUrl 미사용.
+ * 그 외 레이어는 registry TSX 컴포넌트로 렌더하며 diagramUrl은 레거시 참조용.
  */
 import { REAL_SYSTEM_DIAGRAM_LINKS } from "./handbookDiagramLinks";
 

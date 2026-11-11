@@ -6,7 +6,7 @@ export default function AifFmSelection() {
   return (
     <>
       <SectionSummary
-        lead="FM 선택은 **shortlist → benchmark → priorities** 순이다. 모달리티·크기·지연·비용·컨텍스트·커스터마이징을 저울질하고 Bedrock 한 API로 후보를 비교한다."
+        lead={<>FM 선택은 <strong>shortlist → benchmark → priorities</strong> 순이다. 모달리티·크기·지연·비용·컨텍스트·커스터마이징을 저울질하고 Bedrock 한 API로 후보를 비교한다.</>}
         bullets={[
           "후보를 좁힌 뒤 동일 프롬프트 세트로 벤치마크하고, 비용·지연·품질 우선순위로 고른다.",
           "실시간 응답 → 추론 속도, 긴 문서 → 컨텍스트 윈도우, 이미지+텍스트 → 멀티모달.",
@@ -16,7 +16,7 @@ export default function AifFmSelection() {
 
       <h2>선택 흐름</h2>
 
-      **Shortlist** (후보 압축) → **Benchmark** (동일 데이터로 비교) → **Priorities** (비용·지연·품질·컴플라이언스 가중).
+      <p><strong>Shortlist</strong> (후보 압축) → <strong>Benchmark</strong> (동일 데이터로 비교) → <strong>Priorities</strong> (비용·지연·품질·컴플라이언스 가중).</p>
 
       <h2>선택 기준</h2>
 

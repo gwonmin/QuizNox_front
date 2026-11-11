@@ -4,7 +4,7 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
 export default function AifLayerDiagram() {
   return (
     <>
-      **AWS Certified AI Practitioner (AIF-C01)** 은 코드 없이 개념과 서비스 선택을 묻는 Foundational 시험입니다. 90분, 65문항(채점 50 + 비채점 15), 1000점 만점에 700점이 합격입니다. 도메인별 커트라인은 없고 총점으로 판정합니다.
+      <p><strong>AWS Certified AI Practitioner (AIF-C01)</strong> 은 코드 없이 개념과 서비스 선택을 묻는 Foundational 시험입니다. 90분, 65문항(채점 50 + 비채점 15), 1000점 만점에 700점이 합격입니다. 도메인별 커트라인은 없고 총점으로 판정합니다.</p>
 
       <p>문제는 거의 전부 시나리오형입니다. "코딩 경험 없음", "가장 적은 노력", "가장 비용 효율적", "실시간", "회사 내부 문서" 같은 조건 문구가 정답을 결정합니다. 아래 노드를 누르면 해당 문서로 이동합니다.</p>
 

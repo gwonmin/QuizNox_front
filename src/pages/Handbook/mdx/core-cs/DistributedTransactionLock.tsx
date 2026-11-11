@@ -126,7 +126,7 @@ export default function DistributedTransactionLock() {
       <MermaidDiagram
         code={`flowchart LR
         A["락 획득"] --> T["TTL 시작"]
-        T --> E{"만료 전 해제?"}
+        T --> E{"만료 전 해제 여부"}
         E -->|"Yes"| R["정상 해제"]
         E -->|"No, 장애"| X["TTL 만료"]
         X --> O["다른 서버 획득 가능"]`}

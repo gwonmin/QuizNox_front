@@ -91,7 +91,7 @@ export default function AgentReliability() {
       <MermaidDiagram
         code={`flowchart TB
         S["재시작"] --> L["checkpoint 읽기"]
-        L --> C{"다음 단계가 이미 실행됐나? (멱등 키로 확인)"}
+        L --> C{"다음 단계가 이미 실행됐나 (멱등 키로 확인)"}
         C -->|"예"| SKIP["결과만 읽고 다음 단계로"]
         C -->|"아니오"| RUN["실행 후 기록"]
         SKIP --> NEXT["계속"]

@@ -20,10 +20,10 @@ export default function ExplicitDeny() {
 
       <MermaidDiagram
         code={`flowchart TB
-        REQ["요청"] --> COLLECT["적용되는 모든 정책 수집<br/>SCP · Identity · Resource · Boundary · 세션"]
-        COLLECT --> D{"어느 하나라도<br/>명시적 Deny?"}
+        REQ["요청"] --> COLLECT["적용되는 모든 정책 수집 · SCP · Identity · Resource · Boundary · 세션"]
+        COLLECT --> D{"어느 하나라도 · 명시적 Deny 여부"}
         D -->|"예"| DENY["거부"]
-        D -->|"아니오"| A{"어느 하나라도<br/>명시적 Allow?"}
+        D -->|"아니오"| A{"어느 하나라도 · 명시적 Allow 여부"}
         A -->|"예"| ALLOW["허용"]
         A -->|"아니오"| DEF["거부 (기본값)"]`}
       />

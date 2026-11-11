@@ -22,11 +22,11 @@ export default function SecretsManagerBasics() {
         participant SM as Secrets Manager
         participant App as 애플리케이션
 
-        Dev->>SM: 시크릿 생성 · 업데이트<br/>(콘솔 / CLI)
+        Dev->>SM: 시크릿 생성 · 업데이트 · (콘솔 / CLI)
         SM-->>Dev: 버전 ID 반환
 
         App->>SM: GetSecretValue(시크릿 ID)
-        SM-->>App: 시크릿 값<br/>(KMS로 복호화 후 응답)
+        SM-->>App: 시크릿 값 · (KMS로 복호화 후 응답)
       `}
       />
 
@@ -51,7 +51,7 @@ export default function SecretsManagerBasics() {
         ]}
       />
 
-      **실무 패턴**
+      <p><strong>실무 패턴</strong></p>
 
       <ul>
         <li><strong>고가치 시크릿 (DB 패스워드, JWT Secret, 3rd party API 키)</strong></li>

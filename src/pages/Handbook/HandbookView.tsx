@@ -155,7 +155,7 @@ const HandbookView = memo(function HandbookView() {
 
   const meta = useHandbookDoc(layerId, slug);
 
-  const isMdxDoc = Boolean(layerId && slug && hasHandbookDoc(layerId, slug));
+  const hasRegisteredDoc = Boolean(layerId && slug && hasHandbookDoc(layerId, slug));
 
   useEffect(() => {
     if (layerId === "core-cs" && slug === "real-system-diagrams") {
@@ -172,7 +172,7 @@ const HandbookView = memo(function HandbookView() {
 
   useEffect(() => {
     if (!layerId || !slug) return;
-    if (isMdxDoc) return;
+    if (hasRegisteredDoc) return;
     if (layerId === "core-cs" && slug === "real-system-diagrams") return;
     const resolved = getHandbookDoc(layerId, slug);
     if (!resolved) {
@@ -200,7 +200,7 @@ const HandbookView = memo(function HandbookView() {
       });
 
     return () => controller.abort();
-  }, [isMdxDoc, layerId, slug]);
+  }, [hasRegisteredDoc, layerId, slug]);
 
   const onMarkdownMermaidSettled = useCallback(() => {
     setMarkdownVisualReady(true);
@@ -266,7 +266,7 @@ const HandbookView = memo(function HandbookView() {
     );
   }
 
-  if (!isMdxDoc && content === null) {
+  if (!hasRegisteredDoc && content === null) {
     return (
       <main
         className={`${MAIN_CLASS} flex justify-center items-center min-h-[200px]`}
@@ -292,7 +292,7 @@ const HandbookView = memo(function HandbookView() {
       : undefined;
 
   const Doc = layerId && slug ? getHandbookDocComponent(layerId, slug) : null;
-  const mdxComponent = Doc ? <Doc /> : null;
+  const docElement = Doc ? <Doc /> : null;
 
   return (
     <HandbookLayout
@@ -306,17 +306,17 @@ const HandbookView = memo(function HandbookView() {
       centerReadingColumn
       backLabel={hasSectionPages ? "섹션으로 돌아가기" : undefined}
     >
-      {isMdxDoc && (
+      {hasRegisteredDoc && (
         <HandbookContentReadyProvider
           key={`${layerId}-${slug}`}
           fallback={<LoadingSpinner />}
         >
           <div className="handbook-doc-content w-full">
-            <div className="markdown-body">{mdxComponent}</div>
+            <div className="markdown-body">{docElement}</div>
           </div>
         </HandbookContentReadyProvider>
       )}
-      {!isMdxDoc && content !== null && (
+      {!hasRegisteredDoc && content !== null && (
         <div className="relative handbook-doc-content min-h-[200px] w-full">
           <MarkdownViewer
             key={`${layerId}-${slug}`}

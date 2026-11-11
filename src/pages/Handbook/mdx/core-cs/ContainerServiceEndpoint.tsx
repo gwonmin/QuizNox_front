@@ -16,7 +16,7 @@ export default function ContainerServiceEndpoint() {
 
       <h2>Endpoint 핵심 개념</h2>
 
-      **한 줄 흐름:** 클라이언트 요청 → Service Endpoint( LB 또는 Service ) → 헬스체크 통과한 백엔드 Pod/Task로 분산 → 애플리케이션 처리. 오케스트레이터가 Pod 수·상태를 바꾸면 엔드포인트 목록이 갱신된다.
+      <p><strong>한 줄 흐름:</strong> 클라이언트 요청 → Service Endpoint( LB 또는 Service ) → 헬스체크 통과한 백엔드 Pod/Task로 분산 → 애플리케이션 처리. 오케스트레이터가 Pod 수·상태를 바꾸면 엔드포인트 목록이 갱신된다.</p>
 
       <KeyTable
         columns={["유형", "역할", "예시"]}

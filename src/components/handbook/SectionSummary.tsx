@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 interface SectionSummaryProps {
   title?: string;
-  lead?: string;
+  lead?: ReactNode;
   bullets?: ReactNode[];
 }
 

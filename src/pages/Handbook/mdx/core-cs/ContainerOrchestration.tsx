@@ -14,7 +14,7 @@ export default function ContainerOrchestration() {
         ]}
       />
 
-      **처음 보시면:** "Pod"는 컨테이너 하나 또는 여러 개를 묶은 **실행 단위**이고, 오케스트레이터가 "이 Pod를 어떤 서버에 띄울지, 몇 개 유지할지"를 결정합니다. Kubernetes에서는 Pod, ECS에서는 Task라고 부릅니다.
+      <p><strong>처음 보시면:</strong> "Pod"는 컨테이너 하나 또는 여러 개를 묶은 <strong>실행 단위</strong>이고, 오케스트레이터가 "이 Pod를 어떤 서버에 띄울지, 몇 개 유지할지"를 결정합니다. Kubernetes에서는 Pod, ECS에서는 Task라고 부릅니다.</p>
 
       <h2>컨테이너 오케스트레이션 핵심 개념</h2>
 
@@ -59,7 +59,7 @@ export default function ContainerOrchestration() {
 
       <h2>단일 클러스터 vs 멀티 클러스터</h2>
 
-      **한 줄 흐름:** 단일 클러스터는 하나의 Control Plane이 모든 노드를 관리한다. 멀티 클러스터는 지역·환경·테넌트별로 여러 클러스터를 두고, 배포·정책·트래픽 라우팅으로 연동해 가용성·격리·규정 대응을 만족시킨다.
+      <p><strong>한 줄 흐름:</strong> 단일 클러스터는 하나의 Control Plane이 모든 노드를 관리한다. 멀티 클러스터는 지역·환경·테넌트별로 여러 클러스터를 두고, 배포·정책·트래픽 라우팅으로 연동해 가용성·격리·규정 대응을 만족시킨다.</p>
 
       <KeyTable
         columns={["구분", "단일 클러스터", "멀티 클러스터"]}

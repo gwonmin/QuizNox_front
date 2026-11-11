@@ -60,7 +60,7 @@ export default function SsmParameterStore() {
         ]}
       />
 
-      **실무 패턴**
+      <p><strong>실무 패턴</strong></p>
 
       <ul>
         <li>환경별 구성값(Endpoint, Feature flag 등): Parameter Store(String)</li>

@@ -20,10 +20,10 @@ export default function CostBudgets() {
 
       <MermaidDiagram
         code={`flowchart LR
-        BILL["청구 데이터<br/>(하루 수 회 갱신)"] --> BUD["예산 평가"]
+        BILL["청구 데이터 · (하루 수 회 갱신)"] --> BUD["예산 평가"]
         BUD -->|"실제 ≥ 80%"| N1["알림: 팀 채널"]
         BUD -->|"예측 ≥ 100%"| N2["알림: 팀 + 관리자"]
-        BUD -->|"실제 ≥ 100%"| ACT["자동 조치<br/>(정책 부착 · 인스턴스 중지)"]
+        BUD -->|"실제 ≥ 100%"| ACT["자동 조치 · (정책 부착 · 인스턴스 중지)"]
         N1 --> REV["원인 확인 · 조치"]
         N2 --> REV`}
       />

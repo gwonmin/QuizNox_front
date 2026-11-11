@@ -22,8 +22,8 @@ export default function Mfa() {
         code={`flowchart TB
         U["사용자"] -->|"비밀번호"| C1["1차 인증"]
         C1 -->|"OTP · 보안 키"| C2["2차 인증 (MFA)"]
-        C2 --> S["세션<br/>aws:MultiFactorAuthPresent = true"]
-        S --> P{"정책 Condition<br/>MFA 필요?"}
+        C2 --> S["세션 · aws:MultiFactorAuthPresent = true"]
+        S --> P{"정책 Condition · MFA 필요 여부"}
         P -->|"필요 · 충족"| OK["허용"]
         P -->|"필요 · 미충족"| NO["거부"]
         P -->|"불필요"| OK`}

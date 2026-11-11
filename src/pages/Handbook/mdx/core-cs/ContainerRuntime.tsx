@@ -14,7 +14,7 @@ export default function ContainerRuntime() {
         ]}
       />
 
-      **노드(node)**는 컨테이너가 실제로 돌아가는 서버 한 대를 말합니다. "노드에서 실행한다" = "그 서버 위에서 컨테이너를 띄운다"로 이해하면 됩니다.
+      <p><strong>노드(node)</strong>는 컨테이너가 실제로 돌아가는 서버 한 대를 말합니다. "노드에서 실행한다" = "그 서버 위에서 컨테이너를 띄운다"로 이해하면 됩니다.</p>
 
       <h2>Runtime 핵심 개념</h2>
 
@@ -38,9 +38,9 @@ export default function ContainerRuntime() {
 
       <h2>Kubernetes와 Container Runtime 관계</h2>
 
-      **Pod**는 Kubernetes가 컨테이너를 묶어서 배치하는 최소 단위입니다. (한 Pod 안에 컨테이너 하나 또는 여러 개가 들어갈 수 있다.)
+      <p><strong>Pod</strong>는 Kubernetes가 컨테이너를 묶어서 배치하는 최소 단위입니다. (한 Pod 안에 컨테이너 하나 또는 여러 개가 들어갈 수 있다.)</p>
 
-      **한 줄 흐름:** Control Plane이 Pod를 노드에 스케줄하면, 해당 노드의 **kubelet**이 **CRI**를 통해 런타임을 호출해 이미지 풀 → Sandbox(Pod 네트워크·PID 네임스페이스) → 컨테이너 생성·시작 순으로 실행한다.
+      <p><strong>한 줄 흐름:</strong> Control Plane이 Pod를 노드에 스케줄하면, 해당 노드의 <strong>kubelet</strong>이 <strong>CRI</strong>를 통해 런타임을 호출해 이미지 풀 → Sandbox(Pod 네트워크·PID 네임스페이스) → 컨테이너 생성·시작 순으로 실행한다.</p>
 
       <KeyTable
         columns={["구분", "역할", "비고"]}
@@ -98,6 +98,8 @@ export default function ContainerRuntime() {
 
       <h2>Pod가 노드에서 실행되기까지</h2>
 
+      <p>Scheduler가 Pod를 Node A에 바인딩</p>
+
       <MermaidDiagram
         code={`---
       config: { sequence: { width: 110, actorMargin: 24, messageMargin: 24, wrap: true } }
@@ -109,7 +111,6 @@ export default function ContainerRuntime() {
         participant Runtime as Runtime
         participant Reg as Registry
 
-        Note over API: Scheduler가 Pod를 Node A에 바인딩
         API ->> Kubelet: Pod 스펙
         Kubelet ->> CRI: RunPodSandbox
         CRI ->> Runtime: Sandbox 생성
@@ -121,7 +122,7 @@ export default function ContainerRuntime() {
         Reg -->> Runtime: 이미지
         Runtime -->> CRI: 준비
         CRI -->> Kubelet: 준비
-        Kubelet ->> CRI: CreateContainer<br/>StartContainer
+        Kubelet ->> CRI: CreateContainer · StartContainer
         CRI ->> Runtime: 생성 · 시작
         Runtime -->> CRI: Running
         CRI -->> Kubelet: Running

@@ -25,7 +25,7 @@ export default function Deploy() {
         end
         subgraph bg [블루 / 그린]
           direction LR
-          B1["Blue v1 100%<br/>Green v2 0%"] -->|"한 번에 전환"| B2["Blue v1 0%<br/>Green v2 100%"]
+          B1["Blue v1 100% · Green v2 0%"] -->|"한 번에 전환"| B2["Blue v1 0% · Green v2 100%"]
         end
         subgraph canary [카나리]
           direction LR

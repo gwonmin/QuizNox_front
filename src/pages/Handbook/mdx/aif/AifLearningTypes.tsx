@@ -45,9 +45,9 @@ export default function AifLearningTypes() {
 
       <MermaidDiagram
         code={`flowchart LR
-        AI["AI<br/>사람처럼 판단하는 시스템 전체"] --> ML["ML<br/>데이터에서 패턴을 학습"]
-        ML --> DL["딥러닝<br/>다층 신경망"]
-        DL --> GEN["생성형 AI<br/>새 콘텐츠를 만드는 FM"]`}
+        AI["AI · 사람처럼 판단하는 시스템 전체"] --> ML["ML · 데이터에서 패턴을 학습"]
+        ML --> DL["딥러닝 · 다층 신경망"]
+        DL --> GEN["생성형 AI · 새 콘텐츠를 만드는 FM"]`}
       />
 
       <h2>모델 종류</h2>

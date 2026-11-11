@@ -189,7 +189,7 @@ export default function AiAgent() {
 
       <h2>도구 · 프로토콜</h2>
 
-      **Function calling**: 앱이 도구를 실행하고 결과를 LLM에 반환한다. **MCP**는 서버-클라이언트 표준으로 도구를 오케스트레이션한다. **A2A**는 에이전트 간 작업 위임을 위한 개방 프로토콜이다. **Nova Act**는 브라우저 자동화에 특화되며 AgentCore Browser와 함께 쓴다.
+      <p><strong>Function calling</strong>: 앱이 도구를 실행하고 결과를 LLM에 반환한다. <strong>MCP</strong>는 서버-클라이언트 표준으로 도구를 오케스트레이션한다. <strong>A2A</strong>는 에이전트 간 작업 위임을 위한 개방 프로토콜이다. <strong>Nova Act</strong>는 브라우저 자동화에 특화되며 AgentCore Browser와 함께 쓴다.</p>
 
       <p>도구·MCP 심화는 <DocLink slug="agent-tool-use">Tool Use</DocLink>, 브라우저·Identity는 <DocLink layer="aws-common" slug="bedrock-agentcore">AgentCore</DocLink>를 본다.</p>
 
@@ -372,7 +372,7 @@ export default function AiAgent() {
 
       <h3>프로덕션 AI Agent 서비스 아키텍처</h3>
 
-      **흐름**: frontend → API Gateway → Lambda → LangChain 또는 LangGraph → Bedrock.
+      <p><strong>흐름</strong>: frontend → API Gateway → Lambda → LangChain 또는 LangGraph → Bedrock.</p>
 
       <MermaidDiagram
         code={`flowchart TB
