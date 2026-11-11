@@ -26,7 +26,17 @@ import { DocLink } from "@/components/handbook/DocLink";
     ["회사 데이터로 모델 조정", "Custom models (파인튜닝 · 계속 사전학습)", "JSONL prompt/completion, 결과는 Provisioned 필요"],
     ["큰 모델 성능을 작은 모델로", "Model Distillation", "비용·지연 ↓"],
     ["직접 학습한 모델 가져오기", "Custom Model Import", "Llama 등 호환 아키텍처"],
-    ["에이전트에 외부 도구·데이터 표준 연결", "MCP (Model Context Protocol)", "AgentCore Gateway"],
+    ["에이전트에 외부 도구·데이터 표준 연결", "MCP (Model Context Protocol)", <>
+        <DocLink layer="aws-common" slug="bedrock-agentcore">
+          AgentCore Gateway
+        </DocLink>
+      </>],
+    ["임의 프레임워크·FM 에이전트 호스팅", "AgentCore", <>
+        Runtime · Gateway · Identity · Memory · Browser · Policy.{" "}
+        <DocLink layer="aws-common" slug="bedrock-agentcore">
+          AgentCore
+        </DocLink>
+      </>],
     ["코드 없이 실험·프로토타입", "PartyRock", "학습용"],
     ["콘솔에서 즉시 시험", "Playground", "텍스트·채팅·이미지"],
   ]}
@@ -37,12 +47,15 @@ import { DocLink } from "@/components/handbook/DocLink";
 <KeyTable
   columns={["옵션", "맞는 상황", "비용"]}
   rows={[
-    ["On-Demand", "파일럿, 사용량 낮거나 변동, 성능 보장 불필요", "토큰당 과금"],
-    ["Provisioned Throughput", "프로덕션 저지연 보장, 높은 일관 트래픽, 커스텀 모델 배포(필수)", "모델 유닛 시간당 (1·6개월 약정 할인)"],
-    ["Batch inference", "대량 프롬프트 비동기 처리, 합성 데이터 생성", "On-Demand 대비 50% 할인"],
-    ["Cross-Region inference", "리전 간 트래픽 분산으로 처리량 확보", "On-Demand 가격"],
+    ["On-Demand", "파일럿, 사용량 낮거나 변동, 성능 보장 불필요", "토큰당 과금 · 요청당 상대 비용 높음 · 저지연"],
+    ["Provisioned Throughput", "프로덕션 저지연 보장, 높은 일관 트래픽, 커스텀 모델 배포(필수)", "모델 유닛(MU) 시간당 (1·6개월 약정 할인)"],
+    ["Batch inference", "대량 프롬프트 비동기 · 고지연 허용 · 비용 효율", "On-Demand 대비 할인"],
+    ["Inference Profile (Cross-Region)", "교차 리전 라우팅으로 처리량 확보", "On-Demand 가격대"],
+    ["Prompt caching", "고정 접두를 캐시 체크포인트로 재사용", "반복 입력 토큰 비용·지연 ↓"],
   ]}
 />
+
+API·스트리밍·아키텍처 패턴은 <DocLink layer="aws-common" slug="bedrock-apis">Bedrock APIs</DocLink>를 본다.
 
 ## Guardrails 세부
 
@@ -54,6 +67,7 @@ import { DocLink } from "@/components/handbook/DocLink";
     ["Word filters", "욕설·특정 단어 차단"],
     ["Sensitive information filters", "PII 마스킹 또는 차단. 정규식 지원"],
     ["Contextual grounding check", "응답이 소스에 근거하는지·질문과 관련 있는지 검사. 환각 차단"],
+    ["Automated Reasoning", "규칙·정책에 대한 논리적 검증으로 출력 일관성·규정 준수를 강화"],
     ["ApplyGuardrail API", "Bedrock 밖 모델에도 적용"],
   ]}
 />
@@ -66,6 +80,7 @@ import { DocLink } from "@/components/handbook/DocLink";
     ["Instructions", "에이전트 역할·목표"],
     ["Action Group", "Lambda 또는 OpenAPI 스키마로 정의한 호출 가능 동작"],
     ["Knowledge Base", "참조할 사내 지식"],
+    ["Code Interpreter", "코드 실행으로 계산·데이터 분석"],
     ["Memory", "세션 간 대화 맥락 유지"],
     ["Orchestration", "ReAct 방식으로 계획 → 도구 호출 → 관찰 반복"],
     ["Multi-agent collaboration", "감독 에이전트가 하위 에이전트에게 작업 분배"],
@@ -99,6 +114,19 @@ import { DocLink } from "@/components/handbook/DocLink";
     ["사내 문서", "Knowledge Bases"],
     ["저지연 보장·커스텀 모델", "Provisioned Throughput"],
     ["대량 비동기", "Batch inference"],
-    ["더 깊이", <DocLink layer="aws-common" slug="bedrock-agent">Bedrock Agent</DocLink>],
+    ["교차 리전", "Inference Profile"],
+    ["더 깊이", <>
+        <DocLink layer="aws-common" slug="bedrock-apis">
+          Bedrock APIs
+        </DocLink>
+        {" · "}
+        <DocLink layer="aws-common" slug="bedrock-agent">
+          Bedrock Agent
+        </DocLink>
+        {" · "}
+        <DocLink layer="aws-common" slug="bedrock-agentcore">
+          AgentCore
+        </DocLink>
+      </>],
   ]}
 />

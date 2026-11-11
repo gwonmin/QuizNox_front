@@ -3,13 +3,17 @@ import { KeyTable } from "@/components/handbook/KeyTable";
 import { DocLink } from "@/components/handbook/DocLink";
 
 <SectionSummary
-  lead="FM 선택은 모달리티·크기·지연·비용·컨텍스트·커스터마이징 가능성의 트레이드오프입니다. Bedrock은 한 API로 여러 공급사 모델을 제공합니다."
+  lead="FM 선택은 **shortlist → benchmark → priorities** 순이다. 모달리티·크기·지연·비용·컨텍스트·커스터마이징을 저울질하고 Bedrock 한 API로 후보를 비교한다."
   bullets={[
+    "후보를 좁힌 뒤 동일 프롬프트 세트로 벤치마크하고, 비용·지연·품질 우선순위로 고른다.",
     "실시간 응답 → 추론 속도, 긴 문서 → 컨텍스트 윈도우, 이미지+텍스트 → 멀티모달.",
-    "Nova: Micro(텍스트, 최저지연) · Lite(멀티모달, 저비용) · Pro(멀티모달, 고성능) · Canvas(이미지) · Reel(영상).",
-    "Bedrock 모델 평가(자동·사람)와 Prompt Router로 선택을 돕는다.",
+    "Bedrock 모델 평가(자동·사람·LLM judge)와 Prompt Router로 선택을 돕는다.",
   ]}
 />
+
+## 선택 흐름
+
+**Shortlist** (후보 압축) → **Benchmark** (동일 데이터로 비교) → **Priorities** (비용·지연·품질·컴플라이언스 가중).
 
 ## 선택 기준
 
@@ -59,8 +63,9 @@ import { DocLink } from "@/components/handbook/DocLink";
 <KeyTable
   columns={["도구", "하는 일"]}
   rows={[
-    ["Bedrock 모델 평가 (자동)", "ROUGE·BLEU·BERTScore 등 지표로 모델 비교. 내장 또는 자체 데이터셋"],
-    ["Bedrock 모델 평가 (사람)", "자체 팀 또는 AWS 관리 팀이 출력 비교"],
+    ["Bedrock 평가 · programmatic", "ROUGE·BLEU·BERTScore 등 지표로 모델 비교. 내장 또는 자체 데이터셋"],
+    ["Bedrock 평가 · human", "자체 팀 또는 AWS 관리 팀이 출력 비교"],
+    ["Bedrock 평가 · LLM judge", "다른 모델이 채점. 대량·주관 품질에 사용, 비용 상대적 증가"],
     ["Prompt Router", "하나의 엔드포인트로 요청별 최적 모델 자동 선택. 비용·품질 균형"],
     ["Model Distillation", "큰 교사 모델의 응답으로 작은 학생 모델 학습. 비용·지연 ↓"],
     ["PartyRock", "코드 없이 생성형 AI 앱 실험. 학습·프로토타입용"],

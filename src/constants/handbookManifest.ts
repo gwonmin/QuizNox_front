@@ -291,7 +291,9 @@ export const HANDBOOK_LAYERS: HandbookLayer[] = [
         title: "7. AI & Bedrock",
         docs: [
           { slug: "bedrock-overview", title: "Bedrock 개요 (관리형 FM · Converse · 모델 선택)" },
+          { slug: "bedrock-apis", title: "Bedrock APIs (InvokeModel · Converse · 아키텍처)" },
           { slug: "bedrock-agent", title: "Bedrock Agent (Action Group · KB · Guardrails · 운영)" },
+          { slug: "bedrock-agentcore", title: "Bedrock AgentCore (Runtime · Gateway · Identity)" },
         ],
       },
     ],

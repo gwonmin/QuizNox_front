@@ -1,11 +1,12 @@
 import { SectionSummary } from "@/components/handbook/SectionSummary";
 import { KeyTable } from "@/components/handbook/KeyTable";
 import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+import { DocLink } from "@/components/handbook/DocLink";
 
 <SectionSummary
   lead="Amazon Bedrock은 여러 제공사의 Foundation Model(FM)을 API로 쓰는 관리형 서비스다. 모델 ID·지역·가격은 수시로 바뀌므로 콘솔·문서의 지원 목록을 기준으로 한다."
   bullets={[
-    "InvokeModel·Converse 등 API로 텍스트·멀티모달·임베딩을 통합 호출할 수 있다(모델별 지원 상이).",
+    "InvokeModel·Converse 등 API로 텍스트·멀티모달·임베딩을 통합 호출할 수 있다(모델별 지원 상이). 세부 스키마는 Bedrock APIs 문서를 본다.",
     "서버리스 과금(토큰·이미지 단위 등)이 기본이며, 배치·프롬프트 캐시 등 비용 최적화 옵션을 검토한다.",
     "Agent, Knowledge Base, Guardrails, 평가·모델 커스터마이징(지원 모델 한정)으로 엔터프라이즈 구성을 맞출 수 있다.",
   ]}
@@ -169,7 +170,13 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
   rows={[
     [
       "Model Access",
-      "콘솔에서 모델 액세스를 켠 뒤 InvokeModel·Converse·배치 추론 등으로 호출. 멀티턴·툴 호출은 Converse 쪽이 단순한 경우가 많다.",
+      <>
+        콘솔에서 모델 액세스를 켠 뒤 InvokeModel·Converse·배치 추론 등으로 호출. 멀티턴·툴 호출은 Converse 쪽이 단순한 경우가 많다. 상세:{" "}
+        <DocLink layer="aws-common" slug="bedrock-apis">
+          Bedrock APIs
+        </DocLink>
+        .
+      </>,
     ],
     [
       "프롬프트 관리",
@@ -181,7 +188,17 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
     ],
     [
       "Agent",
-      "FM + Action Group(Lambda) + Knowledge Base를 조합하여 자율적으로 작업을 수행하는 Agent 구축.",
+      <>
+        FM + Action Group(Lambda) + Knowledge Base를 조합하여 자율적으로 작업을 수행하는 Agent 구축.{" "}
+        <DocLink layer="aws-common" slug="bedrock-agent">
+          Bedrock Agent
+        </DocLink>
+        ·{" "}
+        <DocLink layer="aws-common" slug="bedrock-agentcore">
+          AgentCore
+        </DocLink>
+        .
+      </>,
     ],
     [
       "Guardrails",

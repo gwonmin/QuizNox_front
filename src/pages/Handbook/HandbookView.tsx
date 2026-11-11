@@ -54,7 +54,9 @@ import KmsBasicsMdx from "./mdx/aws-common/KmsBasics.mdx";
 import SecretsManagerBasicsMdx from "./mdx/aws-common/SecretsManagerBasics.mdx";
 import SsmParameterStoreMdx from "./mdx/aws-common/SsmParameterStore.mdx";
 import BedrockOverviewMdx from "./mdx/aws-common/BedrockOverview.mdx";
+import BedrockApisMdx from "./mdx/aws-common/BedrockApis.mdx";
 import BedrockAgentMdx from "./mdx/aws-common/BedrockAgent.mdx";
+import BedrockAgentCoreMdx from "./mdx/aws-common/BedrockAgentCore.mdx";
 import AcidTransactionLockMdx from "./mdx/core-cs/AcidTransactionLock.mdx";
 import AuthnVsAuthzMdx from "./mdx/core-cs/AuthnVsAuthz.mdx";
 import IpCidrSubnettingMdx from "./mdx/core-cs/IpCidrSubnetting.mdx";
@@ -489,7 +491,9 @@ const HandbookView = memo(function HandbookView() {
     if (layerId === "aws-common" && slug === "secrets-manager-basics") return true;
     if (layerId === "aws-common" && slug === "ssm-parameter-store") return true;
     if (layerId === "aws-common" && slug === "bedrock-overview") return true;
+    if (layerId === "aws-common" && slug === "bedrock-apis") return true;
     if (layerId === "aws-common" && slug === "bedrock-agent") return true;
+    if (layerId === "aws-common" && slug === "bedrock-agentcore") return true;
     if (layerId === "saa" && slug === "vpc-peering") return true;
     if (layerId === "saa" && slug === "transit-gateway") return true;
     if (layerId === "saa" && slug === "direct-connect-vpn") return true;
@@ -868,7 +872,9 @@ const HandbookView = memo(function HandbookView() {
       return <SsmParameterStoreMdx />;
     }
     if (layerId === "aws-common" && slug === "bedrock-overview") return <BedrockOverviewMdx />;
+    if (layerId === "aws-common" && slug === "bedrock-apis") return <BedrockApisMdx />;
     if (layerId === "aws-common" && slug === "bedrock-agent") return <BedrockAgentMdx />;
+    if (layerId === "aws-common" && slug === "bedrock-agentcore") return <BedrockAgentCoreMdx />;
     if (layerId === "saa" && slug === "vpc-peering") return <SaaVpcPeeringMdx />;
     if (layerId === "saa" && slug === "transit-gateway") return <SaaTransitGatewayMdx />;
     if (layerId === "saa" && slug === "direct-connect-vpn") return <SaaDirectConnectVpnMdx />;

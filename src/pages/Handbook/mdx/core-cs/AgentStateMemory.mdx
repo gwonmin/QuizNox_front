@@ -67,10 +67,24 @@ import { DocLink } from "@/components/handbook/DocLink";
   columns={["저장소", "적합한 기억", "이유"]}
   rows={[
     ["KV (Redis, DynamoDB 등)", "작업 상태 · checkpoint · 세션", "키로 바로 읽고 쓰며 빠르다. TTL로 자동 만료시키기 쉽다."],
-    ["RDB", "프로필 · 선호 · 확인된 사실 · 기억 변경 이력", "구조가 정해져 있고, 수정·삭제·감사가 쉽다. 사용자가 자기 기억을 보고 지울 수 있게 만들기 좋다."],
+    ["RDB", "프로필 · 선호 · 확인된 사실 · 기억 변경 이력", "구조가 정해져 있고, 수정·삭제·감사가 쉽다. 사용자가 자기 기억을 보고 지울 수 있게 만들 때 좋다."],
     ["벡터 저장소", "경험 기억 · 비정형 메모", "정확한 키 없이 '비슷한 상황'을 찾아야 할 때 쓴다. Vector DB 문서 참고."],
   ]}
 />
+
+### GenAI 챗 메모리: 단기 vs 장기
+
+FM 컨텍스트는 교환마다 실리며 모델이 영속하지 않는다. 앱이 저장한다.
+
+<KeyTable
+  columns={["저장소", "용도", "특징"]}
+  rows={[
+    ["ElastiCache Redis 등", "단기 세션 이력", "저지연, TTL 만료"],
+    ["DynamoDB", "장기 · 세션별 이력", "내구성, session_id 키. DynamoDBChatMessageHistory 패턴"],
+  ]}
+/>
+
+Bedrock 쪽 패턴은 <DocLink layer="aws-common" slug="bedrock-apis">Bedrock APIs</DocLink>를 본다.
 
 벡터 검색은 강력하지만 "비슷하지만 틀린" 기억도 찾아온다. 사용자 이름이나 설정처럼 정확히 맞아야 하는 정보는 <DocLink slug="vector-db">Vector DB</DocLink>보다 RDB에 키로 저장하는 편이 안전하다.
 

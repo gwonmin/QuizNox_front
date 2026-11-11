@@ -1,12 +1,14 @@
 import { SectionSummary } from "@/components/handbook/SectionSummary";
 import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+import { DocLink } from "@/components/handbook/DocLink";
 
 <SectionSummary
-  lead="AWS가 정의한 책임 있는 AI의 핵심 차원은 공정성·설명 가능성·프라이버시와 보안·안전성·제어 가능성·진실성과 견고성·거버넌스·투명성입니다. 시험은 상황이 어느 차원 위반인지 묻습니다."
+  lead="Responsible AI는 안전·데이터 위험을 최소화한다. 위험축은 veracity · toxicity · IP · privacy이며, 약한 데이터가 모델·앱으로 전파되는 bias cycle을 끊는다."
   bullets={[
     "특정 집단에 불리 → 공정성. 왜 그 결정인지 모름 → 설명 가능성. 모델 정보 공개 안 됨 → 투명성.",
-    "사실과 다름·입력 변형에 흔들림 → 진실성과 견고성. 유해 출력 → 안전성.",
-    "책임 있는 AI 실천은 데이터 편향 탐지 + 모델 행동 평가 + 사람 감독.",
+    "프롬프트 인젝션은 의도치 않은 출력, 프롬프트 유출은 민감 정보 노출. 검증·접근 제어·모니터링으로 방어한다.",
+    "Bedrock Guardrails는 프롬프트·응답을 평가하고, contextual grounding · Automated Reasoning을 제공한다.",
   ]}
 />
 
@@ -40,18 +42,35 @@ import { KeyTable } from "@/components/handbook/KeyTable";
   ]}
 />
 
+## Bias cycle
+
+**Weak data → model → apps.** 약한 데이터가 모델에 스며들고 앱 동작으로 확대된다. 데이터 교정·평가·Guardrails로 고리를 끊는다.
+
+<MermaidDiagram
+  code={`flowchart LR
+  DATA[Weak data]
+  MODEL[Model]
+  APPS[Apps]
+  DATA --> MODEL --> APPS
+  APPS -->|"feedback without fix"| DATA`}
+/>
+
 ## 생성형 AI의 책임 과제
 
 <KeyTable
   columns={["과제", "완화"]}
   rows={[
-    ["독성 (Toxicity)", "Guardrails 콘텐츠 필터, 큐레이션 데이터"],
-    ["환각", "RAG, Temperature ↓, grounding check, 사람 검토"],
-    ["표절·저작권", "출처 표시, 사용 정책"],
-    ["프롬프트 조작", "템플릿, Prompt Attack 필터"],
-    ["데이터 프라이버시", "PII 제거·마스킹, 고객 데이터 미학습 (Bedrock 기본)"],
+    ["Veracity 환각", "RAG, Temperature ↓, grounding check, 사람 검토"],
+    ["Toxicity", "Guardrails content filters, 큐레이션 데이터"],
+    ["IP · 표절·저작권", "출처 표시, 사용 정책"],
+    ["Privacy", "PII 마스킹, 고객 데이터 미학습 (Bedrock 기본)"],
+    ["Prompt injection", "입력 검증, 템플릿 분리, Prompt Attack 필터"],
+    ["Prompt leaking", "민감 정보를 시스템 프롬프트에 두지 않음, 접근 제어"],
+    ["Defend", "validation · access control · monitoring"],
   ]}
 />
+
+Guardrails 세부(content · topics · words · sensitive info · grounding · Automated Reasoning)는 <DocLink layer="aif" slug="bedrock-features">Bedrock 기능 지도</DocLink>를 본다.
 
 ## 사람 중심 설계
 

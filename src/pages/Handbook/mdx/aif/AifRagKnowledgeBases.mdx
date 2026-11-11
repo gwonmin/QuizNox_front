@@ -4,26 +4,31 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
 import { DocLink } from "@/components/handbook/DocLink";
 
 <SectionSummary
-  lead="RAG는 질문과 관련된 문서를 검색해 프롬프트에 붙여 답하게 하는 방식입니다. Bedrock Knowledge Bases가 청킹·임베딩·벡터 저장·검색을 관리해 줍니다."
+  lead="**커스터마이징 사다리**: Prompt engineering → RAG → 모델 커스터마이징. RAG는 앱 → orchestrator → 증강 프롬프트 → LLM이다. Bedrock Knowledge Bases가 청킹·임베딩·검색·생성을 관리한다."
   bullets={[
-    "모델을 재학습하지 않고 최신·사내 지식을 반영한다. 환각이 줄고 출처를 보여줄 수 있다.",
-    "흐름: 문서 → 청킹 → 임베딩 → 벡터 DB. 질문 → 임베딩 → 유사 청크 검색 → 프롬프트에 주입 → 생성.",
-    "벡터 저장소: OpenSearch Serverless(기본), Aurora pgvector, Neptune Analytics, MongoDB, Pinecone, Redis.",
+    "모델을 재학습하지 않고 최신·사내 지식을 반영한다. RetrieveAndGenerate로 답과 출처(citations)를 받는다.",
+    "Hydrate: data → chunks → embeddings → KB. Orchestrator: query embedding → semantic search → 증강 프롬프트.",
+    "저장소는 벡터 · 그래프(관계) · 하이브리드를 고른다.",
   ]}
 />
 
 ## 흐름
 
-수집(사전 처리)은 한 번, 질의는 요청마다 실행됩니다.
+수집(사전 처리)은 한 번, 질의는 요청마다 orchestrator가 실행한다.
 
 <MermaidDiagram
   code={`flowchart LR
-  D["S3 문서"] --> CH["청킹"] --> EM["임베딩<br/>Titan Embeddings"] --> VDB["벡터 DB"]`}
+  D[Data] --> CH[Chunks] --> EM[Embeddings] --> KB[Knowledge Base]`}
 />
 
 <MermaidDiagram
   code={`flowchart LR
-  Q["사용자 질문"] --> S["임베딩 후<br/>유사도 검색"] --> AUG["프롬프트 +<br/>검색 청크"] --> LLM["FM 생성"] --> A["답변 + 출처"]`}
+  APP[App] --> ORCH[Orchestrator]
+  ORCH --> QE[Query embedding]
+  QE --> SS[Semantic search]
+  SS --> AUG[Augmented prompt]
+  AUG --> LLM[LLM]
+  LLM --> ANS[Answer with citations]`}
 />
 
 ## RAG vs 파인튜닝
@@ -41,6 +46,8 @@ import { DocLink } from "@/components/handbook/DocLink";
 
 ## Bedrock Knowledge Bases 구성
 
+**Setup**: create KB → add data source → sync.
+
 <KeyTable
   columns={["요소", "선택지"]}
   rows={[
@@ -48,7 +55,8 @@ import { DocLink } from "@/components/handbook/DocLink";
     ["청킹 전략", "고정 크기, 기본(300 토큰), 계층형, 시맨틱, 청킹 없음"],
     ["임베딩 모델", "Titan Text Embeddings, Cohere Embed"],
     ["벡터 저장소", "OpenSearch Serverless(빠른 생성 기본), Aurora PostgreSQL pgvector, Neptune Analytics(GraphRAG), Pinecone, Redis Enterprise, MongoDB Atlas"],
-    ["API", "Retrieve (검색만), RetrieveAndGenerate (검색 + 생성)"],
+    ["Store 유형", "벡터(유사도), 그래프(관계), 하이브리드"],
+    ["API", "Retrieve (검색만), RetrieveAndGenerate (검색 + 생성 + citations)"],
     ["고급", "메타데이터 필터링, 하이브리드 검색, 리랭킹, 쿼리 분해"],
   ]}
 />
@@ -61,8 +69,8 @@ import { DocLink } from "@/components/handbook/DocLink";
     ["고정 크기", "단순. 토큰 수와 오버랩 지정"],
     ["계층형 (Hierarchical)", "부모-자식 청크. 검색은 자식, 컨텍스트는 부모"],
     ["시맨틱", "의미 경계로 분할. 품질 ↑ 비용 ↑"],
-    ["너무 작은 청크", "문맥 손실"],
-    ["너무 큰 청크", "노이즈 ↑, 토큰 비용 ↑"],
+    ["Small chunks", "검색이 빠르고 정밀. 문맥은 상대적으로 적음"],
+    ["Large chunks", "더 많은 컨텍스트. 노이즈·토큰 비용 ↑"],
   ]}
 />
 

@@ -132,6 +132,18 @@ AI Agent의 핵심 실행 패턴으로, **추론(Thought)과 행동(Action)을 �
 
 Router(분기), Supervisor(중앙 조율), 병렬 실행, Evaluator-Optimizer(평가 후 개선) 같은 Workflow 패턴과, Single Agent와 Multi-Agent 중 무엇을 고를지는 <DocLink slug="agent-orchestration">Orchestration</DocLink>에서 자세히 다룬다.
 
+## Bedrock 직접 API vs 오픈소스 프레임워크
+
+<KeyTable
+  columns={["접근", "장점", "맞는 경우"]}
+  rows={[
+    ["Bedrock APIs 직접", "의존성 적음 · 지연·비용 예측 쉬움 · IAM·Guardrails와 직결", "단순 생성·요약·Q&A, 커스텀 오케스트레이션이 얇을 때"],
+    ["OSS 프레임워크", "프롬프트·메모리·체인·에이전트 추상화 · 생태계", "멀티스텝 도구 루프·히스토리·평가 파이프라인이 필요할 때"],
+  ]}
+/>
+
+직접 호출 세부(Converse·스트리밍)는 <DocLink layer="aws-common" slug="bedrock-apis">Bedrock APIs</DocLink>, 호스팅·Gateway는 <DocLink layer="aws-common" slug="bedrock-agentcore">AgentCore</DocLink>를 본다.
+
 ## 대표 프레임워크 · SDK
 
 <KeyTable
@@ -139,34 +151,44 @@ Router(분기), Supervisor(중앙 조율), 병렬 실행, Evaluator-Optimizer(�
   rows={[
     [
       "LangChain / LangGraph",
-      "체인·도구·메모리 모듈과, 상태 그래프·체크포인트·휴먼인더루프를 지원하는 LangGraph가 프로덕션 에이전트에 널리 쓰인다.",
+      "prompts · memory · chains · agents. LangGraph는 nodes · edges · states로 루프·분기를 표현한다.",
     ],
     [
       "LlamaIndex",
       "데이터 커넥터·인덱싱·에이전트 워크플로에 특화. RAG와 검색 도구를 한 축으로 묶기 좋다.",
     ],
     [
+      "Haystack",
+      "검색·RAG 파이프라인 중심. 문서 처리·파이프 노드 구성에 강점.",
+    ],
+    [
+      "DSPy",
+      "프롬프트를 프로그램처럼 최적화. 예시·메트릭으로 파이프라인을 컴파일한다.",
+    ],
+    [
+      "Strands Agents",
+      "모델 + 도구의 agentic loop에 초점을 둔 경량 에이전트 프레임워크.",
+    ],
+    [
+      "CrewAI",
+      "Crews는 역할 기반 자율성(agency), Flows는 단계 제어(precision)에 가깝다.",
+    ],
+    [
       "벤더 SDK",
-      "OpenAI·Anthropic·Google 등은 전용 Agents SDK·멀티툴 API를 제공한다. 락인과 생산성 트레이드오프를 본다.",
+      "OpenAI·Anthropic·Google 등은 전용 Agents SDK·멀티툴 API를 제공한다.",
     ],
     [
-      "Google ADK 등",
-      "클라우드·IDE와 연계된 에이전트 개발 키트가 늘고 있다. 문서·샘플이 빠르게 갱신되므로 공식 가이드를 우선한다.",
-    ],
-    [
-      "CrewAI · AutoGen 계열",
-      "역할형 Multi-Agent·대화형 오케스트레이션. 팀 단위 시뮬레이션·코드 실행 루프에 자주 쓰인다.",
-    ],
-    [
-      "Amazon Bedrock Agent",
-      "AWS 관리형. Action Group(Lambda)·Knowledge Base·Guardrails와 통합해 운영형 에이전트를 구성한다.",
+      "Amazon Bedrock Agents",
+      "관리형 FM + Action Group · KB · Code Interpreter + 메모리. AgentCore로 임의 프레임워크도 호스팅 가능.",
     ],
   ]}
 />
 
-## 도구 연결 표준: MCP
+## 도구 · 프로토콜
 
-**Model Context Protocol(MCP)** 은 호스트(IDE·런타임)가 서버(파일·DB·API 래퍼)에 붙는 규약이다. 에이전트마다 커스텀 REST를 반복하기보다 MCP 서버를 두면 도구 스키마·권한 경계를 맞추기 쉽다. 다만 MCP는 인증·승인·레이트 리밋을 대신하지 않는다. 도구 정의와 MCP 구조는 <DocLink slug="agent-tool-use">Tool Use</DocLink>에서 자세히 다룬다.
+**Function calling**: 앱이 도구를 실행하고 결과를 LLM에 반환한다. **MCP**는 서버-클라이언트 표준으로 도구를 오케스트레이션한다. **A2A**는 에이전트 간 작업 위임을 위한 개방 프로토콜이다. **Nova Act**는 브라우저 자동화에 특화되며 AgentCore Browser와 함께 쓴다.
+
+도구·MCP 심화는 <DocLink slug="agent-tool-use">Tool Use</DocLink>, 브라우저·Identity는 <DocLink layer="aws-common" slug="bedrock-agentcore">AgentCore</DocLink>를 본다.
 
 ## 프로덕션 체크리스트
 
@@ -202,7 +224,11 @@ LangChain은 **부품(모듈)**, LangGraph는 그 부품을 **조립하는 설�
 
 ### 1단계: 부품 이해 — LangChain 핵심 모듈
 
-LangChain은 LLM 애플리케이션에 필요한 모듈을 제공하고, 이들을 파이프(`|`) 연산자로 연결한다.
+LangChain은 prompts · memory · chains · agents 모듈을 제공하고, `prompt_template | model`처럼 파이프(`|`)로 한 번에 실행한다.
+
+**호출 패턴**: `SystemMessage` + `HumanMessage` → `model.invoke()`. **ChatPromptTemplate**은 `{variables}`를 채운 채팅 프롬프트를 만든다. 멀티턴은 **RunnableWithMessageHistory**, 세션별 영속은 **DynamoDBChatMessageHistory(`session_id`)** 로 붙인다.
+
+**배포 흐름**: frontend → Lambda → LangChain → Bedrock.
 
 <MermaidDiagram
   code={`flowchart TB
@@ -329,59 +355,21 @@ LangChain은 LLM 애플리케이션에 필요한 모듈을 제공하고, 이들�
 
 ### 프로덕션 AI Agent 서비스 아키텍처
 
-실제 서비스 환경에서 LangGraph 기반 Agent는 아래와 같은 구조로 배포된다. 사용자 요청이 들어오면 API 서버가 LangGraph Agent를 호출하고, Agent는 필요에 따라 외부 도구와 데이터 소스를 활용하여 응답을 생성한다.
+**흐름**: frontend → API Gateway → Lambda → LangChain 또는 LangGraph → Bedrock.
 
 <MermaidDiagram
   code={`flowchart TB
-  WEB["Client\nWeb · Mobile"] --> GW["API Gateway\n인증 · Rate Limit"]
-
-  GW --> API_ENTRY
-
-  subgraph API ["API Server (FastAPI · Express)"]
-    API_ENTRY["/api/chat 엔드포인트"]
-    API_ENTRY --> ROUTER
-
-    subgraph AGENT ["LangGraph Agent"]
-      ROUTER{"라우터 — 의도 분류"}
-
-      ROUTER -->|"단순 질의"| RAG["RAG 노드"]
-      ROUTER -->|"작업 요청"| ACTION["Action 노드"]
-      ROUTER -->|"복합 작업"| PLAN["Planner 노드"]
-
-      PLAN -.-> RAG
-      PLAN -.-> ACTION
-
-      RAG --> RESP["응답 생성\n(스트리밍 반환)"]
-      ACTION --> RESP
-    end
-  end
-
-  RAG -->|"Retriever"| DATA
-  ACTION -->|"Tool Calling"| TOOLS
-
-  subgraph DATA ["데이터 소스 ← RAG 노드"]
-    VDB["Vector DB\nPinecone · OpenSearch"]
-    DOCS["지식베이스\nS3 · Notion"]
-    DOCS -->|"Embedding"| VDB
-  end
-
-  subgraph TOOLS ["외부 도구 ← Action 노드"]
-    EXTAPI["외부 API\n날씨 · 예약 · 결제"]
-    APPDB["App DB\nRDS · DynamoDB"]
-  end
-
-  subgraph INFRA ["공통 인프라 ← Agent 전체"]
-    CKPT["Checkpoint\nRedis · DynamoDB"]
-    CONV["Memory\nRedis · RDS"]
-    TRACE["Tracing\nLangSmith · Langfuse"]
-    MON["Metrics\nCloudWatch · Datadog"]
-    CKPT ~~~ TRACE
-    CONV ~~~ MON
-  end
-
-  AGENT --> INFRA
-  DATA ~~~ INFRA
-  TOOLS ~~~ INFRA`}
+  WEB[Frontend] --> GW[API Gateway]
+  GW --> LAMBDA[Lambda with LangChain]
+  LAMBDA --> BEDROCK[Amazon Bedrock]
+  LAMBDA --> ROUTER[Router]
+  ROUTER --> RAG[RAG node]
+  ROUTER --> ACTION[Action node]
+  RAG --> RESP[Response]
+  ACTION --> RESP
+  RAG --> VDB[Vector DB]
+  ACTION --> EXTAPI[External APIs]
+  LAMBDA --> MEM[ElastiCache or DynamoDB]`}
 />
 
 <KeyTable

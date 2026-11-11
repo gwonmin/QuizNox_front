@@ -1,0 +1,114 @@
+import { SectionSummary } from "@/components/handbook/SectionSummary";
+import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+import { DocLink } from "@/components/handbook/DocLink";
+
+<SectionSummary
+  lead="**AgentCore**는 프레임워크·FM을 가리지 않고 에이전트를 호스팅·연결·보호하는 런타임 계층이다. Runtime에 올리고 Gateway로 도구를 붙이며, Identity·Memory·Browser·Policy로 운영한다."
+  bullets={[
+    "Bedrock Agents는 관리형 FM+도구+메모리, Flows는 제어 가능한 워크플로, AgentCore는 임의 프레임워크·FM을 위한 플랫폼이다.",
+    "Gateway는 API·Lambda를 MCP 도구로 노출하고, Identity는 inbound·outbound 인증을 나눈다.",
+    "Browser·Nova Act는 브라우저 자동화, Memory·Policy는 상태와 가드레일이다.",
+  ]}
+/>
+
+## Agents · Flows · AgentCore
+
+<KeyTable
+  columns={["구성", "역할", "언제"]}
+  rows={[
+    ["Bedrock Agents", "FM + Action Group · KB · Code Interpreter + 메모리의 관리형 에이전트", "AWS 네이티브로 다단계 작업을 빠르게 구성"],
+    ["Bedrock Flows", "프롬프트·모델·KB를 시각적으로 연결한 제어형 워크플로", "결정적 단계·노코드 프로토타입"],
+    ["Bedrock AgentCore", "임의 프레임워크 또는 FM을 서버리스로 호스팅·도구 연결·인증", "LangChain·Strands 등 자체 루프를 프로덕션에 올릴 때"],
+  ]}
+/>
+
+관리형 Agent 루프(분해 → 행동 → 관찰 → 답변)는 <DocLink layer="aws-common" slug="bedrock-agent">Bedrock Agent</DocLink>를 본다.
+
+## AgentCore 구성 요소
+
+<MermaidDiagram
+  code={`flowchart TB
+  APP[Application or Agent Framework]
+  RT[AgentCore Runtime]
+  GW[Gateway]
+  ID[Identity]
+  MEM[Memory]
+  BR[Browser]
+  POL[Policy]
+  MCP[MCP Tools]
+  API[APIs or Lambda]
+
+  APP --> RT
+  RT --> GW
+  RT --> ID
+  RT --> MEM
+  RT --> BR
+  RT --> POL
+  API --> GW --> MCP
+  GW --> RT`}
+/>
+
+<KeyTable
+  columns={["구성", "하는 일"]}
+  rows={[
+    ["Runtime", "에이전트 코드를 서버리스로 호스팅. 스케일·격리·수명 주기 관리"],
+    ["Gateway", "기존 API · Lambda를 MCP 도구로 변환해 에이전트에 노출"],
+    ["Identity", "Inbound: 호출자 인증. Outbound: 도구·외부 서비스 호출 자격 증명"],
+    ["Memory", "세션·장기 맥락 저장. 프레임워크 메모리와 연동"],
+    ["Browser", "브라우저 자동화 도구. Nova Act 등과 함께 UI 조작 시나리오"],
+    ["Policy", "허용 도구·주제·데이터 접근 정책을 강제"],
+  ]}
+/>
+
+## Gateway: API · Lambda → MCP
+
+**Gateway**는 REST·OpenAPI·Lambda 핸들러를 **MCP 도구**로 래핑한다. 에이전트는 표준 tool schema로 호출하고, Gateway가 백엔드로 라우팅한다.
+
+<MermaidDiagram
+  code={`sequenceDiagram
+  participant Agent
+  participant Gateway
+  participant Lambda
+  Agent->>Gateway: MCP tool call
+  Gateway->>Lambda: invoke with args
+  Lambda-->>Gateway: result
+  Gateway-->>Agent: tool result`}
+/>
+
+MCP 개념은 <DocLink slug="agent-tool-use">Tool Use · MCP</DocLink>를 본다.
+
+## Identity: inbound · outbound
+
+<KeyTable
+  columns={["방향", "목적", "예"]}
+  rows={[
+    ["Inbound", "누가 에이전트를 호출했는지 검증", "IAM · Cognito · 토큰"],
+    ["Outbound", "에이전트가 외부 도구·API를 호출할 자격", "역할 가정, API 키, OAuth"],
+  ]}
+/>
+
+가드레일·권한 일반론은 <DocLink slug="agent-guardrails-authz">Guardrails · Authz</DocLink>를 본다.
+
+## Browser · Nova Act
+
+**Nova Act**는 브라우저 자동화에 특화된 에이전트·액트 계층이다. AgentCore **Browser** 도구와 결합하면 폼 입력·클릭·스크래핑 같은 UI 작업을 루프에 넣을 수 있다. 프로덕션에서는 Policy·Identity로 허용 도메인과 자격 증명을 제한한다.
+
+## 프레임워크와의 관계
+
+AgentCore는 LangChain · LangGraph · Strands · CrewAI 등 **어떤 에이전트 루프든** Runtime에 올리고, Gateway로 사내 API를 MCP화할 수 있다. 프레임워크 비교는 <DocLink slug="ai-agent">AI Agent</DocLink>를 본다.
+
+## 요약
+
+<KeyTable
+  columns={["키워드", "한 줄"]}
+  rows={[
+    ["AgentCore", "임의 프레임워크·FM용 에이전트 플랫폼"],
+    ["Runtime", "서버리스 에이전트 호스팅"],
+    ["Gateway", "API · Lambda → MCP 도구"],
+    ["Identity", "inbound · outbound 인증"],
+    ["Memory · Browser · Policy", "상태 · UI 자동화 · 정책 강제"],
+    ["Nova Act", "브라우저 자동화 액트"],
+    ["더 깊이", <DocLink layer="aws-common" slug="bedrock-agent">Bedrock Agent</DocLink>],
+  ]}
+/>

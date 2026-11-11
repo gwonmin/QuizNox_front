@@ -115,7 +115,7 @@ Agent 사이에서 일을 넘길 때는 대화 원문 전체가 아니라 받는
 
 ## 그래프로 표현하기
 
-여러 단계와 분기 · 루프를 코드로 통제하려면 작업을 그래프(노드 + 엣지 + 공유 상태)로 표현한다. LangGraph 같은 프레임워크가 이 방식을 쓴다.
+여러 단계와 분기 · 루프를 코드로 통제하려면 작업을 그래프(**nodes · edges · states**)로 표현한다. LangGraph 같은 프레임워크가 이 방식을 쓴다. 에이전트 간 작업 위임 표준으로는 **A2A**(Agent-to-Agent) 개방 프로토콜이 있다. CrewAI는 **Crews**(agency)와 **Flows**(precision)를 구분해 쓴다.
 
 <MermaidDiagram
   code={`flowchart TB

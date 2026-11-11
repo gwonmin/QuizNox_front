@@ -51,17 +51,17 @@ import { ModelReferenceLinks } from "@/components/handbook/ModelReferenceLinks";
 
 ## LLM 동작 원리
 
+**Prompt → tokenize → embed → decode → response.** 컨텍스트는 요청(교환)마다 실리며 FM이 영속 저장하지 않는다.
+
 <MermaidDiagram
   code={`flowchart TB
-  INPUT["입력 텍스트"]
-  TOK["토크나이저\n(텍스트 → 토큰)"]
-  EMB["임베딩\n(토큰 → 벡터)"]
-  TF["Transformer 레이어\n(Self-Attention × N)"]
-  PRED["다음 토큰 예측\n(확률 분포)"]
-  OUT["출력 토큰"]
-
-  INPUT --> TOK --> EMB --> TF --> PRED --> OUT
-  OUT -->|"반복 (Auto-regressive)"| TF`}
+  PROMPT[Prompt]
+  TOK[Tokenize]
+  EMB[Embed]
+  DECODE[Decode next tokens]
+  RESP[Response]
+  PROMPT --> TOK --> EMB --> DECODE --> RESP
+  DECODE -->|"auto-regressive"| DECODE`}
 />
 
 ## Prompt Engineering

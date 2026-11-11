@@ -1,13 +1,14 @@
 import { SectionSummary } from "@/components/handbook/SectionSummary";
 import { KeyTable } from "@/components/handbook/KeyTable";
 import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+import { DocLink } from "@/components/handbook/DocLink";
 
 <SectionSummary
-  lead="Bedrock Agent는 FM이 Action Group·Knowledge Base·지시(Instruction)를 조합해 다단계 작업을 수행하는 관리형 서비스다. 세션·스트리밍·멀티 에이전트 등 옵션은 콘솔·API 릴리즈에 따라 확장되므로 최신 문서를 본다."
+  lead="Bedrock Agent는 FM + 도구(Action Group · KB · Code Interpreter) + 메모리로 다단계 작업을 수행하는 관리형 서비스다. 루프는 분해 → 행동 → 관찰 → 답변이다."
   bullets={[
     "Action Group(OpenAPI + Lambda)으로 주문 조회·티켓 생성 등 부수 효과가 있는 작업을 도구로 노출한다.",
-    "Knowledge Base로 S3·Confluence 등 소스를 동기화해 RAG를 붙이고, 필요 시 하이브리드 검색·메타데이터 필터를 검토한다.",
-    "Guardrails로 PII·주제 거부·그라운딩(근거 검사) 등을 걸어 프로덕션 정책을 맞춘다.",
+    "Knowledge Base로 S3·Confluence 등 소스를 동기화해 RAG를 붙이고, Code Interpreter로 코드 실행·분석을 한다.",
+    "Guardrails로 PII·주제 거부·그라운딩 등을 건다. 임의 프레임워크 호스팅은 AgentCore를 본다.",
   ]}
 />
 
@@ -53,7 +54,20 @@ import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
   AGENT --> GR --> USER`}
 />
 
-## Action Group
+## 도구: Action Group · Knowledge Base · Code Interpreter
+
+Agent가 쓰는 도구는 크게 세 갈래다.
+
+<KeyTable
+  columns={["도구", "역할"]}
+  rows={[
+    ["Action Group", "OpenAPI + Lambda로 외부 API·업무 로직 호출"],
+    ["Knowledge Base", "사내 문서 RAG 검색·인용"],
+    ["Code Interpreter", "샌드박스에서 코드 실행 · 계산 · 데이터 분석"],
+  ]}
+/>
+
+### Action Group
 
 Action Group은 Agent가 **외부 세계와 상호작용**하기 위한 도구 세트이다. 각 Action Group은 Lambda 함수와 연결되어 실제 작업을 수행한다.
 
@@ -253,16 +267,25 @@ Guardrails는 Agent의 **입출력에 안전장치**를 적용하여 부적절�
       "Lambda 연동으로 API 호출, DB 조회 등 실제 작업을 수행한다. OpenAPI 스펙으로 도구를 정의.",
     ],
     [
-      "Knowledge Base = Agent의 기억",
+      "Knowledge Base = Agent의 지식",
       "S3 문서를 자동으로 RAG 파이프라인으로 구성. 코드 없이 근거 기반 답변 제공.",
+    ],
+    [
+      "Code Interpreter",
+      "코드 실행으로 계산·분석. Action Group·KB와 함께 도구 축을 이룬다.",
     ],
     [
       "Guardrails = Agent의 안전장치",
       "콘텐츠 필터, 주제 제한, PII 마스킹, Grounding Check로 프로덕션 수준의 안전성 확보.",
     ],
     [
-      "세 가지를 조합하면 엔터프라이즈 AI Agent",
-      "도구 호출 + 지식 검색 + 안전장치를 통합하여 복잡한 비즈니스 작업을 자율적으로 수행.",
+      "AgentCore",
+      <>
+        임의 프레임워크·FM 호스팅·Gateway·Identity.{" "}
+        <DocLink layer="aws-common" slug="bedrock-agentcore">
+          AgentCore
+        </DocLink>
+      </>,
     ],
   ]}
 />

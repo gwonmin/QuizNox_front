@@ -1,12 +1,14 @@
 import { SectionSummary } from "@/components/handbook/SectionSummary";
 import { KeyTable } from "@/components/handbook/KeyTable";
+import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+import { DocLink } from "@/components/handbook/DocLink";
 
 <SectionSummary
-  lead="프롬프트는 모델을 바꾸지 않고 출력을 바꾸는 가장 싼 방법입니다. 시험은 기법 이름과 '예시 몇 개'로 구분하고, 공격 유형을 묻습니다."
+  lead="프롬프트 엔지니어링은 **가중치를 바꾸지 않고** 지시를 다듬어 출력을 개선한다. 구성 요소를 맞추고, 기법·템플릿·분해·평가 루프로 반복한다."
   bullets={[
-    "예시 0개 zero-shot, 몇 개 few-shot, 풀이 과정 요구 chain-of-thought.",
-    "프롬프트 인젝션·탈옥은 입력으로 지시를 덮어쓰는 공격. 템플릿과 Guardrails로 막는다.",
-    "출력 형식·길이·어조·역할은 전부 프롬프트가 담당한다.",
+    "예시 0개 zero-shot, 몇 개 few-shot, 단계 추론 chain-of-thought, 분기 탐색 tree of thought.",
+    "템플릿은 일관·재사용·테스트 가능해야 한다. 복잡한 작업은 분해 → 각각 프롬프트 → 결합.",
+    "사람 또는 모델 리뷰로 평가한 뒤 프롬프트를 수정하는 루프가 핵심이다.",
   ]}
 />
 
@@ -26,17 +28,47 @@ import { KeyTable } from "@/components/handbook/KeyTable";
 ## 기법
 
 <KeyTable
-  columns={["기법", "뜻", "시험 문장"]}
+  columns={["기법", "뜻", "메모"]}
   rows={[
-    ["Zero-shot", "예시 없이 지시만", "no examples, rely on pre-trained knowledge"],
-    ["Few-shot", "입력-출력 예시 몇 개 제공", "provide a few examples in the prompt"],
-    ["Chain-of-thought", "단계별로 생각하도록 요구. 추론·수학 정확도 ↑", "step by step reasoning, explain steps"],
-    ["프롬프트 템플릿", "변수 자리를 둔 재사용 양식", "standard template with placeholders"],
-    ["프롬프트 체이닝", "앞 출력을 다음 프롬프트 입력으로", "multi-step pipeline"],
-    ["Negative prompt", "제외할 내용 명시 (주로 이미지)", "exclude characteristics"],
-    ["Directional stimulus", "힌트·키워드를 주어 방향 유도", "hints toward desired output"],
-    ["Self-consistency", "여러 번 생성해 다수결", "multiple reasoning paths"],
+    ["Zero-shot", "예시 없이 지시만", "사전학습 지식에 의존"],
+    ["Few-shot", "입력-출력 예시 몇 개 제공", "형식·톤을 예로 고정"],
+    ["Chain-of-thought", "단계별 추론을 요구", "수학·논리 정확도 ↑"],
+    ["Tree of Thought", "여러 추론 가지를 탐색·가지치기", "CoT의 확장. 복잡한 탐색 문제"],
+    ["RAG", "검색 결과를 컨텍스트로 주입", <DocLink layer="aif" slug="rag-knowledge-bases">Knowledge Bases</DocLink>],
+    ["ReAct", "이유 → 도구 선택 → 행동 → 응답", <DocLink layer="core-cs" slug="ai-agent">AI Agent</DocLink>],
+    ["프롬프트 템플릿", "변수 자리의 재사용 양식", "일관 · 재사용 · 테스트 가능"],
+    ["프롬프트 체이닝", "앞 출력을 다음 입력으로", "파이프라인"],
+    ["Negative prompt", "제외할 내용 명시 (주로 이미지)", "배제 특성"],
+    ["Directional stimulus", "힌트·키워드로 방향 유도", "원하는 출력으로 유도"],
+    ["Self-consistency", "여러 번 생성해 다수결", "다중 추론 경로"],
   ]}
+/>
+
+## 베스트 프랙티스 · 분해 · 평가
+
+**명확하고 구체적으로** 쓰고, 필요한 **컨텍스트와 예시**를 준다.
+
+<KeyTable
+  columns={["원칙", "내용"]}
+  rows={[
+    ["Clear and specific", "역할·제약·출력 형식·성공 기준을 모호하지 않게 적는다"],
+    ["Context and examples", "배경·용어·Few-shot 예시로 기대 동작을 고정한다"],
+    ["Templates", "변수화된 템플릿으로 일관·재사용·자동 테스트(회귀)한다"],
+    ["Decompose", "작업을 쪼개 → 각각 프롬프트 → 결과를 결합"],
+    ["Evaluate and iterate", "사람 또는 모델 리뷰 점수로 보고 프롬프트를 수정한다"],
+  ]}
+/>
+
+<MermaidDiagram
+  code={`flowchart LR
+  TASK[Complex task]
+  SPLIT[Split]
+  EACH[Prompt each part]
+  COMBINE[Combine]
+  EVAL[Human or model review]
+  ITER[Revise prompt]
+  TASK --> SPLIT --> EACH --> COMBINE --> EVAL --> ITER
+  ITER --> SPLIT`}
 />
 
 ## 공격과 방어
@@ -84,8 +116,9 @@ import { KeyTable } from "@/components/handbook/KeyTable";
   columns={["묻는 것", "답"]}
   rows={[
     ["예시 수", "0 zero-shot, 몇 개 few-shot"],
-    ["풀이 과정", "Chain-of-thought"],
+    ["풀이 과정", "Chain-of-thought · Tree of Thought"],
     ["형식·어조·길이", "프롬프트"],
+    ["분해 · 평가", "split → each → combine → review → iterate"],
     ["지시 덮어쓰기", "프롬프트 인젝션"],
     ["템플릿 관리", "Prompt Management"],
   ]}

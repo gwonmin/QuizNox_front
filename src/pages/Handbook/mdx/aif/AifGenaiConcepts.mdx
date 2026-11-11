@@ -21,6 +21,7 @@ import { DocLink } from "@/components/handbook/DocLink";
     ["Transformer", "셀프 어텐션으로 문맥 전체를 참조하는 구조", "attention mechanism"],
     ["토큰 (Token)", "모델이 처리하는 텍스트 조각. 비용과 길이의 단위", "number of tokens consumed, cost"],
     ["컨텍스트 윈도우", "한 번에 넣을 수 있는 토큰 수", "how much information can be passed to the model"],
+    ["컨텍스트 (교환 단위)", "요청·응답 한 번에 실리는 맥락. FM이 영속 저장하지 않음. 멀티턴은 앱이 이력을 다시 넣음", "per exchange, not persisted by the model"],
     ["임베딩 (Embedding)", "텍스트·이미지를 의미 벡터로 변환. 유사도 검색의 기반", "semantic similarity, vector"],
     ["벡터 DB", "임베딩 저장·근접 검색. OpenSearch, Aurora pgvector, Neptune, DocumentDB, MemoryDB", "store embeddings for RAG"],
     ["멀티모달", "텍스트·이미지·오디오를 함께 입력·출력", "image and text input"],
@@ -61,15 +62,17 @@ import { DocLink } from "@/components/handbook/DocLink";
 
 ## 생성형 AI 애플리케이션 라이프사이클
 
+**Scope → Choose → Adapt → Use** (사용 단계에 평가·배포·모니터링이 포함된다).
+
 <KeyTable
   columns={["단계", "할 일"]}
   rows={[
-    ["범위 정의", "사용 사례, 성공 기준"],
-    ["모델 선택", "모달리티·크기·비용·지연·라이선스"],
-    ["적응", "프롬프트 → RAG → 파인튜닝 순으로 가볍게"],
-    ["평가", "자동 지표 + 사람 평가"],
-    ["배포", "Bedrock On-Demand / Provisioned, SageMaker 엔드포인트"],
-    ["모니터링 · 피드백", "품질, 비용, 안전성"],
+    ["Scope (범위)", "사용 사례, 성공 기준"],
+    ["Choose (선택)", "모달리티·크기·비용·지연·라이선스"],
+    ["Adapt (적응)", "프롬프트 → RAG → 파인튜닝 순으로 가볍게"],
+    ["Use · 평가", "자동 지표 + 사람 평가"],
+    ["Use · 배포", "Bedrock On-Demand / Provisioned, SageMaker 엔드포인트"],
+    ["Use · 모니터링", "품질, 비용, 안전성 · 피드백"],
   ]}
 />
 
