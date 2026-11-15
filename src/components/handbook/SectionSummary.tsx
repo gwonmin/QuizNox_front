@@ -22,7 +22,6 @@ export function SectionSummary({ title, lead, bullets }: SectionSummaryProps) {
       {bullets && bullets.length > 0 && (
         <ul className="mt-3 space-y-2 text-sm leading-relaxed text-muted-foreground">
           {bullets.map((item, idx) => (
-            // eslint-disable-next-line react/no-array-index-key
             <li key={idx} className="flex gap-2.5">
               <span
                 aria-hidden

@@ -226,6 +226,38 @@ export default function Rag() {
         ]}
       />
 
+      <h2>고정 파이프라인과 Agent의 경계</h2>
+
+      <p>이 문서의 RAG는 질문이 오면 코드가 항상 검색하고 생성하는 고정된 순서다. 검색할지, 몇 번 할지, 다른 도구를 먼저 쓸지를 모델이 고르기 시작하면 같은 Retriever가 Agent의 도구 하나가 된다. 검색 품질을 좌우하는 청킹, 하이브리드 검색, 재순위는 두 경우에 똑같이 쓰인다.</p>
+
+      <MermaidDiagram
+        code={`flowchart TB
+        subgraph fixed ["고정 RAG: 코드가 항상 검색한다"]
+          direction LR
+          Q1["질문"] --> S1["Retriever"] --> G1["LLM 생성"] --> A1["답변"]
+        end
+        subgraph agentic ["Agent: 모델이 검색할지 고른다"]
+          direction LR
+          Q2["질문"] --> M2["LLM"]
+          M2 -->|"검색 도구 호출"| S2["Retriever"]
+          S2 -->|"결과"| M2
+          M2 -->|"다른 도구 호출"| T2["API · DB"]
+          T2 -->|"결과"| M2
+          M2 --> A2["답변"]
+        end
+        fixed ~~~ agentic`}
+      />
+
+      <KeyTable
+        columns={["구분", "고정 RAG", "Agent의 검색 도구"]}
+        rows={[
+          ["검색 여부", "질문마다 항상", "모델이 필요하다고 판단할 때"],
+          ["검색 횟수", "정해진 횟수", "결과를 보고 다시 검색할 수 있다"],
+          ["비용 · 지연", "예측 가능", "단계 수에 따라 달라진다"],
+          ["다루는 곳", "이 문서", <><DocLink slug="agent-tool-use">Tool Use</DocLink>, <DocLink slug="context-engineering">Context Engineering</DocLink></>],
+        ]}
+      />
+
       <h2>접근 통제 · 보안</h2>
 
       <KeyTable
@@ -276,6 +308,8 @@ export default function Rag() {
 
       <blockquote><p>RAGAS·DeepEval·OpenAI Evals 등 프레임워크·LLM-as-judge로 위 지표를 자동화하는 사례가 많다. 평가 세트는 실제 유저 질의 분포를 반영해 주기적으로 갱신한다.</p></blockquote>
 
+      <p>이 지표를 릴리스 기준으로 쓰는 절차와, 인덱스의 증분 갱신 · 전체 재색인 · 버전 전환은 <DocLink slug="llmops">LLMOps</DocLink>에서 다룬다.</p>
+
       <h2>요약</h2>
 
       <KeyTable
@@ -301,6 +335,7 @@ export default function Rag() {
             "보안은 파이프라인 설계",
             "ACL·프롬프트 인젝션·로그 마스킹을 RAG 단계에 포함한다.",
           ],
+          ["다음 문서", "작업마다 어느 모델에 보낼지 정하는 방법은 Model Strategy / Routing에서 본다."],
         ]}
       />
     </>

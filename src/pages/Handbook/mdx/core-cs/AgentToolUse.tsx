@@ -155,7 +155,7 @@ export default function AgentToolUse() {
           ["모델은 요청, Harness는 실행", "모델 출력은 실행 요청일 뿐이고 검증 · 권한 · 실행은 코드가 맡는다."],
           ["스키마가 첫 번째 방어선", "enum · pattern · 필수 값으로 잘못된 호출을 미리 걸러낸다."],
           ["MCP는 재사용을 위한 표준", "여러 Agent가 같은 도구를 쓰게 해 주지만, 서버도 신뢰 검증 대상이다."],
-          ["다음 문서", "여러 단계 · 여러 Agent를 어떻게 엮는지는 Orchestration에서 본다."],
+          ["다음 문서", "도구가 누구의 권한으로 어디까지 실행되는지는 Guardrails / Identity / Authorization에서 본다."],
         ]}
       />
     </>

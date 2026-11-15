@@ -8,13 +8,45 @@ export default function AgentHarness() {
   return (
     <>
       <SectionSummary
-        lead="Agent Harness(Runtime)는 모델을 감싸서 Agent로 동작하게 만드는 실행 환경이다. 모델은 다음 토큰을 예측할 뿐이고, 지시문·도구·상태·검증·재시도·제한·격리는 모두 Harness가 맡는다."
+        lead="Agent Harness는 모델을 감싸 Agent로 동작시키는 런타임이고, 그 실행의 신뢰성을 책임지는 계층이다. 다섯 설계 영역 중 Harness(Runtime & Reliability)에 해당하며, 도구 호출 제어 · 권한 확인 · 상태 저장과 복구 · 실패 처리를 맡는다."
         bullets={[
           "같은 모델이라도 Harness가 무엇을 보여주고, 무엇을 허용하고, 실패를 어떻게 다루느냐에 따라 Agent의 품질이 크게 달라진다.",
           "Harness의 핵심 책임은 컨텍스트 조립, 도구 실행, 출력 검증, 상태 저장, 종료 판단 다섯 가지다.",
           "모델은 바꿔 끼울 수 있는 부품으로 두고, 신뢰성과 안전은 Harness 쪽 코드로 보장한다.",
         ]}
       />
+
+      <h2>Harness 영역이 맡는 범위</h2>
+
+      <MermaidDiagram
+        code={`flowchart LR
+        M(["Model"]) -->|"출력: 도구 호출 요청"| H
+        subgraph H ["Harness (Runtime & Reliability)"]
+          direction TB
+          A["도구 호출 제어\n검증 · 실행 · 결과 정리"]
+          B["권한\n누구의 권한으로 어디까지"]
+          C["상태 복구\ncheckpoint · 중단 후 재개"]
+          D["실패 처리\n재시도 · timeout · 한도"]
+          A ~~~ B
+          C ~~~ D
+        end
+        H -->|"허용된 호출만 실행"| EXT["외부 시스템"]
+        H -->|"결과 · 오류를 다음 컨텍스트로"| M`}
+      />
+
+      <KeyTable
+        columns={["책임", "하는 일", "자세히 다루는 문서"]}
+        rows={[
+          ["도구 호출 제어", "모델이 요청한 호출을 스키마로 검증하고, 격리된 환경에서 실행하고, 결과를 정리해 돌려준다.", <DocLink slug="agent-tool-use">Tool Use</DocLink>],
+          ["권한", "누구의 권한으로 실행하는지 정하고, 허용 범위 밖의 호출을 막는다. 되돌릴 수 없는 행동은 사람 승인을 받는다.", <><DocLink slug="agent-guardrails-authz">Guardrails / Identity / Authorization</DocLink>, <DocLink slug="agent-hitl">Human-in-the-Loop</DocLink></>],
+          ["상태 복구", "단계마다 진행 상황을 저장해, 중간에 죽어도 마지막 지점부터 이어간다.", <DocLink slug="agent-reliability">Reliability</DocLink>],
+          ["실패 처리", "재시도, timeout, 단계 · 시간 · 비용 한도로 실패가 번지거나 반복되지 않게 한다. 무슨 일이 있었는지 trace로 남긴다.", <><DocLink slug="agent-reliability">Reliability</DocLink>, <DocLink slug="agent-observability">Observability & Tracing</DocLink></>],
+        ]}
+      />
+
+      <Callout variant="info" title="Harness라는 말의 범위">
+        <p>모델 바깥의 코드 전체를 Harness라고 넓게 부르는 글도 많다. 이 섹션은 그중 무엇을 지시하고 보여 줄지(Prompt · Context)와, 반복과 단계의 구조(Loop · Graph)를 따로 떼어 다룬다. Harness 영역에는 실행을 통제하고 실패에서 되살리는 책임을 둔다. 아래 구성 요소 그림에 지시문과 컨텍스트 조립기가 함께 나오는 것은, 내용을 정하는 일은 다른 영역이 하고 매 턴 실제로 조립해 호출하는 일은 런타임이 하기 때문이다.</p>
+      </Callout>
 
       <h2>Agent의 능력은 누가 만드나</h2>
 
@@ -187,10 +219,10 @@ export default function AgentHarness() {
       <KeyTable
         columns={["핵심 포인트", "설명"]}
         rows={[
-          ["Harness = 모델 바깥의 모든 것", "지시문·도구·컨텍스트·검증·상태·제한·격리를 묶은 실행 환경이다."],
+          ["Harness = Runtime & Reliability", "도구 호출 제어, 권한, 상태 복구, 실패 처리를 맡는 실행 환경이다."],
           ["품질은 Harness에서 갈린다", "모델이 같아도 무엇을 보여주고 실패를 어떻게 다루느냐에 따라 결과가 달라진다."],
           ["안전은 코드로 강제", "중요한 규칙은 프롬프트가 아니라 권한·검증·제한으로 보장한다."],
-          ["다음 문서", "Harness가 매 호출마다 하는 '컨텍스트 조립'을 Context Engineering에서 자세히 본다."],
+          ["다음 문서", "Harness가 검증하고 실행하는 도구의 정의와 설계는 Tool Use에서 본다."],
         ]}
       />
     </>

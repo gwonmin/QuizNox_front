@@ -8,6 +8,15 @@ export interface HandbookDoc {
   title: string;
 }
 
+/** 섹션 안에서 문서를 설계 영역처럼 나란한 묶음으로 보여 줄 때 쓰는 단위 */
+export interface HandbookDocGroup {
+  title: string;
+  /** 이 묶음이 답하는 질문 한 줄 */
+  summary?: string;
+  /** docs에 있는 slug. 묶음 안 표시 순서 */
+  slugs: string[];
+}
+
 export interface HandbookSection {
   id: string;
   title: string;
@@ -15,10 +24,12 @@ export interface HandbookSection {
   summary?: string;
   /** 섹션 페이지 상단 "왜 배우나요?" 단락 */
   why?: string;
-  /** 섹션 다이어그램 위 학습 흐름 한 줄 */
+  /** 섹션 다이어그램 위 학습 흐름 한 줄. 문서가 순서 없이 나란한 섹션에서는 비운다 */
   flow?: string;
-  /** 학습 순서대로 정렬 */
+  /** 학습 순서대로 정렬. groups가 있으면 묶음 순서를 따른다 */
   docs: HandbookDoc[];
+  /** 있으면 섹션 페이지가 번호 목록 대신 묶음별로 문서를 보여 준다 */
+  groups?: HandbookDocGroup[];
 }
 
 export interface HandbookLayer {
@@ -152,7 +163,6 @@ export const HANDBOOK_LAYERS: HandbookLayer[] = [
           { slug: "artifact", title: "아티팩트 (산출물 · 버전 · 저장)" },
           { slug: "deploy", title: "배포 자동화 (전략 · 롤백 · 환경)" },
           { slug: "gitops", title: "GitOps (선언적 배포 · Git 동기화)" },
-          { slug: "mlops", title: "MLOps (ML 모델 배포 · 재학습 자동화)" },
         ],
       },
       {
@@ -174,36 +184,88 @@ export const HANDBOOK_LAYERS: HandbookLayer[] = [
         ],
       },
       {
+        id: "ml-engineering",
+        title: "9. ML Engineering",
+        summary: "모델을 만든다. 고전 ML부터 딥러닝, LLM 파인튜닝까지 가중치를 학습·서빙·재학습하는 생애주기",
+        why: "모델을 직접 만들면 산출물이 가중치가 되고, 데이터가 바뀔 때마다 다시 만들어야 합니다. 데이터에서 모델 버전까지 가는 파이프라인, 그 모델이 요청에 응답하도록 올리는 서빙, 이 둘을 사람 손 없이 되풀이하는 MLOps를 차례로 봅니다. 이미 만들어진 모델을 호출해 쓰는 일은 10. LLM Application Engineering에서 다룹니다.",
+        flow: "ML 파이프라인(데이터 → 학습 → 평가 → 등록) → 모델 서빙 → MLOps(모니터링 · 재학습)",
+        docs: [
+          { slug: "ml-pipeline", title: "ML 파이프라인 (데이터 · 학습 · 평가 · 레지스트리)" },
+          { slug: "model-serving", title: "모델 서빙 (실시간 · 배치 · 교체 전략 · LLM 서빙)" },
+          { slug: "mlops", title: "MLOps (CI/CD/CT · 드리프트 · 재학습 자동화)" },
+        ],
+      },
+      {
         id: "ai-basics",
-        title: "9. AI Engineering",
-        summary: "모델 한 번의 호출과, 순서가 코드로 고정된 파이프라인",
-        why: "LLM이 토큰 단위로 다음 말을 예측한다는 점을 알면, 프롬프트·구조화 출력·RAG가 왜 필요한지가 이어집니다. 단계가 미리 정해진 작업은 여기서 끝내고, 모델이 다음 행동을 스스로 고르는 구조는 10. AI Agent Engineering에서 다룹니다.",
-        flow: "LLM 기초 → RAG(외부 지식 연동) → 모델 선택",
+        title: "10. LLM Application Engineering",
+        summary: "만들어진 모델을 호출한다. 순서는 코드가 정한다",
+        why: "가중치를 건드리지 않고, 이미 학습된 모델을 호출해 기능을 만듭니다. LLM이 토큰 단위로 다음 말을 예측한다는 점을 알면 프롬프트·구조화 출력·RAG가 왜 필요한지가 이어지고, 어느 모델에 보낼지와 릴리스·비용 운영이 그 위에 얹힙니다. 여기까지는 단계의 순서를 코드가 정합니다. 모델이 다음 행동을 스스로 고르는 구조는 11. LLM Agent Engineering에서 다루며, 업계에서는 이 두 섹션을 묶어 AI Engineering이라고 부릅니다.",
+        flow: "LLM 기초 → RAG(검색으로 컨텍스트 구성) → Model Strategy(모델 배정) → LLMOps(버전 · 평가 · 비용)",
         docs: [
           { slug: "llm-basics", title: "LLM 기초 (Transformer · 토큰 · 프롬프트 · 구조화 출력)" },
           { slug: "rag", title: "RAG (검색 증강 · 고급 파이프라인 · 평가 · 보안)" },
+          { slug: "model-routing", title: "Model Strategy / Routing" },
+          { slug: "llmops", title: "LLMOps (버전 · 릴리스 평가 · 추적 · 비용)" },
         ],
       },
       {
         id: "agent-engineering",
-        title: "10. AI Agent Engineering",
-        summary: "한 번 호출과의 차이부터, 모델을 감싸는 런타임·컨텍스트·루프·도구와 운영 통제까지",
-        why: "Agent의 품질은 모델 자체보다 모델을 감싼 실행 환경과 모델에 넣는 컨텍스트에서 더 많이 갈립니다. 한 번 호출과 무엇이 다른지 먼저 구분한 뒤, 모델에서 실제 행동까지 스택을 따라가고, 권한·평가·관측·신뢰성처럼 스택 전체에 걸치는 관심사를 봅니다.",
-        flow: "AI Agent → Harness → Context → State & Memory → Loop → Tools → Orchestration · Model Strategy → HITL · Guardrails · Eval · Tracing · Reliability",
+        title: "11. LLM Agent Engineering",
+        summary: "모델이 다음 행동을 고른다. 루프·도구·상태를 돌리는 런타임",
+        why: "Agent의 품질은 모델 자체보다 모델에 주는 지시와 정보, 모델을 감싼 런타임, 반복과 단계의 구조에서 더 많이 갈립니다. 이 섹션은 그 설계를 LLM 기반 AI Agent 엔지니어링의 5가지 핵심 설계 영역(Prompt · Context · Harness · Loop · Graph)으로 나눠 봅니다. 다섯 영역은 Agent 하나를 만들 때 함께 설계합니다.",
         docs: [
-          { slug: "ai-agent", title: "AI Agent (한 번 호출과의 차이 · RAG를 도구로)" },
-          { slug: "agent-harness", title: "Agent Harness / Runtime" },
+          { slug: "ai-agent", title: "AI Agent (한 번 호출과의 차이 · 5가지 설계 영역)" },
+          { slug: "agent-instructions", title: "Agent Instructions (System Prompt · 도구 정책 · 종료 조건)" },
           { slug: "context-engineering", title: "Context Engineering" },
-          { slug: "agent-state-memory", title: "State & Memory Architecture" },
-          { slug: "agent-loop", title: "Agent Loop (Observe → Plan → Act → Stop)" },
+          { slug: "agent-harness", title: "Agent Harness / Runtime" },
           { slug: "agent-tool-use", title: "Tool Use (Function Calling · MCP)" },
-          { slug: "agent-orchestration", title: "Orchestration (Router · Supervisor · Sub-agent · Graph)" },
-          { slug: "model-routing", title: "Model Strategy / Routing" },
-          { slug: "agent-hitl", title: "Human-in-the-Loop" },
           { slug: "agent-guardrails-authz", title: "Guardrails / Identity / Authorization" },
-          { slug: "agent-eval", title: "Agent Evaluation" },
+          { slug: "agent-hitl", title: "Human-in-the-Loop" },
           { slug: "agent-observability", title: "Observability & Tracing" },
           { slug: "agent-reliability", title: "Reliability / Production Engineering" },
+          { slug: "agent-loop", title: "Agent Loop (Observe → Plan → Act → Stop)" },
+          { slug: "agent-eval", title: "Agent Evaluation" },
+          { slug: "agent-state-memory", title: "State & Memory Architecture" },
+          { slug: "agent-orchestration", title: "Orchestration (Router · Supervisor · Sub-agent · Graph)" },
+        ],
+        groups: [
+          {
+            title: "개요",
+            summary: "한 번 호출 · 고정 파이프라인과 Agent의 경계, 다섯 영역의 지도",
+            slugs: ["ai-agent"],
+          },
+          {
+            title: "Prompt Engineering (Instruction)",
+            summary: "Agent에게 무엇을 하라고 지시하나",
+            slugs: ["agent-instructions"],
+          },
+          {
+            title: "Context Engineering (Information)",
+            summary: "이번 호출에 모델에게 무엇을 보여 주나",
+            slugs: ["context-engineering"],
+          },
+          {
+            title: "Harness Engineering (Runtime & Reliability)",
+            summary: "도구 호출 제어, 권한, 상태 복구, 실패 처리를 누가 책임지나",
+            slugs: [
+              "agent-harness",
+              "agent-tool-use",
+              "agent-guardrails-authz",
+              "agent-hitl",
+              "agent-observability",
+              "agent-reliability",
+            ],
+          },
+          {
+            title: "Loop Engineering (Iteration & Feedback)",
+            summary: "어떻게 반복하고, 언제 멈추고, 결과를 어떻게 되먹이나",
+            slugs: ["agent-loop", "agent-eval"],
+          },
+          {
+            title: "Graph Engineering (Orchestration & State)",
+            summary: "상태 전이, 분기, 병렬 실행, 결과 병합을 어떻게 엮나",
+            slugs: ["agent-state-memory", "agent-orchestration"],
+          },
         ],
       },
     ],

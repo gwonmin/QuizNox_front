@@ -8,7 +8,7 @@ export default function AgentOrchestration() {
   return (
     <>
       <SectionSummary
-        lead="Orchestration은 여러 단계 · 여러 Agent · 여러 모델을 어떤 구조로 엮어 하나의 작업을 끝낼지 정하는 계층이다. 누가 다음 일을 정하고, 일을 어떻게 나누고, 결과를 어떻게 모을지가 핵심 질문이다."
+        lead="Orchestration은 여러 단계 · 여러 Agent · 여러 모델을 그래프로 엮고, 그 사이를 흐르는 상태를 관리하는 계층이다. 다섯 설계 영역 중 Graph(Orchestration & State)에 해당하며, 상태 전이 · 분기 · 병렬 실행 · 결과 병합을 정한다."
         bullets={[
           "대표 패턴은 Router(분기), Supervisor(중앙 조율), Planner-Dispatcher(계획 후 배분), 병렬 실행, Evaluator-Optimizer(평가 후 개선), Handoff(제어권 넘기기)다.",
           "Multi-Agent는 만능이 아니다. 도구 · 권한 · 컨텍스트를 분리해야 할 때 나누고, 그 전에는 Single Agent가 더 싸고 디버깅이 쉽다.",
@@ -128,6 +128,35 @@ export default function AgentOrchestration() {
         AGENT -->|"승인 필요"| HUMAN["human 노드: 사람 승인"]
         HUMAN -->|"승인 완료"| AGENT
         AGENT -->|"답변 완료"| END_NODE(["완료"])`}
+      />
+
+      <h3>상태 전이 · 분기 · 병렬 · 병합</h3>
+
+      <p>그래프 설계는 노드를 잇는 일에 더해, 노드를 지날 때마다 상태가 어떻게 바뀌는지를 정하는 일이다. 아래 그림에서 화살표마다 상태가 넘어가고, 병렬로 갈라진 결과는 병합 노드에서 하나의 상태로 합쳐진다.</p>
+
+      <MermaidDiagram
+        code={`flowchart TB
+        S0(["시작\nstate: 질문"]) --> CLS{"분류 노드"}
+        CLS -->|"분기: 단순 문의"| ANS["답변 노드"]
+        CLS -->|"분기: 조사 필요"| PLAN["계획 노드\nstate: 하위 질문 3개"]
+        PLAN --> W1["조사 A"]
+        PLAN --> W2["조사 B"]
+        PLAN --> W3["조사 C"]
+        W1 --> MERGE["병합 노드\nstate: 결과 3건을 하나로"]
+        W2 --> MERGE
+        W3 --> MERGE
+        MERGE --> ANS
+        ANS --> E0(["완료"])`}
+      />
+
+      <KeyTable
+        columns={["요소", "정해야 하는 것", "잘못 정하면"]}
+        rows={[
+          ["상태 전이", "각 노드가 상태의 어느 필드를 읽고 어느 필드를 쓰는지", "노드가 서로의 값을 덮어써 다음 단계가 틀린 정보로 진행한다."],
+          ["분기", "어떤 조건에서 어느 노드로 가는지. 조건은 코드로 판정할 수 있는 값에 둔다.", "모델의 자유 서술에 따라 경로가 흔들린다."],
+          ["병렬 실행", "서로 의존하지 않는 노드만 동시에 돌린다. 각 브랜치의 timeout과 실패 시 처리를 정한다.", "한 브랜치가 멈추면 전체가 기다린다."],
+          ["결과 병합", "같은 필드에 여러 브랜치가 쓸 때 합치는 규칙(이어 붙이기, 최신 값, 요약). LangGraph에서는 reducer가 이 역할을 한다.", "먼저 끝난 결과가 사라지거나 순서에 따라 결과가 달라진다."],
+        ]}
       />
 
       <KeyTable
@@ -364,7 +393,7 @@ export default function AgentOrchestration() {
           ["코드가 정할 수 있으면 코드로", "workflow → Router → Agent Loop → Multi-Agent 순으로 필요할 때만 복잡도를 올린다."],
           ["패턴은 조합해서 쓴다", "Router로 나누고, 각 경로 안에서 Supervisor나 Loop를 쓰고, 결과물에 Evaluator를 붙인다."],
           ["넘길 때는 계약으로", "필요한 최소 정보를 정해진 스키마로 넘긴다."],
-          ["다음 문서", "각 단계에 어떤 모델을 쓸지는 Model Strategy / Routing에서 본다."],
+          ["함께 보는 문서", "각 노드에 어떤 모델을 쓸지는 10. LLM Application Engineering의 Model Strategy / Routing에서 정한다."],
         ]}
       />
     </>

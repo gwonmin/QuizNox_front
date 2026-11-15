@@ -8,12 +8,29 @@ export default function AgentEval() {
   return (
     <>
       <SectionSummary
-        lead="Agent 평가는 최종 답이 맞았는지만 보지 않는다. 어떤 도구를 어떤 인자로 어떤 순서로 썼는지(trajectory), 얼마나 걸리고 얼마나 썼는지, 위험한 행동은 없었는지까지 함께 본다."
+        lead="Agent 평가는 최종 답에 더해 어떤 도구를 어떤 인자로 어떤 순서로 썼는지(trajectory), 얼마나 걸리고 얼마나 썼는지, 위험한 행동은 없었는지까지 함께 본다. 다섯 설계 영역 중 Loop(Iteration & Feedback)의 피드백 쪽을 맡는다."
         bullets={[
           "평가 대상은 출력, 경로(trajectory), 도구 선택 · 인자, 검색 품질, 지연, 비용, 안전이다.",
           "평가 단위는 한 번의 호출(run), 요청 하나의 전체 실행(trace), 대화 전체(thread)로 나뉜다.",
           "배포 전에는 고정된 데이터셋으로 회귀를 막고(offline), 운영 중에는 실제 trace를 표본 평가한다(online). 실패 사례는 다시 데이터셋으로 들어간다.",
         ]}
+      />
+
+      <h2>두 개의 루프</h2>
+
+      <p>Loop 영역에는 루프가 둘 있다. 한 작업 안에서 도는 루프는 <DocLink slug="agent-loop">Agent Loop</DocLink>가 설계하고, 작업이 끝난 뒤 결과를 채점해 Agent를 고치는 루프는 평가가 만든다.</p>
+
+      <MermaidDiagram
+        code={`flowchart TB
+        subgraph inner ["안쪽 루프: 한 작업 안에서 (Agent Loop)"]
+          direction LR
+          OBS["관찰"] --> THINK["판단"] --> ACT["행동"] --> OBS
+        end
+        subgraph outer ["바깥 루프: 작업과 작업 사이에서 (Evaluation)"]
+          direction LR
+          RUN["실행"] --> TRC["trace"] --> SCORE["채점"] --> FIX["지시문 · 도구 · 루프 수정"] --> RUN
+        end
+        inner -->|"행동 궤적이 trace로 남는다"| outer`}
       />
 
       <h2>무엇을 평가하나</h2>
@@ -135,7 +152,8 @@ export default function AgentEval() {
           ["결과 + 경로 + 비용 + 안전", "답이 맞았는지와 함께 어떻게 도달했는지를 본다."],
           ["Run · Trace · Thread", "단계, 요청, 대화 단위로 나눠 평가한다."],
           ["Offline으로 막고 Online으로 찾는다", "배포 전 회귀 방지, 운영 중 새 실패 발견, 실패는 다시 데이터셋으로."],
-          ["다음 문서", "평가에 쓸 trace를 어떻게 남기는지는 Observability & Tracing에서 본다."],
+          ["함께 보는 문서", "평가에 쓸 trace를 어떻게 남기는지는 Observability & Tracing에서 다뤘다."],
+          ["다음 문서", "여러 단계에 걸친 진행 상황을 어디에 어떻게 남기는지는 State & Memory에서 본다."],
         ]}
       />
     </>

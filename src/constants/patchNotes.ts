@@ -8,6 +8,16 @@ export interface PatchNote {
 /** 최신순. 릴리즈 때 맨 앞에 하나 추가한다 */
 export const PATCH_NOTES: PatchNote[] = [
   {
+    date: "2026-11-15",
+    title: "핸드북의 AI 영역이 ML Engineering · LLM Application Engineering · LLM Agent Engineering 세 섹션으로 정리됐어요",
+    items: [
+      "9. ML Engineering: ML 파이프라인·모델 서빙 문서를 추가하고 MLOps를 이 섹션으로 옮겼어요",
+      "10. LLM Application Engineering: LLMOps 문서를 추가하고 Model Strategy / Routing을 이 섹션으로 옮겼어요",
+      "11. LLM Agent Engineering: Agent Instructions 문서를 추가하고 문서를 5가지 설계 영역(Prompt·Context·Harness·Loop·Graph)으로 묶었어요",
+      "Chrome 번역을 켠 채 다음 문제로 넘어가면 문제 제목이 그대로 남던 문제와 핸드북 다이어그램이 간혹 표시되지 않던 문제를 고쳤어요",
+    ],
+  },
+  {
     date: "2026-11-11",
     title: "AWS Cloud Practitioner(CLF-C02) 기출 710문항이 추가되고 핸드북이 모바일에서도 읽기 편해졌어요",
     items: [

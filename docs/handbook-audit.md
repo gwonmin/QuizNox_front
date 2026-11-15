@@ -2,6 +2,8 @@
 
 핸드북 5개 레이어, 172개 문서를 같은 기준으로 훑은 결과입니다. 점검일 2026-10-05. 표의 수치는 `src/pages/Handbook/mdx` 아래 MDX를 기준으로 집계했습니다.
 
+2026-11-15에 Core CS 7 · 9 · 10 · 11 섹션을 재구성했습니다. 문서별 표에서 9~11 섹션 행은 그날 TSX 파일 기준으로 다시 집계했고, 내용은 「2026-11-15 재구성 내역」에 있습니다.
+
 ## 기준
 
 - **요약**: 문서 첫머리에 `SectionSummary`가 있는가
@@ -29,6 +31,15 @@
 - **`s3-overview` (AWS 공통)**: 객체 수명(클래스 전환 · 만료 · 복제 · 버저닝) 그림과 관련 링크.
 - 새로 넣은 다이어그램 19개는 모두 폭 864px 이내이고 렌더 오류가 없습니다. 211개 라우트를 모두 열어 렌더 오류 0, 빈 다이어그램 0, 깨진 링크 0을 확인했습니다.
 
+## 2026-11-15 재구성 내역
+
+- **섹션 기준**: Core CS 9~11 섹션을 모델과의 관계로 나눴습니다. 9. ML Engineering은 모델을 만들고, 10. LLM Application Engineering은 만들어진 모델을 호출하며 순서를 코드가 정하고, 11. LLM Agent Engineering은 모델이 다음 행동을 고릅니다. 섹션 id `ai-basics`, `agent-engineering`과 기존 slug는 그대로입니다.
+- **이동**: `mlops`를 7. CI/CD에서 9로, `model-routing`을 Agent 섹션에서 10으로 옮겼습니다.
+- **새 문서 4개**: `ml-pipeline`, `model-serving`(9), `llmops`(10), `agent-instructions`(11). Core CS는 83개가 됐습니다.
+- **11번 섹션 묶음**: 매니페스트의 `groups`로 문서를 개요와 5가지 설계 영역(Prompt · Context · Harness · Loop · Graph)으로 묶어 섹션 페이지에 보여 줍니다. `docs`의 순서는 묶음 순서와 같게 둡니다.
+- **다이어그램**: 9~11 섹션 문서의 다이어그램 62개와 섹션 다이어그램 4개(7 · 9 · 10 · 11)를 열어 렌더 오류 0, 폭 864px 초과 0을 확인했습니다.
+- **lint**: `KeyTable`, `SectionSummary`에 남아 있던 `react/no-array-index-key` 비활성화 주석 5개를 지웠습니다. 이 프로젝트는 해당 규칙을 불러오지 않아 주석이 오류를 냈습니다.
+
 ## 모델 정보 원칙
 
 모델 이름 · 가격 · 컨텍스트 크기 · 벤치마크 순위는 몇 달 만에 바뀌므로 문서 본문에 적지 않습니다.
@@ -43,6 +54,8 @@
 - 본문 폭 864px 안에 들어오게 그립니다. 가로로 5단계를 넘는 흐름은 `flowchart TB`로 바꿉니다. 서브그래프 여러 개가 나란히 놓여 넓어지면 `a ~~~ b`로 서브그래프끼리 세로로 쌓습니다. 서브그래프 안의 `direction LR`은 ELK가 때에 따라 따르므로 가로 체인이 길면 지웁니다.
 - ELK는 화살표 없는 노드 목록의 순서를 지키지 않고, 서로 연결되지 않은 서브그래프는 선언 순서를 뒤집어 놓기도 합니다. 서브그래프 순서가 중요하면 `flowchart TB`로 두고 각 서브그래프 안에 `direction LR`, 서브그래프 사이에 `a ~~~ b` 체인을 넣습니다(이 조합에서는 안쪽 `direction LR`도 지켜집니다). 서브그래프 없이 노드만 나열한 목록은 코드 첫 줄에 `config: { layout: dagre }` frontmatter(한 줄 YAML)를 붙입니다. dagre는 ELK보다 넓게 그리므로 폭을 다시 확인합니다.
 - 서브그래프 제목에 괄호 · 특수문자가 들어가면 큰따옴표로 감쌉니다. `subgraph a ["사용량 (시간)"]`
+- 서브그래프 안의 노드에 바깥 화살표가 닿으면 선이 서브그래프 제목 위를 지납니다. 화살표의 끝을 서브그래프 id로 두거나(`pipe --> serving`), 시작 노드를 서브그래프 안에 넣습니다.
+- 이름 옆에 설명을 붙일 때는 설명을 괄호로 감쌉니다. `Prompt (Instruction)`. 한 줄이 길어 중간에서 접히면 `Harness\n(Runtime & Reliability)`처럼 줄을 나눕니다.
 
 ## 다음에 손볼 순서
 
@@ -51,7 +64,7 @@
 
 ## 문서별
 
-### 1. Core CS (79)
+### 1. Core CS (83)
 
 | 섹션 | 문서 | 줄 수 | 그림 | 표 | 관련 링크 |
 |---|---|---:|---:|---:|---:|
@@ -109,7 +122,6 @@
 | 7. CI/CD | `artifact` | 63 | 1 | 2 | 6 |
 | 7. CI/CD | `deploy` | 103 | 1 | 6 | 8 |
 | 7. CI/CD | `gitops` | 74 | 1 | 3 | 5 |
-| 7. CI/CD | `mlops` | 282 | 4 | 7 | 0 |
 | 8. Cost & FinOps | `cost-compute` | 71 | 1 | 2 | 8 |
 | 8. Cost & FinOps | `cost-storage` | 74 | 1 | 2 | 7 |
 | 8. Cost & FinOps | `cost-traffic` | 72 | 1 | 2 | 6 |
@@ -119,21 +131,26 @@
 | 8. Cost & FinOps | `cost-visibility` | 83 | 1 | 3 | 4 |
 | 8. Cost & FinOps | `cost-budgets` | 73 | 1 | 3 | 3 |
 | 8. Cost & FinOps | `cost-optimization` | 73 | 1 | 3 | 7 |
-| 9. AI 기초 | `llm-basics` | 235 | 2 | 6 | 3 |
-| 9. AI 기초 | `rag` | 297 | 2 | 8 | 0 |
-| 9. AI 기초 | `ai-agent` | 473 | 5 | 10 | 23 |
-| 10. Agent Engineering | `agent-harness` | 150 | 2 | 7 | 7 |
-| 10. Agent Engineering | `context-engineering` | 138 | 1 | 7 | 3 |
-| 10. Agent Engineering | `agent-state-memory` | 140 | 1 | 8 | 2 |
-| 10. Agent Engineering | `agent-loop` | 167 | 2 | 6 | 6 |
-| 10. Agent Engineering | `agent-tool-use` | 160 | 2 | 7 | 4 |
-| 10. Agent Engineering | `agent-orchestration` | 177 | 3 | 8 | 4 |
-| 10. Agent Engineering | `model-routing` | 118 | 1 | 6 | 1 |
-| 10. Agent Engineering | `agent-hitl` | 138 | 1 | 8 | 3 |
-| 10. Agent Engineering | `agent-guardrails-authz` | 140 | 1 | 9 | 5 |
-| 10. Agent Engineering | `agent-eval` | 138 | 2 | 7 | 1 |
-| 10. Agent Engineering | `agent-observability` | 128 | 1 | 7 | 2 |
-| 10. Agent Engineering | `agent-reliability` | 140 | 2 | 7 | 4 |
+| 9. ML Engineering | `ml-pipeline` | 205 | 5 | 8 | 5 |
+| 9. ML Engineering | `model-serving` | 200 | 4 | 8 | 5 |
+| 9. ML Engineering | `mlops` | 250 | 4 | 6 | 4 |
+| 10. LLM Application Engineering | `llm-basics` | 263 | 3 | 6 | 7 |
+| 10. LLM Application Engineering | `rag` | 343 | 3 | 9 | 4 |
+| 10. LLM Application Engineering | `model-routing` | 130 | 1 | 6 | 2 |
+| 10. LLM Application Engineering | `llmops` | 218 | 7 | 8 | 8 |
+| 11. LLM Agent Engineering | `ai-agent` | 240 | 3 | 5 | 29 |
+| 11. LLM Agent Engineering | `agent-instructions` | 218 | 6 | 8 | 9 |
+| 11. LLM Agent Engineering | `context-engineering` | 144 | 1 | 7 | 5 |
+| 11. LLM Agent Engineering | `agent-harness` | 230 | 3 | 9 | 15 |
+| 11. LLM Agent Engineering | `agent-tool-use` | 163 | 2 | 7 | 5 |
+| 11. LLM Agent Engineering | `agent-guardrails-authz` | 146 | 1 | 9 | 5 |
+| 11. LLM Agent Engineering | `agent-hitl` | 144 | 1 | 8 | 3 |
+| 11. LLM Agent Engineering | `agent-observability` | 134 | 1 | 7 | 2 |
+| 11. LLM Agent Engineering | `agent-reliability` | 146 | 2 | 7 | 4 |
+| 11. LLM Agent Engineering | `agent-loop` | 211 | 3 | 7 | 5 |
+| 11. LLM Agent Engineering | `agent-eval` | 161 | 3 | 7 | 2 |
+| 11. LLM Agent Engineering | `agent-state-memory` | 173 | 2 | 9 | 3 |
+| 11. LLM Agent Engineering | `agent-orchestration` | 401 | 7 | 12 | 8 |
 
 ### 2. AWS 공통 (39)
 

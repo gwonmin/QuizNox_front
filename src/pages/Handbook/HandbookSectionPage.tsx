@@ -6,6 +6,8 @@ import {
   getAdjacentSections,
   getHandbookSection,
   handbookSectionPath,
+  type HandbookDoc,
+  type HandbookSection,
 } from "../../constants/handbookManifest";
 import {
   getDiagramConfig,
@@ -20,6 +22,51 @@ const MAIN_CLASS = "max-w-4xl mx-auto px-4 py-8";
 const SECTION_DIAGRAMS: Record<string, Record<string, ComponentType>> = {
   "core-cs": CORE_CS_SECTION_DIAGRAMS,
 };
+
+interface ResolvedDocGroup {
+  title: string;
+  summary?: string;
+  docs: HandbookDoc[];
+}
+
+/** groups의 slug를 문서로 바꾼다. 어느 묶음에도 없는 문서는 마지막 묶음으로 모아 빠뜨리지 않는다. */
+function resolveDocGroups(section: HandbookSection): ResolvedDocGroup[] | null {
+  if (!section.groups || section.groups.length === 0) return null;
+  const bySlug = new Map(section.docs.map((doc) => [doc.slug, doc]));
+  const placed = new Set<string>();
+  const groups: ResolvedDocGroup[] = [];
+  for (const group of section.groups) {
+    const docs = group.slugs.flatMap((slug) => {
+      const doc = bySlug.get(slug);
+      if (!doc || placed.has(slug)) return [];
+      placed.add(slug);
+      return [doc];
+    });
+    if (docs.length > 0) groups.push({ title: group.title, summary: group.summary, docs });
+  }
+  const rest = section.docs.filter((doc) => !placed.has(doc.slug));
+  if (rest.length > 0) groups.push({ title: "그 밖의 문서", docs: rest });
+  return groups;
+}
+
+function DocCard({ layerId, doc, order }: { layerId: string; doc: HandbookDoc; order?: number }) {
+  return (
+    <Link to={`/handbook/${layerId}/${doc.slug}`}>
+      <Card className="hover:shadow-md transition-all active:scale-[0.99] cursor-pointer">
+        <CardHeader className="py-3 px-4 flex-row items-baseline gap-3 space-y-0">
+          {order !== undefined && (
+            <span className="w-5 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
+              {order}
+            </span>
+          )}
+          <CardTitle className="text-sm font-medium leading-snug text-foreground">
+            {doc.title}
+          </CardTitle>
+        </CardHeader>
+      </Card>
+    </Link>
+  );
+}
 
 function HandbookSectionPage() {
   const { layerId, sectionId } = useParams<{ layerId: string; sectionId: string }>();
@@ -56,6 +103,7 @@ function HandbookSectionPage() {
   }
 
   const { layer, section } = found;
+  const docGroups = resolveDocGroups(section);
   const Diagram = SECTION_DIAGRAMS[layer.id]?.[section.id];
   const { prev, next } = getAdjacentSections(layer.id, section.id);
 
@@ -97,29 +145,43 @@ function HandbookSectionPage() {
         </section>
       )}
 
-      <section className="mt-6" aria-labelledby="section-docs-title">
-        <h2 id="section-docs-title" className="text-sm font-semibold text-foreground mb-2">
-          학습 순서
-        </h2>
-        <ol className="space-y-2">
-          {section.docs.map((doc, i) => (
-            <li key={doc.slug}>
-              <Link to={`/handbook/${layer.id}/${doc.slug}`}>
-                <Card className="hover:shadow-md transition-all active:scale-[0.99] cursor-pointer">
-                  <CardHeader className="py-3 px-4 flex-row items-baseline gap-3 space-y-0">
-                    <span className="w-5 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
-                      {i + 1}
-                    </span>
-                    <CardTitle className="text-sm font-medium leading-snug text-foreground">
-                      {doc.title}
-                    </CardTitle>
-                  </CardHeader>
-                </Card>
-              </Link>
-            </li>
-          ))}
-        </ol>
-      </section>
+      {docGroups ? (
+        <section className="mt-6" aria-labelledby="section-docs-title">
+          <h2 id="section-docs-title" className="text-sm font-semibold text-foreground mb-2">
+            설계 영역별 문서
+          </h2>
+          <div className="space-y-5">
+            {docGroups.map((group) => (
+              <section key={group.title} aria-label={group.title}>
+                <h3 className="text-sm font-semibold text-foreground">{group.title}</h3>
+                {group.summary && (
+                  <p className="mt-0.5 text-xs text-muted-foreground">{group.summary}</p>
+                )}
+                <ul className="mt-2 space-y-2">
+                  {group.docs.map((doc) => (
+                    <li key={doc.slug}>
+                      <DocCard layerId={layer.id} doc={doc} />
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ))}
+          </div>
+        </section>
+      ) : (
+        <section className="mt-6" aria-labelledby="section-docs-title">
+          <h2 id="section-docs-title" className="text-sm font-semibold text-foreground mb-2">
+            학습 순서
+          </h2>
+          <ol className="space-y-2">
+            {section.docs.map((doc, i) => (
+              <li key={doc.slug}>
+                <DocCard layerId={layer.id} doc={doc} order={i + 1} />
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
 
       <nav
         aria-label="섹션 이동"

@@ -23,10 +23,7 @@ export default function Cicd() {
           gitops["GitOps"]
           art --> deploy --> gitops
         end
-        subgraph ml [ML 자동화]
-          mlops["MLOps"]
-        end
-        ci --> security --> cd --> ml`}
+        ci --> security --> cd`}
       />
     </>
   );

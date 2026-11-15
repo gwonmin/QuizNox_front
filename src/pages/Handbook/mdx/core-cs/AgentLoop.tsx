@@ -8,7 +8,7 @@ export default function AgentLoop() {
   return (
     <>
       <SectionSummary
-        lead="Agent Loop는 관찰(Observe) → 판단·계획(Think/Plan) → 행동(Act) → 다시 관찰을 반복하다가 멈추는 구조다. 루프 설계의 절반은 '어떻게 반복하나'이고, 나머지 절반은 '언제 멈추나'다."
+        lead="Agent Loop는 관찰(Observe) → 판단·계획(Think/Plan) → 행동(Act) → 다시 관찰을 반복하다가 멈추는 구조다. 다섯 설계 영역 중 Loop(Iteration & Feedback)에 해당한다. 루프 설계의 절반은 '어떻게 반복하나'이고, 나머지 절반은 '언제 멈추나'다."
         bullets={[
           "대표 패턴은 ReAct(한 걸음씩 판단), Planner-Executor(먼저 계획 후 실행), Reflection(결과를 평가하고 고침), Retry loop(실패 시 다시 시도)다.",
           "종료 조건은 목표 달성 외에도 최대 단계 수, 실행 시간, 토큰·비용 예산, 반복 감지, 사람 확인 필요를 함께 둔다.",
@@ -202,7 +202,8 @@ export default function AgentLoop() {
           ["패턴은 섞어 쓴다", "계획은 Planner-Executor, 단계 안은 ReAct, 결과물은 Reflection."],
           ["멈추는 건 코드의 책임", "단계 · 시간 · 예산 · 반복 감지 · 사람 확인을 코드로 강제한다."],
           ["단순한 쪽부터", "경로가 정해져 있으면 루프 대신 workflow를 쓴다."],
-          ["다음 문서", "루프가 호출하는 도구의 설계는 Tool Use에서 본다."],
+          ["함께 보는 문서", "루프가 호출하는 도구의 설계는 Tool Use에서 다뤘다."],
+          ["다음 문서", "루프가 고른 도구 순서와 행동 궤적이 맞았는지는 Agent Evaluation에서 확인한다."],
         ]}
       />
     </>

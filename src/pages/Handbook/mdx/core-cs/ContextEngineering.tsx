@@ -8,7 +8,7 @@ export default function ContextEngineering() {
   return (
     <>
       <SectionSummary
-        lead="Context Engineering은 모델을 호출할 때마다 어떤 정보를, 언제, 얼마나, 어떤 순서로 넣을지 설계하는 일이다. Prompt Engineering이 '지시문을 잘 쓰는 법'이라면, Context Engineering은 지시문을 포함해 모델이 보는 모든 토큰을 다룬다."
+        lead="Context Engineering은 모델을 호출할 때마다 어떤 정보를, 언제, 얼마나, 어떤 순서로 넣을지 설계하는 일이다. 다섯 설계 영역 중 Context(Information)에 해당하며, 지시문을 포함해 모델이 보는 모든 토큰을 다룬다."
         bullets={[
           "컨텍스트 창은 크기가 정해진 예산이다. 많이 넣을수록 비용과 지연이 늘고, 중요한 정보가 묻혀 품질이 떨어지기도 한다.",
           "원칙은 '목표 달성에 필요한 가장 작은 고신호 정보 집합'을 고르는 것이다.",
@@ -18,7 +18,7 @@ export default function ContextEngineering() {
 
       <h2>Prompt Engineering vs Context Engineering</h2>
 
-      <p>Zero-shot, Few-shot, Chain-of-Thought 같은 지시문 작성 기법은 <DocLink slug="llm-basics">LLM 기초</DocLink>의 Prompt Engineering에서 다뤘다. 여기서는 그 지시문을 포함해 모델이 보는 입력 전체를 다룬다.</p>
+      <p>Zero-shot, Few-shot, Chain-of-Thought 같은 지시문 작성 기법은 <DocLink slug="llm-basics">LLM 기초</DocLink>의 Prompt Engineering에서, Agent가 여러 턴 동안 따르는 지시의 구성은 <DocLink slug="agent-instructions">Agent Instructions</DocLink>에서 다뤘다. 여기서는 그 지시문을 포함해 모델이 보는 입력 전체를 다룬다.</p>
 
       <KeyTable
         columns={["구분", "Prompt Engineering", "Context Engineering"]}
@@ -67,7 +67,7 @@ export default function ContextEngineering() {
         ]}
       />
 
-      <DocLink slug="rag">RAG</DocLink>는 이 중 "검색 결과"를 채우는 기법 하나이고, Context Engineering은 그 결과를 다른 정보와 함께 어떻게 배치할지까지 포함하는 더 넓은 개념이다.
+      <p><DocLink slug="rag">RAG</DocLink>는 이 중 "검색 결과"를 채우는 기법이다. 청킹 · 하이브리드 검색 · 재순위처럼 검색 자체의 설계는 RAG 문서에 있고, Context Engineering은 그 결과를 다른 정보와 함께 얼마나, 어디에 배치할지를 정한다. 검색을 할지 말지를 모델이 고르게 하려면 Retriever를 <DocLink slug="agent-tool-use">Tool Use</DocLink>의 도구로 등록한다.</p>
 
       <h2>왜 많이 넣는 게 답이 아닌가</h2>
 
@@ -135,7 +135,8 @@ export default function ContextEngineering() {
           ["모델이 보는 모든 토큰이 설계 대상", "지시문뿐 아니라 도구·기억·검색·상태·대화·도구 결과까지 포함한다."],
           ["작고 신호가 강하게", "많이 넣을수록 좋아지지 않는다. 필요한 정보만 고르고 줄인다."],
           ["네 가지 기법", "고르기, 줄이기, 나누기, 밖에 남기기. 여기에 캐시를 고려한 순서 정하기를 더한다."],
-          ["다음 문서", "컨텍스트 밖에 무엇을 어떻게 남길지는 State & Memory에서 다룬다."],
+          ["함께 보는 문서", "컨텍스트 밖에 무엇을 어떻게 남길지는 State & Memory에서 다룬다."],
+          ["다음 문서", "조립한 컨텍스트로 모델을 부르고 출력을 검증 · 실행하는 런타임은 Agent Harness에서 본다."],
         ]}
       />
     </>

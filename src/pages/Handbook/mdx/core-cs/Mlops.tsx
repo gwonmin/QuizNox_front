@@ -1,20 +1,45 @@
 import { SectionSummary } from "@/components/handbook/SectionSummary";
 import { KeyTable } from "@/components/handbook/KeyTable";
 import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+import { DocLink } from "@/components/handbook/DocLink";
 
 export default function Mlops() {
   return (
     <>
       <SectionSummary
-        lead="MLOps는 ML 모델의 개발·배포·운영·재학습을 자동화하는 CI/CD의 확장판이다. 코드뿐 아니라 데이터와 모델까지 파이프라인으로 관리한다."
+        lead="MLOps는 ML 파이프라인과 모델 서빙을 사람 손 없이 되풀이되게 운영하는 방식이다. 코드가 바뀔 때에 더해, 데이터가 바뀌거나 모델 성능이 떨어질 때도 다시 학습하고 배포한다."
         bullets={[
-          "CI/CD가 코드 배포를 자동화하듯, MLOps는 모델 학습·배포·재학습까지 자동화한다.",
-          "Data Drift와 Model Drift를 모니터링하여 모델 품질을 지속적으로 유지한다.",
-          "Feature Store, Model Registry, Experiment Tracking 등 ML 전용 인프라가 핵심 구성 요소이다.",
+          "코드 배포의 CI · CD에 지속 학습(CT, Continuous Training)이 더해진다.",
+          "배포한 모델은 시간이 지나면 성능이 떨어진다. Data Drift와 Model Drift를 감지해 재학습을 일으킨다.",
+          "수동 학습에서 파이프라인 자동화, CI/CD/CT 완전 자동화로 성숙도를 단계적으로 올린다.",
         ]}
       />
 
-      <h2>CI/CD vs MLOps</h2>
+      <h2>ML 모델 라이프사이클</h2>
+
+      <p>앞의 두 문서가 이 고리의 절반씩을 맡는다. 데이터에서 레지스트리 등록까지는 <DocLink slug="ml-pipeline">ML 파이프라인</DocLink>, 배포는 <DocLink slug="model-serving">모델 서빙</DocLink>이다. MLOps는 모니터링 결과가 다시 학습으로 돌아가는 화살표를 자동으로 만든다.</p>
+
+      <MermaidDiagram
+        code={`flowchart TB
+        SRC[("데이터")]
+        subgraph pipe ["ML 파이프라인"]
+          DC["데이터 수집 · 검증"] --> FE["피처 엔지니어링"] --> TR["모델 학습"] --> EV["모델 평가"] --> RG["레지스트리 등록"]
+        end
+        subgraph serving ["모델 서빙"]
+          DP["모델 배포"]
+        end
+        subgraph ops ["MLOps가 닫는 고리"]
+          MN["모니터링 (Drift 감지)"] --> RT["재학습 트리거 (CT)"]
+        end
+        SRC --> pipe
+        pipe -->|"평가를 통과한 모델 버전"| serving
+        serving -->|"입력 · 예측 · 성능 지표"| ops
+        ops -.->|"새 데이터로 다시 실행"| pipe`}
+      />
+
+      <h2>코드 배포와 무엇이 다른가</h2>
+
+      <p>빌드 · 테스트 · 배포를 자동화한다는 생각은 <DocLink slug="deploy">배포 자동화</DocLink>와 같다. 배포 대상에 데이터와 모델이 더해지면서 파이프라인의 단계, 검증 방법, 다시 배포하는 이유가 달라진다.</p>
 
       <KeyTable
         columns={["구분", "CI/CD (소프트웨어)", "MLOps (ML 모델)"]}
@@ -47,22 +72,25 @@ export default function Mlops() {
         ]}
       />
 
-      <h2>ML 모델 라이프사이클</h2>
+      <h2>CI · CD · CT</h2>
+
+      <KeyTable
+        columns={["구분", "자동화하는 것", "실행되는 계기"]}
+        rows={[
+          ["CI (지속 통합)", "코드 테스트에 더해 데이터 스키마 검증, 파이프라인 구성 요소 테스트", "코드 변경"],
+          ["CD (지속 배포)", "학습 파이프라인 자체의 배포, 그리고 평가를 통과한 모델의 서빙 배포", "파이프라인 변경, 새 모델 버전 등록"],
+          ["CT (지속 학습)", "새 데이터로 학습 파이프라인을 다시 실행해 새 모델 버전을 만든다", "일정, 새 데이터 도착, 드리프트 감지"],
+        ]}
+      />
 
       <MermaidDiagram
         code={`flowchart TB
-        DC["데이터 수집\n· 정제"]
-        FE["피처 엔지니어링"]
-        TR["모델 학습"]
-        EV["모델 평가\n· 검증"]
-        RG["모델 레지스트리\n등록"]
-        DP["모델 배포\n(서빙)"]
-        MN["모니터링\n(Drift 감지)"]
-        RT["재학습\n(CT)"]
-
-        DC --> FE --> TR --> EV --> RG --> DP --> MN
-        MN -->|"성능 저하 감지"| RT
-        RT --> TR`}
+        T1["일정 (매주 · 매월)"] --> CT["학습 파이프라인 재실행"]
+        T2["새 데이터 도착"] --> CT
+        T3["드리프트 · 성능 저하 감지"] --> CT
+        CT --> GATE{"기존 모델보다 나은지 평가"}
+        GATE -->|"낫다"| REL["새 버전 등록 · 배포"]
+        GATE -->|"아니다"| KEEP["기존 버전 유지 · 원인 확인"]`}
       />
 
       <h2>MLOps 성숙도 레벨</h2>
@@ -111,83 +139,6 @@ export default function Mlops() {
         end
         level0 ~~~ level1
         level1 ~~~ level2
-      `}
-      />
-
-      <h2>핵심 구성 요소</h2>
-
-      <KeyTable
-        columns={["구성 요소", "역할", "대표 도구"]}
-        rows={[
-          [
-            "Feature Store",
-            "학습·서빙에서 동일한 피처를 재사용할 수 있도록 중앙에서 피처를 관리·제공한다. 학습-서빙 간 불일치(skew)를 방지한다.",
-            "Feast, SageMaker Feature Store, Vertex AI Feature Store",
-          ],
-          [
-            "Experiment Tracking",
-            "학습 실험(하이퍼파라미터, 메트릭, 코드 버전)을 기록·비교하여 최적의 모델을 선택한다.",
-            "MLflow, Weights & Biases, Neptune.ai",
-          ],
-          [
-            "Model Registry",
-            "학습된 모델을 버전 관리하고, 스테이징·프로덕션 단계를 관리한다. 롤백이 가능하다.",
-            "MLflow Model Registry, SageMaker Model Registry",
-          ],
-          [
-            "학습 파이프라인",
-            "데이터 수집 → 전처리 → 학습 → 평가를 DAG(방향 비순환 그래프)로 정의하고 자동 실행한다.",
-            "Kubeflow Pipelines, Airflow, SageMaker Pipelines, Vertex AI Pipelines",
-          ],
-          [
-            "모델 서빙",
-            "학습된 모델을 API로 노출하여 추론 요청을 처리한다.",
-            "TF Serving, Triton, SageMaker Endpoint, KServe",
-          ],
-        ]}
-      />
-
-      <h2>모델 서빙 패턴</h2>
-
-      <KeyTable
-        columns={["패턴", "특징", "사용 예시"]}
-        rows={[
-          [
-            "Online Serving (실시간)",
-            "API 요청마다 즉시 추론. 낮은 지연시간이 핵심. GPU/인스턴스 상시 가동.",
-            "추천 시스템, 사기 탐지, 챗봇",
-          ],
-          [
-            "Batch Serving (배치)",
-            "대량 데이터를 주기적으로 일괄 추론. 비용 효율적.",
-            "이메일 마케팅 대상 선정, 일일 리포트 생성",
-          ],
-          [
-            "Edge Serving",
-            "모델을 디바이스에 배포하여 로컬에서 추론. 네트워크 불필요.",
-            "모바일 앱, IoT 디바이스, 자율주행",
-          ],
-        ]}
-      />
-
-      <MermaidDiagram
-        code={`flowchart TB
-        subgraph online ["Online Serving"]
-          direction LR
-          REQ["API 요청"] --> MODEL1["모델 서버"] --> RES["즉시 응답"]
-        end
-
-        subgraph batch ["Batch Serving"]
-          direction LR
-          DATA["대량 데이터"] --> SPARK["Spark / 배치 잡"] --> STORE["결과 저장소"]
-        end
-
-        subgraph edge ["Edge Serving"]
-          direction LR
-          DEVICE["디바이스"] --> LOCAL["로컬 모델"] --> RESULT["로컬 추론"]
-        end
-        online ~~~ batch
-        batch ~~~ edge
       `}
       />
 
@@ -274,20 +225,23 @@ export default function Mlops() {
         columns={["핵심 포인트", "설명"]}
         rows={[
           [
-            "MLOps = CI/CD + 데이터 + 모델",
-            "코드 배포 자동화를 넘어, 데이터 변화에 대응하는 모델 학습·배포·재학습까지 자동화한다.",
+            "MLOps = CI · CD + CT",
+            "코드 변경에 더해 데이터 변화와 성능 저하가 재학습과 재배포의 계기가 된다.",
           ],
           [
-            "성숙도를 점진적으로 높인다",
+            "성숙도를 단계적으로 올린다",
             "수동(Level 0) → 파이프라인 자동화(Level 1) → CI/CD/CT 완전 자동화(Level 2).",
           ],
           [
-            "Drift 모니터링이 핵심",
-            "배포 후 방치하면 모델 성능이 저하된다. Data Drift / Model Drift를 지속적으로 감지하고 재학습한다.",
+            "Drift 모니터링이 고리를 닫는다",
+            "배포 후 방치하면 모델 성능이 떨어진다. Data Drift와 Model Drift를 감지해 재학습으로 연결한다.",
           ],
           [
-            "Feature Store로 일관성 확보",
-            "학습과 서빙에서 동일한 피처를 사용하여 Training-Serving Skew를 방지한다.",
+            "모델을 호출만 할 때의 운영",
+            <>
+              가중치를 직접 만들지 않고 LLM을 호출하는 애플리케이션은 프롬프트 · 인덱스 · 평가 세트를 버전으로 관리한다.{" "}
+              <DocLink slug="llmops">LLMOps</DocLink>에서 다룬다.
+            </>,
           ],
         ]}
       />

@@ -143,8 +143,6 @@ export const REAL_SYSTEM_DIAGRAM_LINKS: Record<string, string> = {
   아티팩트: "/handbook/core-cs/artifact",
   "배포 자동화": "/handbook/core-cs/deploy",
   GitOps: "/handbook/core-cs/gitops",
-  MLOps: "/handbook/core-cs/mlops",
-  "MLOps 개념": "/handbook/core-cs/mlops",
   배포: "/handbook/core-cs/deploy",
 
   // ---- 8. Cost & FinOps ----
@@ -158,21 +156,29 @@ export const REAL_SYSTEM_DIAGRAM_LINKS: Record<string, string> = {
   Budgets: "/handbook/core-cs/cost-budgets",
   "비용 최적화": "/handbook/core-cs/cost-optimization",
 
-  // ---- 9. AI Engineering ----
+  // ---- 9. ML Engineering ----
+  "ML 파이프라인": "/handbook/core-cs/ml-pipeline",
+  "모델 서빙": "/handbook/core-cs/model-serving",
+  MLOps: "/handbook/core-cs/mlops",
+  "MLOps 개념": "/handbook/core-cs/mlops",
+
+  // ---- 10. LLM Application Engineering ("LLMOps"는 "LLM"보다 길어 먼저 맞는다) ----
   "LLM 기초": "/handbook/core-cs/llm-basics",
   LLM: "/handbook/core-cs/llm-basics",
+  RAG: "/handbook/core-cs/rag",
+  "Model Strategy": "/handbook/core-cs/model-routing",
+  LLMOps: "/handbook/core-cs/llmops",
+
+  // ---- 11. LLM Agent Engineering (노드 라벨에 "Agent"·"Routing"·"Observability"를 넣으면 다른 키에 걸리므로 피함) ----
   "AI Agent": "/handbook/core-cs/ai-agent",
   Agent: "/handbook/core-cs/ai-agent",
-  RAG: "/handbook/core-cs/rag",
-
-  // ---- 10. AI Agent Engineering (노드 라벨에 "Agent"·"Routing"·"Observability"를 넣으면 위 키에 걸리므로 피함) ----
+  "Agent Instructions": "/handbook/core-cs/agent-instructions",
   "Agent Harness": "/handbook/core-cs/agent-harness",
   "Context Engineering": "/handbook/core-cs/context-engineering",
   "State & Memory": "/handbook/core-cs/agent-state-memory",
   "Agent Loop": "/handbook/core-cs/agent-loop",
   "Tool Use": "/handbook/core-cs/agent-tool-use",
   Orchestration: "/handbook/core-cs/agent-orchestration",
-  "Model Strategy": "/handbook/core-cs/model-routing",
   HITL: "/handbook/core-cs/agent-hitl",
   "Guardrails · AuthZ": "/handbook/core-cs/agent-guardrails-authz",
   Evaluation: "/handbook/core-cs/agent-eval",

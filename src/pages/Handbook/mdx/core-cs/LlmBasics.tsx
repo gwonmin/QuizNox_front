@@ -69,7 +69,7 @@ export default function LlmBasics() {
 
       <h2>Prompt Engineering</h2>
 
-      <p>모델에게 지시하는 방식을 설계하여 원하는 결과를 이끌어내는 기법이다. Agent처럼 모델을 여러 번 부르는 시스템에서는 지시문뿐 아니라 도구 정의·검색 결과·기억까지 모델이 보는 전체 입력을 설계해야 하고, 이것은 <DocLink slug="context-engineering">Context Engineering</DocLink>에서 다룬다.</p>
+      <p>모델에게 지시하는 방식을 설계하여 원하는 결과를 이끌어내는 기법이다. 여기서는 한 번의 호출에 쓰는 기법을 본다. Agent처럼 모델을 여러 번 부르는 시스템에서 여러 턴 동안 유지되는 지시는 <DocLink slug="agent-instructions">Agent Instructions</DocLink>, 도구 정의·검색 결과·기억까지 모델이 보는 전체 입력의 설계는 <DocLink slug="context-engineering">Context Engineering</DocLink>에서 다룬다.</p>
 
       <KeyTable
         columns={["기법", "설명", "예시"]}
@@ -174,6 +174,23 @@ export default function LlmBasics() {
       `}
       />
 
+      <h3>검토하는 순서</h3>
+
+      <p>셋은 함께 쓸 수 있지만, 비용이 낮고 되돌리기 쉬운 쪽부터 검토한다.</p>
+
+      <MermaidDiagram
+        code={`flowchart TB
+        Q0["원하는 출력이 나오지 않는다"] --> Q1{"지시 · 예시 · 출력 형식을\n고치면 해결되는가"}
+        Q1 -->|"예"| PE["Prompt Engineering"]
+        Q1 -->|"아니오"| Q2{"모델이 모르는 지식이\n필요한가"}
+        Q2 -->|"예"| RAGN["RAG"]
+        Q2 -->|"아니오"| Q3{"말투 · 형식 · 도메인 표현을\n모델 자체에 익혀야 하는가"}
+        Q3 -->|"예"| FT["Fine-tuning"]
+        Q3 -->|"아니오"| MD["다른 모델을 평가해 본다"]`}
+      />
+
+      <p>Fine-tuning을 고르면 학습 데이터 준비, 학습 잡, 평가, 배포가 뒤따른다. 가중치를 바꾸는 이 실행 과정은 9. ML Engineering의 <DocLink slug="ml-pipeline">ML 파이프라인</DocLink>과 <DocLink slug="model-serving">모델 서빙</DocLink>에서 다룬다.</p>
+
       <h2>모델 유형</h2>
 
       <p>모델 이름과 순위는 몇 달 단위로 바뀌지만, 모델을 나누는 유형은 잘 바뀌지 않는다. 제공사마다 대개 아래 유형을 하나씩 갖추고 있다.</p>
@@ -188,6 +205,8 @@ export default function LlmBasics() {
           ["임베딩 · 재정렬 모델", "텍스트를 벡터로 바꾸거나(임베딩) 검색 결과의 관련도를 다시 매긴다(reranker).", "RAG 검색 파이프라인"],
         ]}
       />
+
+      <p>오픈 가중치 모델을 직접 올릴 때의 GPU 메모리, 토큰 스트리밍, 요청 묶기는 <DocLink slug="model-serving">모델 서빙</DocLink>의 「오픈 가중치 LLM을 직접 서빙할 때」에서 다룬다.</p>
 
       <h2>모델을 고르는 기준</h2>
 
@@ -213,7 +232,7 @@ export default function LlmBasics() {
 
       <h2>도구 호출은 Agent에서</h2>
 
-      <p>Function calling과 MCP는 모델이 다음 행동을 고르는 루프의 부품이다. 한 번 호출과 순서가 고정된 파이프라인에서는 쓰지 않는다. 정의와 설계는 <DocLink slug="agent-tool-use">Tool Use</DocLink>에서 다룬다.</p>
+      <p>Function calling과 MCP는 모델이 다음 행동을 고르는 루프의 부품이다. 이 섹션이 다루는 한 번 호출과 순서가 고정된 파이프라인에서는 쓰지 않는다. 정의와 설계는 11. LLM Agent Engineering의 <DocLink slug="agent-tool-use">Tool Use</DocLink>에서 다룬다.</p>
 
       <h2>요약</h2>
 
@@ -236,6 +255,7 @@ export default function LlmBasics() {
             "RAG vs 파인튜닝은 목적에 따라",
             "최신·근거 문서 기반이면 RAG, 표현·스타일·도메인 적응이면 파인튜닝(또는 둘 다)을 검토한다.",
           ],
+          ["다음 문서", "모델이 모르는 지식을 검색으로 찾아 프롬프트에 넣는 방법은 RAG에서 본다."],
         ]}
       />
     </>

@@ -98,6 +98,7 @@ import AgentReliability from "./mdx/core-cs/AgentReliability";
 import AgentStateMemory from "./mdx/core-cs/AgentStateMemory";
 import AgentToolUse from "./mdx/core-cs/AgentToolUse";
 import AiAgent from "./mdx/core-cs/AiAgent";
+import AgentInstructions from "./mdx/core-cs/AgentInstructions";
 import Aiops from "./mdx/core-cs/Aiops";
 import Artifact from "./mdx/core-cs/Artifact";
 import AuthnVsAuthz from "./mdx/core-cs/AuthnVsAuthz";
@@ -141,9 +142,12 @@ import L4VsL7Lb from "./mdx/core-cs/L4VsL7Lb";
 import LatencyThroughputIops from "./mdx/core-cs/LatencyThroughputIops";
 import LeastPrivilege from "./mdx/core-cs/LeastPrivilege";
 import LlmBasics from "./mdx/core-cs/LlmBasics";
+import Llmops from "./mdx/core-cs/Llmops";
 import LoadTesting from "./mdx/core-cs/LoadTesting";
 import LogStore from "./mdx/core-cs/LogStore";
 import Mlops from "./mdx/core-cs/Mlops";
+import MlPipeline from "./mdx/core-cs/MlPipeline";
+import ModelServing from "./mdx/core-cs/ModelServing";
 import ModelRouting from "./mdx/core-cs/ModelRouting";
 import Nat from "./mdx/core-cs/Nat";
 import NoSql from "./mdx/core-cs/NoSql";
@@ -235,7 +239,6 @@ export const HANDBOOK_DOC_REGISTRY: Record<string, ComponentType> = {
   "core-cs/artifact": Artifact,
   "core-cs/deploy": Deploy,
   "core-cs/gitops": GitOps,
-  "core-cs/mlops": Mlops,
   "core-cs/rto-rpo": RtoRpo,
   "core-cs/ha-design": HaDesign,
   "core-cs/sli-slo": SliSlo,
@@ -286,21 +289,26 @@ export const HANDBOOK_DOC_REGISTRY: Record<string, ComponentType> = {
   "core-cs/cost-visibility": CostVisibility,
   "core-cs/cost-budgets": CostBudgets,
   "core-cs/cost-optimization": CostOptimization,
+  "core-cs/ml-pipeline": MlPipeline,
+  "core-cs/model-serving": ModelServing,
+  "core-cs/mlops": Mlops,
   "core-cs/llm-basics": LlmBasics,
-  "core-cs/ai-agent": AiAgent,
   "core-cs/rag": Rag,
-  "core-cs/agent-harness": AgentHarness,
-  "core-cs/context-engineering": ContextEngineering,
-  "core-cs/agent-state-memory": AgentStateMemory,
-  "core-cs/agent-loop": AgentLoop,
-  "core-cs/agent-tool-use": AgentToolUse,
-  "core-cs/agent-orchestration": AgentOrchestration,
   "core-cs/model-routing": ModelRouting,
-  "core-cs/agent-hitl": AgentHitl,
+  "core-cs/llmops": Llmops,
+  "core-cs/ai-agent": AiAgent,
+  "core-cs/agent-instructions": AgentInstructions,
+  "core-cs/context-engineering": ContextEngineering,
+  "core-cs/agent-harness": AgentHarness,
+  "core-cs/agent-tool-use": AgentToolUse,
   "core-cs/agent-guardrails-authz": AgentGuardrailsAuthz,
-  "core-cs/agent-eval": AgentEval,
+  "core-cs/agent-hitl": AgentHitl,
   "core-cs/agent-observability": AgentObservability,
   "core-cs/agent-reliability": AgentReliability,
+  "core-cs/agent-loop": AgentLoop,
+  "core-cs/agent-eval": AgentEval,
+  "core-cs/agent-state-memory": AgentStateMemory,
+  "core-cs/agent-orchestration": AgentOrchestration,
   "aws-common/public-private-subnet": PublicPrivateSubnet,
   "aws-common/vpc-route-table": VpcRouteTable,
   "aws-common/igw-vs-nat": IgwVsNat,

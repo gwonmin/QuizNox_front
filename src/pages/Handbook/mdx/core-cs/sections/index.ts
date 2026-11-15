@@ -7,6 +7,7 @@ import ReliabilityOperations from "./ReliabilityOperations";
 import ContainersOrchestration from "./ContainersOrchestration";
 import Cicd from "./Cicd";
 import CostFinops from "./CostFinops";
+import MlEngineering from "./MlEngineering";
 import AiBasics from "./AiBasics";
 import AgentEngineering from "./AgentEngineering";
 
@@ -20,6 +21,7 @@ export const CORE_CS_SECTION_DIAGRAMS: Record<string, ComponentType> = {
   "containers-orchestration": ContainersOrchestration,
   cicd: Cicd,
   "cost-finops": CostFinops,
+  "ml-engineering": MlEngineering,
   "ai-basics": AiBasics,
   "agent-engineering": AgentEngineering,
 };

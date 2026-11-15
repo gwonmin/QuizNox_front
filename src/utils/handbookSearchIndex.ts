@@ -38,6 +38,13 @@ const HANDBOOK_SEARCH_ALIASES: Record<string, string[]> = {
   nosql: ["nosql", "no sql", "비관계형 데이터베이스"],
   cache: ["cache", "캐시"],
   "ac id": ["acid", "a c i d"],
+  "ml pipeline": ["피처 스토어", "학습 파이프라인", "lora"],
+  "model serving": ["continuous batching", "kv 캐시", "vllm", "ttft"],
+  mlops: ["엠엘옵스", "지속 학습"],
+  llmops: ["엘엘엠옵스"],
+  "agent instructions": ["시스템 프롬프트", "에이전트 지시문"],
+  "agent harness": ["에이전트 하네스", "하네스 엔지니어링"],
+  "context engineering": ["컨텍스트 엔지니어링"],
 
   // AWS common / RDS 등
   rds: ["rds", "aurora", "관계형 데이터베이스 서비스"],

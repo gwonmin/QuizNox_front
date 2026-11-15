@@ -8,7 +8,7 @@ export default function AgentStateMemory() {
   return (
     <>
       <SectionSummary
-        lead="State는 지금 실행 중인 작업의 진행 상황이고, Memory는 실행이 끝난 뒤에도 남겨 두는 정보다. 둘 다 컨텍스트 창 밖에 저장했다가 필요할 때 다시 넣는다."
+        lead="State는 지금 실행 중인 작업의 진행 상황이고, Memory는 실행이 끝난 뒤에도 남겨 두는 정보다. 다섯 설계 영역 중 Graph(Orchestration & State)에 해당한다. State는 단계 사이를 흐르며 다음에 갈 곳과 재개할 지점을 정하고, 둘 다 컨텍스트 창 밖에 저장했다가 필요할 때 다시 넣는다."
         bullets={[
           "기억은 수명과 용도에 따라 작업 상태, 단기 대화 기억, 장기 의미 기억, 경험(에피소드) 기억, 프로필·선호로 나눈다.",
           "종류마다 맞는 저장소가 다르다. KV는 빠른 상태, RDB는 구조화된 사실, 벡터 저장소는 의미 검색에 쓴다.",
@@ -17,6 +17,20 @@ export default function AgentStateMemory() {
       />
 
       <h2>State와 Memory의 차이</h2>
+
+      <MermaidDiagram
+        code={`flowchart TB
+        MEM[("Memory\n작업이 끝나도 남는다")]
+        subgraph run ["한 작업 (run)"]
+          direction LR
+          N1["단계 1"] -->|"state"| N2["단계 2"] -->|"state"| N3["단계 3"]
+        end
+        CP[("Checkpoint\n단계마다 state를 저장한다")]
+        MEM -->|"시작할 때 관련 기억 조회"| run
+        run -->|"단계가 끝날 때마다 저장"| CP
+        CP -.->|"중단되면 마지막 지점에서 재개"| run
+        run -.->|"끝난 뒤에도 남길 것을 기록"| MEM`}
+      />
 
       <KeyTable
         columns={["구분", "State (작업 상태)", "Memory (기억)"]}
@@ -151,7 +165,7 @@ export default function AgentStateMemory() {
           ["State는 진행, Memory는 지속", "작업 상태는 재개를 위해, 기억은 개인화와 학습을 위해 남긴다."],
           ["종류에 맞는 저장소", "KV는 상태, RDB는 정확한 사실, 벡터 저장소는 비슷한 경험 검색."],
           ["쓰기 정책이 핵심", "무엇을 저장하지 않을지 먼저 정하고, 출처·시각·만료를 함께 남긴다."],
-          ["다음 문서", "이 상태를 읽고 다음 행동을 정하는 반복 구조를 Agent Loop에서 본다."],
+          ["다음 문서", "이 상태를 단계 사이로 넘기며 분기 · 병렬 실행 · 병합하는 구조는 Orchestration에서 본다."],
         ]}
       />
     </>

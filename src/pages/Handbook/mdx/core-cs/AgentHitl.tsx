@@ -135,7 +135,8 @@ export default function AgentHitl() {
           ["되돌릴 수 없는 행동 앞에서 멈춘다", "도구마다 위험도를 매기고 높은 것만 사람 승인."],
           ["실패 한도를 넘으면 넘긴다", "같은 실패를 반복하기보다 사람에게 이관한다."],
           ["멈춤은 상태 저장으로 구현", "checkpoint와 멱등 키가 있어야 안전하게 재개된다."],
-          ["다음 문서", "사람이 보기 전에 시스템이 막아야 할 것은 Guardrails / Identity / Authorization에서 본다."],
+          ["함께 보는 문서", "사람이 보기 전에 시스템이 막아야 할 것은 Guardrails / Identity / Authorization에서 다뤘다."],
+          ["다음 문서", "승인과 거절을 포함해 Agent의 행동을 어떻게 기록하는지는 Observability & Tracing에서 본다."],
         ]}
       />
     </>
