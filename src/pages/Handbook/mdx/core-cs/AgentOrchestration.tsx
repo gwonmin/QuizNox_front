@@ -153,6 +153,196 @@ export default function AgentOrchestration() {
 
       <p>Checkpoint와 재개는 <DocLink slug="agent-state-memory">State & Memory</DocLink>, 사람 승인 흐름은 <DocLink slug="agent-hitl">Human-in-the-Loop</DocLink>, 각 노드에 어떤 모델을 쓸지는 <DocLink slug="model-routing">Model Strategy / Routing</DocLink>에서 다룬다.</p>
 
+      <h2>LangChain으로 부품을 만들고 LangGraph로 조립하기</h2>
+
+      <p>LangChain은 <strong>부품(모듈)</strong>, LangGraph는 그 부품을 <strong>조립하는 설계도(그래프)</strong>이다.</p>
+
+      <p>
+        LangChain은 prompts · memory · chains · agents 모듈을 제공하고,{" "}
+        <code>prompt_template | model</code>처럼 파이프(<code>|</code>)로 한 번에 실행한다. 호출은{" "}
+        <code>SystemMessage</code> + <code>HumanMessage</code> 뒤 <code>model.invoke()</code>다.{" "}
+        <strong>ChatPromptTemplate</strong>은 <code>{"{variables}"}</code>를 채운 채팅 프롬프트를 만든다. 멀티턴은{" "}
+        <strong>RunnableWithMessageHistory</strong>, 세션별 영속은{" "}
+        <strong>DynamoDBChatMessageHistory(<code>session_id</code>)</strong>로 붙인다. 배포는 frontend → Lambda → LangChain → Bedrock이 한 경로다.
+      </p>
+
+      <MermaidDiagram
+        code={`flowchart TB
+        subgraph modules ["LangChain 모듈 (부품)"]
+          subgraph io ["입출력"]
+            PT["Prompt Template\n(프롬프트 틀)"]
+            OP["Output Parser\n(응답 구조화)"]
+            PT ~~~ OP
+          end
+          subgraph brain ["두뇌"]
+            LLM_MOD["LLM / ChatModel\n(GPT, Claude 등)"]
+          end
+          subgraph hands ["손 (외부 상호작용)"]
+            TOOL["Tool\n(API, 계산기, 검색...)"]
+            RET["Retriever\n(벡터 DB 검색 = RAG)"]
+            TOOL ~~~ RET
+          end
+          subgraph memory ["기억"]
+            MEM["Memory\n(대화 이력 관리)"]
+          end
+          io ~~~ hands
+          brain ~~~ memory
+        end
+
+        subgraph chain ["이 부품들을 파이프로 연결하면 → 체인"]
+          direction LR
+          C1["질문"] -->|"|"| C2["Prompt"] -->|"|"| C3["LLM"] -->|"|"| C4["Parser"] --> C5["답변"]
+        end
+
+        modules --> chain`}
+      />
+
+      <KeyTable
+        columns={["모듈", "역할", "RAG 해당"]}
+        rows={[
+          [
+            "Prompt Template",
+            "변수를 포함한 프롬프트 틀. 런타임에 값을 주입하여 일관된 프롬프트를 생성.",
+            "",
+          ],
+          [
+            "Tool / Tool Calling",
+            "함수·API를 도구로 등록하면 LLM이 필요할 때 자동 호출. @tool 데코레이터로 간단히 등록.",
+            "",
+          ],
+          [
+            "Retriever",
+            "벡터 DB에서 관련 문서를 가져오는 인터페이스. RAG 파이프라인의 검색 담당.",
+            "RAG 핵심",
+          ],
+          [
+            "Memory",
+            "대화 이력 관리. 전체 보관(Buffer) 또는 요약 보관(Summary) 등 전략 선택.",
+            "",
+          ],
+        ]}
+      />
+
+      <p>단순 체인(<code>A → B → C</code>)은 직선형이라 도구를 쓸지 모델이 판단하는 루프를 표현하지 못한다. LangGraph는 노드 · 조건부 엣지 · 공유 상태로 그 루프와 분기를 표현한다.</p>
+
+      <h3>예: 여행 계획</h3>
+
+      <p>사용자가 "이번 주말 부산 여행 계획 세워줘"라고 했을 때, agent 노드와 tools 노드가 상태를 주고받으며 돈다.</p>
+
+      <MermaidDiagram
+        code={`flowchart TB
+        USER["사용자: 이번 주말 부산 여행 계획 세워줘"]
+        START(["__start__"])
+
+        AGENT1["agent 노드\nLLM 판단: 날씨 확인 필요\n→ weather_tool 호출"]
+        TOOLS1["tools 노드\n날씨 API 호출 → 맑음 18°C"]
+
+        AGENT2["agent 노드\nLLM 판단: 관광지 검색 필요\n→ search_tool 호출"]
+        TOOLS2["tools 노드\n웹 검색 → 해운대, 감천문화마을, 태종대"]
+
+        AGENT3["agent 노드\nLLM 판단: 사내 가이드 참고\n→ retriever_tool 호출"]
+        TOOLS3["tools 노드\n벡터 DB 검색 (RAG)\n→ 사내 부산 출장 가이드"]
+
+        AGENT4["agent 노드\nLLM 판단: 정보 충분, 일정 구성\n→ 도구 호출 없이 답변 생성"]
+
+        END_NODE(["__end__"])
+        RESULT["최종 답변:\n토요일 오전 해운대 → 오후 감천문화마을\n일요일 태종대\n맛집: 돼지국밥 (사내 가이드 추천)\n날씨 맑음 18°C, 가벼운 겉옷 권장"]
+
+        USER --> START --> AGENT1
+        AGENT1 -->|"tool_call"| TOOLS1 -->|"State 업데이트"| AGENT2
+        AGENT2 -->|"tool_call"| TOOLS2 -->|"State 업데이트"| AGENT3
+        AGENT3 -->|"tool_call (RAG)"| TOOLS3 -->|"State 업데이트"| AGENT4
+        AGENT4 -->|"답변 완료"| END_NODE --> RESULT`}
+      />
+
+      <KeyTable
+        columns={["회차", "LLM의 판단", "사용된 모듈", "RAG 여부"]}
+        rows={[
+          ["1회차", "'날씨부터 확인해야겠다'", "Tool (weather_tool → 날씨 API)", ""],
+          ["2회차", "'야외 관광지를 검색하자'", "Tool (search_tool → 웹 검색)", ""],
+          [
+            "3회차",
+            "'사내 여행 가이드도 참고하자'",
+            "Tool (retriever_tool → Retriever → Vector Store)",
+            "RAG 검색",
+          ],
+          [
+            "4회차",
+            "'정보가 충분하다. 일정을 구성하자'",
+            "LLM + Prompt Template + Output Parser",
+            "",
+          ],
+        ]}
+      />
+
+      <blockquote>
+        <p>
+          핵심은 <strong>agent ↔ tools 루프</strong>다. 3회차에서 Retriever를 호출한 것이, 검색이 Agent 안에서 도구 하나로 동작하는 패턴이다. 항상 검색하는 RAG 파이프라인은{" "}
+          <DocLink slug="rag">RAG</DocLink>에 두고, 검색할지를 매번 판단할 때만 이 루프를 쓴다.
+        </p>
+      </blockquote>
+
+      <h3>서비스 안의 라우터</h3>
+
+      <p>요청마다 같은 Agent 루프를 돌리면 단순한 질문에도 도구 호출 비용이 든다. Runtime 앞에서 의도를 나눈다. 단순 질의는 RAG 노드, 작업 요청은 Action 노드, 복합 작업만 Planner로 보낸다.</p>
+
+      <MermaidDiagram
+        code={`flowchart TB
+        WEB[Frontend] --> GW[API Gateway]
+        GW --> LAMBDA[Lambda with LangChain]
+        LAMBDA --> BEDROCK[Amazon Bedrock]
+        LAMBDA --> ROUTER[Router]
+        ROUTER --> RAG[RAG node]
+        ROUTER --> ACTION[Action node]
+        RAG --> RESP[Response]
+        ACTION --> RESP
+        RAG --> VDB[Vector DB]
+        ACTION --> EXTAPI[External APIs]
+        LAMBDA --> MEM[ElastiCache or DynamoDB]`}
+      />
+
+      <KeyTable
+        columns={["계층", "구성 요소", "역할"]}
+        rows={[
+          [
+            "API Gateway",
+            "ALB / API Gateway / Kong",
+            "인증, Rate Limiting, 요청 라우팅. Agent로 들어오는 트래픽의 첫 관문.",
+          ],
+          [
+            "Agent Runtime",
+            "LangGraph + LangChain 모듈",
+            "그래프 실행 엔진. 라우터가 의도를 분류하고, RAG/Action/Planner 노드를 조합하여 처리.",
+          ],
+          [
+            "외부 도구",
+            "REST API, DB Client",
+            "Agent가 Tool Calling으로 실행. 예약·결제 같은 부수 효과가 있는 작업 담당.",
+          ],
+          [
+            "데이터 소스 (RAG)",
+            "Vector DB + 문서 저장소",
+            "Retriever가 벡터 유사도 검색으로 관련 문서를 가져온다.",
+          ],
+          [
+            "상태 · 메모리",
+            "Checkpoint Store, Conversation Memory",
+            "Checkpoint는 실행 중간 상태, Memory는 대화 맥락이다.",
+          ],
+          [
+            "관측성",
+            "LangSmith / Langfuse, CloudWatch",
+            "실행 트레이스, 토큰·비용, 품질 평가.",
+          ],
+        ]}
+      />
+
+      <p>
+        Runtime이 검증·재시도·제한·격리를 어떻게 맡는지는 <DocLink slug="agent-harness">Agent Harness</DocLink>, Checkpoint와 Memory 설계는{" "}
+        <DocLink slug="agent-state-memory">State & Memory</DocLink>, 트레이스 필드는{" "}
+        <DocLink slug="agent-observability">Observability & Tracing</DocLink>에서 다룬다.
+      </p>
+
       <h2>흔한 실수</h2>
 
       <KeyTable

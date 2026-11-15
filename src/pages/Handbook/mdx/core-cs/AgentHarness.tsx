@@ -126,6 +126,49 @@ export default function AgentHarness() {
         ]}
       />
 
+      <p>
+        단순 생성·요약·Q&A는 <DocLink layer="aws-common" slug="bedrock-apis">Bedrock APIs</DocLink>를 직접 호출하는 편이 의존성과 지연·비용 예측에 유리하다. 멀티스텝 루프가 생긴 뒤에 프레임워크를 올린다. 호스팅과 Gateway는{" "}
+        <DocLink layer="aws-common" slug="bedrock-agentcore">AgentCore</DocLink>를 본다.
+      </p>
+
+      <KeyTable
+        columns={["이름", "특징"]}
+        rows={[
+          [
+            "LangChain / LangGraph",
+            "prompts · memory · chains · agents. LangGraph는 nodes · edges · states로 루프·분기를 표현한다. 조립 예는 Orchestration에서 본다.",
+          ],
+          [
+            "LlamaIndex",
+            "데이터 커넥터·인덱싱·에이전트 워크플로에 특화. RAG와 검색 도구를 한 축으로 묶기 좋다.",
+          ],
+          [
+            "Haystack",
+            "검색·RAG 파이프라인 중심. 문서 처리·파이프 노드 구성에 강점.",
+          ],
+          [
+            "DSPy",
+            "프롬프트를 프로그램처럼 최적화. 예시·메트릭으로 파이프라인을 컴파일한다.",
+          ],
+          [
+            "Strands Agents",
+            "모델 + 도구의 agentic loop에 초점을 둔 경량 에이전트 프레임워크.",
+          ],
+          [
+            "CrewAI",
+            "Crews는 역할 기반 자율성(agency), Flows는 단계 제어(precision)에 가깝다.",
+          ],
+          [
+            "벤더 SDK",
+            "OpenAI·Anthropic·Google 등은 전용 Agents SDK·멀티툴 API를 제공한다.",
+          ],
+          [
+            "Amazon Bedrock Agents",
+            "관리형 FM + Action Group · KB · Code Interpreter + 메모리. AgentCore로 임의 프레임워크도 호스팅 가능.",
+          ],
+        ]}
+      />
+
       <h2>흔한 실수</h2>
 
       <KeyTable

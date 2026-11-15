@@ -70,7 +70,47 @@ export default function AgentLoop() {
         react ~~~ pe ~~~ refl`}
       />
 
-      <p>ReAct의 단계별 예시는 <DocLink slug="ai-agent">AI Agent</DocLink> 문서에 있다. 실무에서는 패턴 하나만 쓰기보다, 계획은 Planner-Executor로 세우고 각 단계 안에서는 ReAct로 움직이며 최종 결과에만 Reflection을 거는 식으로 섞는다.</p>
+      <h2>ReAct 예시</h2>
+
+      <p>ReAct는 추론(Thought)과 행동(Action)을 번갈아 하고, 관찰(Observation)을 다음 추론에 반영한다.</p>
+
+      <MermaidDiagram
+        code={`flowchart TB
+        Q["사용자 질문"]
+        T1["Thought 1\n(무엇을 해야 하는가)"]
+        A1["Action 1\n(도구 호출)"]
+        O1["Observation 1\n(결과 확인)"]
+        T2["Thought 2\n(다음에 무엇을 해야 하는가)"]
+        A2["Action 2\n(추가 도구 호출)"]
+        O2["Observation 2\n(결과 확인)"]
+        T3["Thought 3\n(답변 가능)"]
+        ANS["최종 답변"]
+
+        Q --> T1 --> A1 --> O1 --> T2 --> A2 --> O2 --> T3 --> ANS`}
+      />
+
+      <KeyTable
+        columns={["단계", "내용", "예시 (주식 가격 질문)"]}
+        rows={[
+          [
+            "Thought",
+            "현재 상황을 분석하고 다음 행동을 추론한다.",
+            "'현재 주가를 알려면 금융 API를 호출해야 한다.'",
+          ],
+          [
+            "Action",
+            "추론 결과에 따라 도구를 호출한다.",
+            "stock_api.get_price('AAPL') 호출",
+          ],
+          [
+            "Observation",
+            "도구 호출 결과를 확인한다.",
+            "결과: AAPL = $198.50",
+          ],
+        ]}
+      />
+
+      <p>실무에서는 패턴 하나만 쓰기보다, 계획은 Planner-Executor로 세우고 각 단계 안에서는 ReAct로 움직이며 최종 결과에만 Reflection을 거는 식으로 섞는다.</p>
 
       <h2>루프가 필요 없는 경우</h2>
 

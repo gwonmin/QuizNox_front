@@ -211,9 +211,9 @@ export default function LlmBasics() {
 
       <blockquote><p>선택 힌트: 도구 호출이 중요한 Agent에는 도구 호출 품질이 검증된 모델을, 단순 요약 · 분류에는 저지연 · 저단가 모델을 후보로 두고 내 데이터로 비교한다. 작업마다 모델을 나눠 배정하는 방법은 <DocLink slug="model-routing">Model Strategy / Routing</DocLink>에서 다룬다.</p></blockquote>
 
-      <h2>에코시스템 메모: MCP</h2>
+      <h2>도구 호출은 Agent에서</h2>
 
-      <p>Model Context Protocol(MCP)은 LLM 클라이언트가 로컬 · 원격 도구와 데이터 소스에 붙기 위한 개방형 규약이다. 표준 자체가 권한 · 감사를 대신해 주지는 않으므로 허용 도구 목록 · OAuth · 감사 로그는 애플리케이션에서 설계한다. 자세한 내용은 <DocLink slug="agent-tool-use">Tool Use</DocLink>에 있다.</p>
+      <p>Function calling과 MCP는 모델이 다음 행동을 고르는 루프의 부품이다. 한 번 호출과 순서가 고정된 파이프라인에서는 쓰지 않는다. 정의와 설계는 <DocLink slug="agent-tool-use">Tool Use</DocLink>에서 다룬다.</p>
 
       <h2>요약</h2>
 

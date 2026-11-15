@@ -99,7 +99,7 @@ export default function BedrockAgentCore() {
 
       <h2>프레임워크와의 관계</h2>
 
-      <p>AgentCore는 LangChain · LangGraph · Strands · CrewAI 등 <strong>어떤 에이전트 루프든</strong> Runtime에 올리고, Gateway로 사내 API를 MCP화할 수 있다. 프레임워크 비교는 <DocLink slug="ai-agent">AI Agent</DocLink>를 본다.</p>
+      <p>AgentCore는 LangChain · LangGraph · Strands · CrewAI 등 <strong>어떤 에이전트 루프든</strong> Runtime에 올리고, Gateway로 사내 API를 MCP화할 수 있다. 프레임워크 비교는 <DocLink layer="core-cs" slug="agent-harness">Agent Harness</DocLink>를 본다.</p>
 
       <h2>요약</h2>
 

@@ -1,12 +1,13 @@
 import { SectionSummary } from "@/components/handbook/SectionSummary";
 import { KeyTable } from "@/components/handbook/KeyTable";
 import { MermaidDiagram } from "@/components/handbook/MermaidDiagram";
+import { DocLink } from "@/components/handbook/DocLink";
 
 export default function Rag() {
   return (
     <>
       <SectionSummary
-        lead="RAG(Retrieval-Augmented Generation)는 외부 지식을 검색해 프롬프트에 넣고 LLM이 생성하는 구조다. 단순 벡터 검색을 넘어 하이브리드 검색·재순위·에이전트형 반복 검색·접근 통제까지 포함해 설계한다."
+        lead="RAG(Retrieval-Augmented Generation)는 외부 지식을 검색해 프롬프트에 넣고 LLM이 생성하는 고정 파이프라인이다. 하이브리드 검색·재순위·접근 통제·답변 평가까지 여기서 설계한다."
         bullets={[
           "환각을 줄이고 출처·인용 가능한 답을 지향한다(완전 제거는 아님).",
           "인덱스만 갱신하면 지식을 최신화할 수 있어 운영 주기가 짧다.",
@@ -209,7 +210,10 @@ export default function Rag() {
           ],
           [
             "Agentic RAG",
-            "에이전트가 질의를 고치거나 하위 질문으로 쪼개 검색을 여러 번 돌린 뒤 합성한다. 복잡 질문에 유리하나 비용·지연이 커질 수 있다.",
+            <>
+              질의를 고치거나 하위 질문으로 쪼개 검색을 여러 번 돌리는 루프다. 순서가 매번 달라지면{" "}
+              <DocLink slug="ai-agent">AI Agent</DocLink>로 넘긴다. 비용·지연이 커질 수 있다.
+            </>,
           ],
           [
             "Graph·구조화 보강",

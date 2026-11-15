@@ -38,7 +38,7 @@ export default function AifPromptEngineering() {
           ["Chain-of-thought", "단계별 추론을 요구", "수학·논리 정확도 ↑"],
           ["Tree of Thought", "여러 추론 가지를 탐색·가지치기", "CoT의 확장. 복잡한 탐색 문제"],
           ["RAG", "검색 결과를 컨텍스트로 주입", <DocLink layer="aif" slug="rag-knowledge-bases">Knowledge Bases</DocLink>],
-          ["ReAct", "이유 → 도구 선택 → 행동 → 응답", <DocLink layer="core-cs" slug="ai-agent">AI Agent</DocLink>],
+          ["ReAct", "이유 → 도구 선택 → 행동 → 응답", <DocLink layer="core-cs" slug="agent-loop">Agent Loop</DocLink>],
           ["프롬프트 템플릿", "변수 자리의 재사용 양식", "일관 · 재사용 · 테스트 가능"],
           ["프롬프트 체이닝", "앞 출력을 다음 입력으로", "파이프라인"],
           ["Negative prompt", "제외할 내용 명시 (주로 이미지)", "배제 특성"],

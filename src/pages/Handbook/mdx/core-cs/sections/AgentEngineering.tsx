@@ -8,7 +8,8 @@ export default function AgentEngineering() {
         code={`flowchart LR
         subgraph stack [Agent 스택]
           direction TB
-          MODEL["Model (LLM)"] --> HAR["Agent Harness"]
+          AG["AI Agent"] --> HAR["Agent Harness"]
+          MODEL["Model (LLM)"] --> HAR
           HAR --> CTX["Context Engineering"]
           CTX --> MEM["State & Memory"]
           MEM --> LOOP["Agent Loop"]
