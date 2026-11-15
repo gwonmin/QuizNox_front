@@ -36,11 +36,12 @@ export function ExamProgress({
         ></div>
       </div>
       <div className="flex justify-between items-center mt-2">
+        {/* children는 문자열 하나여야 한다. 나누면 Chrome 번역 후 숫자가 고정된다. */}
         <span className="text-xs text-muted-foreground">
-          문제 {currentQuestionIndex + 1} / {totalQuestions}
+          {`문제 ${currentQuestionIndex + 1} / ${totalQuestions}`}
         </span>
         <span className="text-xs text-muted-foreground">
-          {Math.round(progress)}% 완료 ({answeredQuestions}/{totalQuestions} 답변)
+          {`${Math.round(progress)}% 완료 (${answeredQuestions}/${totalQuestions} 답변)`}
         </span>
       </div>
     </div>

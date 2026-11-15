@@ -44,8 +44,9 @@ export function QuestionDisplay({
     <div className="space-y-6">
       {/* 문제 제목 */}
       <div className="space-y-2">
+        {/* children는 문자열 하나여야 한다. 나누면 Chrome 번역 후 제목이 고정된다. */}
         <h1 className="text-lg md:text-xl font-semibold text-foreground leading-relaxed break-words">
-          {question.questionNumber}. {question.questionText}
+          {`${question.questionNumber}. ${question.questionText}`}
         </h1>
       </div>
 
